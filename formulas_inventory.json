@@ -1,0 +1,2928 @@
+[
+  {
+    "id": "bohr",
+    "branch": "Physical",
+    "chapter": "Atomic structure",
+    "title": "Bohr energy and radius (one-electron species)",
+    "expr": "Eₙ = −13.6 Z²/n² eV   ,   rₙ = 52.9 n²/Z pm"
+  },
+  {
+    "id": "debroglie",
+    "branch": "Physical",
+    "chapter": "Atomic structure",
+    "title": "de Broglie wavelength",
+    "expr": "λ = h/mv = h/p"
+  },
+  {
+    "id": "rydberg",
+    "branch": "Physical",
+    "chapter": "Atomic structure",
+    "title": "Rydberg formula",
+    "expr": "1/λ = R_H Z² (1/n₁² − 1/n₂²)"
+  },
+  {
+    "id": "bohr_energy",
+    "branch": "Physical",
+    "chapter": "Atomic Structure",
+    "title": "Bohr Orbital Energy",
+    "expr": "Eₙ = −13.6 × (Z² / n²) eV = −2.18 × 10⁻¹⁸ × (Z² / n²) J"
+  },
+  {
+    "id": "bohr_velocity",
+    "branch": "Physical",
+    "chapter": "Atomic Structure",
+    "title": "Bohr Orbital Velocity",
+    "expr": "vₙ = 2.188 × 10⁶ × (Z / n) m s⁻¹ = c / (137 × n/Z)"
+  },
+  {
+    "id": "bohr_radius",
+    "branch": "Physical",
+    "chapter": "Atomic Structure",
+    "title": "Bohr Radius (Hydrogenic Species)",
+    "expr": "rₙ = (0.529 × n² / Z) Å = 52.9 × (n² / Z) pm"
+  },
+  {
+    "id": "photoelectric",
+    "branch": "Physical",
+    "chapter": "Atomic Structure",
+    "title": "Einstein's Photoelectric Equation",
+    "expr": "hν = W₀ + K.E._max   =>   hν = hν₀ + ½ m v_max² = hν₀ + eV₀"
+  },
+  {
+    "id": "heisenberg",
+    "branch": "Physical",
+    "chapter": "Atomic Structure",
+    "title": "Heisenberg's Uncertainty Principle",
+    "expr": "Δx · Δp ≥ h / (4π)   =>   Δx · Δv ≥ h / (4πm)   ,   ΔE · Δt ≥ h / (4π)"
+  },
+  {
+    "id": "angular_momentum",
+    "branch": "Physical",
+    "chapter": "Atomic Structure",
+    "title": "Orbital & Spin Angular Momentum",
+    "expr": "L = √[l(l + 1)] · (h / 2π)   ,   S = √[s(s + 1)] · (h / 2π)"
+  },
+  {
+    "id": "kpkc",
+    "branch": "Physical",
+    "chapter": "Chemical equilibrium",
+    "title": "Kp and Kc",
+    "expr": "Kp = Kc (RT)^Δn"
+  },
+  {
+    "id": "degree_dissoc_vd",
+    "branch": "Physical",
+    "chapter": "Chemical Equilibrium",
+    "title": "Degree of Dissociation from Vapour Density",
+    "expr": "α = (D − d) / [(n − 1) d] = (M_th − M_obs) / [(n − 1) M_obs]"
+  },
+  {
+    "id": "arrhenius",
+    "branch": "Physical",
+    "chapter": "Chemical kinetics",
+    "title": "Arrhenius equation (two-temperature form)",
+    "expr": "log (k₂/k₁) = (Ea/2.303R)(1/T₁ − 1/T₂)"
+  },
+  {
+    "id": "firstorder",
+    "branch": "Physical",
+    "chapter": "Chemical kinetics",
+    "title": "First-order integrated rate law",
+    "expr": "k = (2.303/t) log [a/(a − x)]"
+  },
+  {
+    "id": "arrhenius_equation_two_temps",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Arrhenius Equation & Two-Temperature Form",
+    "expr": "k = A · e^(−E_a / RT)   |   log(k₂ / k₁) = (E_a / 2.303 R) · [ (T₂ − T₁) / (T₁ T₂) ]"
+  },
+  {
+    "id": "collision_theory_rate",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Collision Theory & Steric Factor",
+    "expr": "Rate = P · Z_AB · e^(−E_a / RT)   |   k = P · Z_AB · e^(−E_a / RT)"
+  },
+  {
+    "id": "eyring_transition_state_theory",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Eyring Equation (Transition State Theory)",
+    "expr": "k = (k_B · T / h) · e^(ΔS‡ / R) · e^(−ΔH‡ / RT)"
+  },
+  {
+    "id": "first_order_kinetics_integrated",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "First-Order Integrated Rate Law & Exponential Decay",
+    "expr": "k = (2.303 / t) log([A]₀ / [A]_t)   |   [A]_t = [A]₀ · e^(−kt)   |   t_½ = 0.693 / k"
+  },
+  {
+    "id": "nth_order_half_life_proportionality",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "General nth-Order Half-life Proportionality",
+    "expr": "t_½ ∝ 1 / [A]₀^(n − 1)   =>   [ t_½(1) / t_½(2) ] = [ [A]₀(2) / [A]₀(1) ]^(n − 1)"
+  },
+  {
+    "id": "half_life_general",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Half-Life Relations Across Reaction Orders",
+    "expr": "t_½ ∝ 1 / [A]₀^(n − 1)   =>   0th: t_½ = [A]₀ / 2k   |   1st: t_½ = 0.693 / k   |   2nd: t_½ = 1 / (k [A]₀)"
+  },
+  {
+    "id": "rate_law_orders",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Integrated Rate Laws (Zero, First, Second Order)",
+    "expr": "0th: [A] = [A]₀ − kt   |   1st: ln([A]₀/[A]) = kt   |   2nd: 1/[A] − 1/[A]₀ = kt"
+  },
+  {
+    "id": "lindemann_unimolecular_kinetics",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Lindemann–Hinshelwood Unimolecular Reaction Mechanism",
+    "expr": "Rate = (k₁ k₂ [A]²) / (k₋₁ [A] + k₂)   |   High P: Rate = (k₁ k₂ / k₋₁) [A] (1st order)   |   Low P: Rate = k₁ [A]² (2nd order)"
+  },
+  {
+    "id": "enzyme_kinetics_michaelis_menten",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Michaelis–Menten Enzyme Kinetics Equation",
+    "expr": "Rate v = (V_max [S]) / (K_m + [S])"
+  },
+  {
+    "id": "parallel_consecutive_kinetics",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Parallel & Consecutive First-Order Reactions",
+    "expr": "Parallel: k_total = k₁ + k₂ , %B = k₁/(k₁+k₂)·100   |   Consecutive: t_max(B) = [ln(k₁/k₂)] / (k₁ − k₂)"
+  },
+  {
+    "id": "radioactive_decay_law",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Radioactive Decay Law & Mean Life",
+    "expr": "N_t = N₀ · e^(−λ t)   |   t_½ = 0.693 / λ   |   Mean Life τ = 1 / λ = 1.443 · t_½"
+  },
+  {
+    "id": "radioactive_decay_constant",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Radioactive Decay Law & Specific Activity",
+    "expr": "A = λ · N = (0.693 / t_½) · N   |   1 Curie (Ci) = 3.7 × 10¹⁰ Bq (disintegrations s⁻¹)"
+  },
+  {
+    "id": "second_order_kinetics_law",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Second-Order Reaction Integrated Rate Law & Half-life",
+    "expr": "(1 / [A]_t) − (1 / [A]₀) = k · t   |   t_½ = 1 / (k · [A]₀)"
+  },
+  {
+    "id": "second_order_different_reactants",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Second-Order Reaction with Unequal Reactants",
+    "expr": "k = [ 2.303 / (t (a − b)) ] · log[ (b (a − x)) / (a (b − x)) ]"
+  },
+  {
+    "id": "steady_state_approximation",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Steady-State Approximation (SSA) in Kinetics",
+    "expr": "d[Intermediate] / dt ≈ 0"
+  },
+  {
+    "id": "zero_order_kinetics",
+    "branch": "Physical",
+    "chapter": "Chemical Kinetics",
+    "title": "Zero-Order Reaction Rate Law, Integrated Form & Half-life",
+    "expr": "[A]_t = [A]₀ − k · t   |   t_½ = [A]₀ / (2 k)   |   t_100% = [A]₀ / k"
+  },
+  {
+    "id": "conductance",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Conductance, Conductivity & Cell Constant",
+    "expr": "R = ρ (l / A)   ,   G = κ / G*   ,   κ = G × (l / A) = G × G*"
+  },
+  {
+    "id": "kohlrausch_conductivity_relations",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Conductivity (κ), Molar Conductivity (Λm) & Kohlrausch's Law",
+    "expr": "κ = (1 / R) · (l / A)   |   Λ_m = (1000 · κ) / M   |   Λ°_m = ν₊ λ°₊ + ν₋ λ°₋"
+  },
+  {
+    "id": "conductometric_titrations_neutralisation",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Conductometric Titration: Strong Acid with Strong Base",
+    "expr": "Conductance drops sharply to equivalence point (H⁺ replaced by Na⁺), then rises sharply (excess OH⁻)"
+  },
+  {
+    "id": "debye_huckel_onsager",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Debye–Hückel–Onsager Equation for Strong Electrolytes",
+    "expr": "Λ_m = Λ°_m − A √C"
+  },
+  {
+    "id": "electrochemical_series_trends",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Electrochemical Activity Series (Standard Reduction Potentials)",
+    "expr": "Li⁺ (−3.05 V) < K⁺ (−2.93) < Ba²⁺ (−2.90) < Ca²⁺ (−2.87) < Na⁺ (−2.71) < Mg²⁺ (−2.37) < Al³⁺ (−1.66) < Zn²⁺ (−0.76) < Fe²⁺ (−0.44) < H⁺ (0.00 V) < Cu²⁺ (+0.34) < I₂ (+0.54) < Ag⁺ (+0.80) < Br₂ (+1.08) < Cr₂O₇²⁻ (+1.33) < Cl₂ (+1.36) < MnO₄⁻ (+1.51) < F₂ (+2.87 V)"
+  },
+  {
+    "id": "corrosion_electrochemical_reactions",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Electrochemical Mechanism of Rusting of Iron",
+    "expr": "Anode: Fe → Fe²⁺ + 2e⁻   |   Cathode: O₂ + 4H⁺ + 4e⁻ → 2H₂O   |   Overall: 2Fe + O₂ + 4H⁺ → 2Fe²⁺ + 2H₂O (E° = 1.67 V)"
+  },
+  {
+    "id": "concentration_cell_electrode",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Electrode Gas Concentration Cell EMF",
+    "expr": "E_cell = (0.0592 / 2) · log(P₁ / P₂)   (for H₂ electrode at 298 K , where P₁ > P₂)"
+  },
+  {
+    "id": "concentration_cell_electrolyte",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Electrolyte Concentration Cell EMF",
+    "expr": "E_cell = (0.0592 / n) · log(C₂ / C₁)   (at 298 K , where C₂ > C₁)"
+  },
+  {
+    "id": "equilibrium_constant_emf",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Equilibrium Constant from Standard Cell EMF",
+    "expr": "log K_c = (n · E°_cell) / 0.0592   (at 298 K)   |   ΔG° = −n F E°_cell = −2.303 R T log K_c"
+  },
+  {
+    "id": "faraday",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Faraday's law of electrolysis",
+    "expr": "m = M·I·t / (n·F)"
+  },
+  {
+    "id": "faradays_electrolysis_laws",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Faraday's Laws of Electrolysis & Charge Stoichiometry",
+    "expr": "w = Z · I · t = (E / 96485) · I · t = [ (M · I · t) / (n-factor · 96485) ]"
+  },
+  {
+    "id": "fuel_cell_efficiency_equation",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "H₂–O₂ Fuel Cell Reactions & Thermodynamic Efficiency",
+    "expr": "2H₂(g) + O₂(g) → 2H₂O(l)   (E° = 1.229 V)   |   Efficiency η = (ΔG° / ΔH°) × 100 ≈ 83%"
+  },
+  {
+    "id": "kohlrausch",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Kohlrausch's laws",
+    "expr": "Λm = Λm° − A√c   ,   Λm°(AₓB_y) = xλ°₊ + yλ°₋"
+  },
+  {
+    "id": "lead_acid_cell_reactions",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Lead Storage Battery Discharge & Recharge Reactions",
+    "expr": "Discharge: Pb(s) + PbO₂(s) + 2H₂SO₄(aq) → 2PbSO₄(s) + 2H₂O(l)   (E_cell ≈ 2.05 V per cell)"
+  },
+  {
+    "id": "lead_fuel_cells",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Lead-Acid Battery & H₂–O₂ Fuel Cell Equations",
+    "expr": "Lead-Acid: Pb + PbO₂ + 2H₂SO₄ ⇌ 2PbSO₄ + 2H₂O   |   Fuel Cell: 2H₂ + O₂ → 2H₂O (E° = 1.23 V)"
+  },
+  {
+    "id": "nernst",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Nernst equation",
+    "expr": "E = E° − (RT/nF) ln Q"
+  },
+  {
+    "id": "nernst_standard_cell",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Nernst Equation for Complete Electrochemical Cell",
+    "expr": "E_cell = E°_cell − (2.303 R T / n F) log Q   =   E°_cell − (0.0592 / n) log Q   (at 298 K)"
+  },
+  {
+    "id": "temperature_coeff_cell_emf",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Temperature Coefficient of EMF & Reaction Entropy",
+    "expr": "(∂E / ∂T)_P = ΔS / (n F)   |   ΔH = −n F E + n F T (∂E / ∂T)_P"
+  },
+  {
+    "id": "pourbaix_water_stability_limits",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Thermodynamic Stability Window of Liquid Water",
+    "expr": "Upper (O₂ Evolution): E = 1.23 − 0.0592 · pH (V)   |   Lower (H₂ Evolution): E = −0.0592 · pH (V)"
+  },
+  {
+    "id": "emf_thermodynamics",
+    "branch": "Physical",
+    "chapter": "Electrochemistry",
+    "title": "Thermodynamics of Electrochemical Cells",
+    "expr": "ΔG° = −nFE°_cell   ,   ΔS = nF (dE/dT)_P   ,   ΔH = −nFE + nFT (dE/dT)_P"
+  },
+  {
+    "id": "bod_cod_pollution",
+    "branch": "Physical",
+    "chapter": "Environmental Chemistry",
+    "title": "Biochemical & Chemical Oxygen Demand (BOD / COD)",
+    "expr": "BOD = (DO_initial − DO_5days) in mg L⁻¹ (ppm)   ,   COD > BOD (K₂Cr₂O₇ digestion)"
+  },
+  {
+    "id": "biochemical_oxygen_demand_bod",
+    "branch": "Physical",
+    "chapter": "Environmental Chemistry",
+    "title": "Biochemical Oxygen Demand (BOD) & Water Quality",
+    "expr": "BOD = (DO_initial − DO_after 5 days at 20 °C) in mg L⁻¹ (ppm)"
+  },
+  {
+    "id": "indicator_ph_range",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Acid-Base Indicator Transition pH Range",
+    "expr": "pH Range = pK_In ± 1   |   K_In = [H⁺][In⁻] / [HIn]"
+  },
+  {
+    "id": "buffer_capacity_equation",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Buffer Capacity (van Slyke Equation)",
+    "expr": "β = d(b) / dpH = 2.303 · [ (C_a · C_b) / (C_a + C_b) ]"
+  },
+  {
+    "id": "common_ion_solubility",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Common Ion Effect on Salt Solubility",
+    "expr": "In presence of common ion C: S' ≈ K_sp / C   (for 1:1 electrolyte AB)"
+  },
+  {
+    "id": "vapour_density_dissociation_degree",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Degree of Dissociation from Vapour Density",
+    "expr": "α = (D − d) / [ (n − 1) d ] = (M_theoretical − M_observed) / [ (n − 1) M_observed ]"
+  },
+  {
+    "id": "henderson_hasselbalch_buffers",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Henderson–Hasselbalch Equation for Buffer Solutions",
+    "expr": "Acidic: pH = pK_a + log([Salt] / [Acid])   |   Basic: pOH = pK_b + log([Salt] / [Base])"
+  },
+  {
+    "id": "le_chatelier_inert_gas_const_p",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Inert Gas Addition at Constant Pressure",
+    "expr": "Adding inert gas at CONSTANT PRESSURE shifts equilibrium toward GREATER moles of gas (Δn_g > 0)"
+  },
+  {
+    "id": "le_chatelier_inert_gas_const_v",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Inert Gas Addition at Constant Volume",
+    "expr": "Adding inert gas at CONSTANT VOLUME has NO EFFECT on chemical equilibrium"
+  },
+  {
+    "id": "water_autoionisation_kw",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Ionic Product of Water & Temperature Effect",
+    "expr": "K_w = [H⁺][OH⁻] = 1.0 × 10⁻¹⁴ (at 298 K)   |   pH + pOH = pK_w = 14"
+  },
+  {
+    "id": "ostwald_dilution_law",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Ostwald's Dilution Law for Weak Acids & Bases",
+    "expr": "K_a = (C α²) / (1 − α)   =>   α ≈ √(K_a / C)   (when α ≤ 0.05)   |   [H⁺] = C α = √(K_a C)"
+  },
+  {
+    "id": "amphiprotic_salt_ph",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "pH of Amphiprotic Species Solutions (NaHCO₃, NaHS)",
+    "expr": "pH = ½ [ pK_a1 + pK_a2 ]   =>   [H⁺] = √(K_a1 · K_a2)"
+  },
+  {
+    "id": "ph_polyprotic_acids",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Polyprotic Acid Equilibria & Dianion Concentration",
+    "expr": "For H₂A: [H⁺] ≈ √(K_a1 · C)   |   [A²⁻] ≈ K_a2   (independent of C)"
+  },
+  {
+    "id": "reaction_quotient_direction",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Reaction Quotient Q & Equilibrium Direction",
+    "expr": "Q_c = Π [Products]^coeff / Π [Reactants]^coeff   |   Q < K: Forward   |   Q > K: Reverse"
+  },
+  {
+    "id": "kp_kc_kx_relations",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Relationships Between Kp, Kc, and Kx",
+    "expr": "K_p = K_c (R T)^Δn_g   |   K_p = K_x (P_total)^Δn_g"
+  },
+  {
+    "id": "salt_hydrolysis_cases",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Salt Hydrolysis Constant (Kh), Degree (h) & pH",
+    "expr": "WA + SB: pH = 7 + ½ pK_a + ½ log C   |   SA + WB: pH = 7 − ½ pK_b − ½ log C   |   WA + WB: pH = 7 + ½ pK_a − ½ pK_b"
+  },
+  {
+    "id": "simultaneous_solubility",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Simultaneous Solubility of Two Sparingly Soluble Salts",
+    "expr": "Common ion concentration is sum of contributions from both salts"
+  },
+  {
+    "id": "solubility_product_ksp",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "title": "Solubility Product (Ksp) & Solubility (S)",
+    "expr": "A_x B_y ⇌ x A^y⁺ + y B^x⁻   =>   K_sp = x^x · y^y · S^(x + y)"
+  },
+  {
+    "id": "hardness_of_water_calculation",
+    "branch": "Physical",
+    "chapter": "Hydrogen",
+    "title": "Total Hardness of Water in ppm CaCO₃ Equivalent",
+    "expr": "Hardness (ppm) = [ (Mass of hardness causing salt in mg) / (Molar mass of salt) ] × 100 × (10³ / V_water in L)"
+  },
+  {
+    "id": "henderson",
+    "branch": "Physical",
+    "chapter": "Ionic equilibrium",
+    "title": "Henderson–Hasselbalch equation",
+    "expr": "pH = pKa + log ([A⁻]/[HA])"
+  },
+  {
+    "id": "ostwald_dilution",
+    "branch": "Physical",
+    "chapter": "Ionic Equilibrium",
+    "title": "Ostwald's Dilution Law & Weak Electrolytes",
+    "expr": "K_a = Cα² / (1 − α)   =>   α = √(K_a / C)   ,   [H⁺] = Cα = √(K_a × C)"
+  },
+  {
+    "id": "salt_hydrolysis",
+    "branch": "Physical",
+    "chapter": "Ionic Equilibrium",
+    "title": "Salt Hydrolysis Equations",
+    "expr": "WA + SB: pH = 7 + ½ pK_a + ½ log C   |   SA + WB: pH = 7 − ½ pK_b − ½ log C   |   WA + WB: pH = 7 + ½ pK_a − ½ pK_b"
+  },
+  {
+    "id": "solubility_product",
+    "branch": "Physical",
+    "chapter": "Ionic Equilibrium",
+    "title": "Solubility Product (K_sp)",
+    "expr": "A_x B_y ⇌ x A^(y+) + y B^(x−)   =>   K_sp = x^x · y^y · S^(x+y)"
+  },
+  {
+    "id": "nuclear_decay",
+    "branch": "Physical",
+    "chapter": "Nuclear Chemistry",
+    "title": "Radioactive Decay Law & Mass Defect",
+    "expr": "N = N₀ e^(−λt)   ,   t_½ = 0.693 / λ   ,   ΔE = Δm × 931.5 MeV"
+  },
+  {
+    "id": "radiocarbon_dating",
+    "branch": "Physical",
+    "chapter": "Nuclear Chemistry",
+    "title": "Radiocarbon Dating Formula",
+    "expr": "t = (2.303 / λ) log (A₀ / A) = (t_½ / 0.693) · 2.303 log (A₀ / A)"
+  },
+  {
+    "id": "h2o2_strength",
+    "branch": "Physical",
+    "chapter": "Redox & Solutions",
+    "title": "Volume Strength of H₂O₂",
+    "expr": "Volume Strength = 11.2 × Molarity = 5.6 × Normality = (68/100) × %w/v × 10"
+  },
+  {
+    "id": "titration_iodometry_thiosulfate",
+    "branch": "Physical",
+    "chapter": "Redox & Volumetric Analysis",
+    "title": "Iodometric Titration with Sodium Thiosulfate",
+    "expr": "2 Cu²⁺ + 4 I⁻ → 2 CuI↓ (white ppt) + I₂   |   I₂ + 2 S₂O₃²⁻ → 2 I⁻ + S₄O₆²⁻ (Tetrathionate)"
+  },
+  {
+    "id": "normality",
+    "branch": "Physical",
+    "chapter": "Redox & Volumetric Analysis",
+    "title": "Normality and Equivalent Mass",
+    "expr": "N = M × n-factor   ,   E = Molar Mass / n-factor"
+  },
+  {
+    "id": "titration_redox_oxalate_permanganate",
+    "branch": "Physical",
+    "chapter": "Redox & Volumetric Analysis",
+    "title": "Oxalate–Permanganate Redox Titration Reaction",
+    "expr": "2 MnO₄⁻ + 5 C₂O₄²⁻ + 16 H⁺ → 2 Mn²⁺ + 10 CO₂↑ + 8 H₂O   (at 333–343 K)"
+  },
+  {
+    "id": "density",
+    "branch": "Physical",
+    "chapter": "Solid state",
+    "title": "Density of a unit cell",
+    "expr": "ρ = Z·M / (a³·N_A)"
+  },
+  {
+    "id": "bcc_packing_efficiency_calc",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "BCC Packing Efficiency Exact Proof",
+    "expr": "Packing Efficiency = [ 2 × (4/3 π r³) ] / [ a³ ] = (π √3) / 8 ≈ 68.02%"
+  },
+  {
+    "id": "bragg_law",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Bragg's Law of X-Ray Diffraction",
+    "expr": "nλ = 2d sin θ   ,   d_hkl = a / √(h² + k² + l²)"
+  },
+  {
+    "id": "braggs_law_diffraction",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Bragg's Law of X-Ray Diffraction",
+    "expr": "n · λ = 2 d · sin θ   |   d_hkl = a / √(h² + k² + l²)   (for cubic)"
+  },
+  {
+    "id": "cubic_density_formula",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Crystal Density from Unit Cell Edge Length",
+    "expr": "ρ = (z · M) / (a³ · N_A)   (units: g cm⁻³)"
+  },
+  {
+    "id": "solid_density",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Density and Geometry of Cubic Unit Cells",
+    "expr": "ρ = (Z · M) / (a³ · N_A)   ,   SC: a = 2r   ,   BCC: √3 a = 4r   ,   FCC: √2 a = 4r"
+  },
+  {
+    "id": "semiconductors_n_type_p_type",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Extrinsic Semiconductors: n-Type vs p-Type Doping",
+    "expr": "n-Type (Group 14 + Group 15, e.g. Si + P/As): Extra Free Electrons   |   p-Type (Group 14 + Group 13, e.g. Si + B/Al/Ga): Electron Holes"
+  },
+  {
+    "id": "f_centers_non_stoichiometric_colour",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "F-Centres (Farbe Centres) & Non-Stoichiometric Crystal Colours",
+    "expr": "Anion Vacancy occupied by Trapped Electron = F-Centre (Farbe Centre)"
+  },
+  {
+    "id": "fcc_packing_efficiency_calc",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "FCC / CCP Packing Efficiency Exact Proof",
+    "expr": "Packing Efficiency = [ 4 × (4/3 π r³) ] / [ a³ ] = (π √2) / 6 ≈ 74.05%"
+  },
+  {
+    "id": "frenkel_schottky_comparison",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Frenkel vs Schottky Defects in Ionic Solids",
+    "expr": "Schottky: missing cation-anion pair (lowers density, e.g. NaCl)   |   Frenkel: ion in interstitial site (density unchanged, e.g. AgCl)"
+  },
+  {
+    "id": "hcp_c_over_a_ratio",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Hexagonal Close Packed (HCP) c/a Ideal Axial Ratio",
+    "expr": "c / a = √(8 / 3) ≈ 1.633   |   Packing Efficiency = 74.05%"
+  },
+  {
+    "id": "ferromagnetism_curie_weiss",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Magnetic Behaviors: Ferromagnetism, Antiferromagnetism & Ferrimagnetism",
+    "expr": "Ferromagnetic: Domains aligned parallel (Fe, Co, Ni, CrO₂)   |   Antiferromagnetic: Domains antiparallel, cancel (MnO)   |   Ferrimagnetic: Unequal opposing domains (Fe₃O₄, MgFe₂O₄)"
+  },
+  {
+    "id": "piezoelectricity_pyroelectricity",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Piezoelectricity & Ferroelectricity in Crystals",
+    "expr": "Piezoelectric: Mechanical Stress ⇄ Electric Voltage (Quartz, Rochelle Salt)   |   Ferroelectric: Permanent spontaneous dipole moments (BaTiO₃)"
+  },
+  {
+    "id": "radius_ratio_coordination",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Radius Ratio Rules for Ionic Crystals",
+    "expr": "Limiting Radius Ratio r₊ / r₋ Determines Coordination Number & Geometry"
+  },
+  {
+    "id": "sc_packing_efficiency_calc",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Simple Cubic (SC) Packing Efficiency Exact Proof",
+    "expr": "Packing Efficiency = [ 1 × (4/3 π r³) ] / [ (2r)³ ] = π / 6 ≈ 52.36%"
+  },
+  {
+    "id": "fcc_tetrahedral_octahedral",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "title": "Tetrahedral & Octahedral Voids in FCC/CCP",
+    "expr": "N atoms in CCP: Octahedral Voids = N   ,   Tetrahedral Voids = 2N   ,   Total = 3N"
+  },
+  {
+    "id": "azeotrope_types",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Azeotropic Binary Mixtures (Minimum vs Maximum Boiling)",
+    "expr": "Min-Boiling (Large +ve Deviation from Raoult): T_bp(azeo) < T_bp(pure)   |   Max-Boiling (Large −ve Deviation): T_bp(azeo) > T_bp(pure)"
+  },
+  {
+    "id": "colligative",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Boiling-point elevation and freezing-point depression",
+    "expr": "ΔTb = i·Kb·m   ,   ΔTf = i·Kf·m"
+  },
+  {
+    "id": "colligative_properties",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Colligative Properties & Van 't Hoff Factor",
+    "expr": "RLVP: (P° − P)/P° = i · x_B   |   ΔT_b = i · K_b · m   |   ΔT_f = i · K_f · m   |   π = i · CRT"
+  },
+  {
+    "id": "cryoscopy_freezing_depression",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Depression in Freezing Point (Cryoscopy)",
+    "expr": "ΔT_f = i · K_f · m   |   K_f = (R · T_f°² · M_solvent) / (1000 · ΔH_fus)"
+  },
+  {
+    "id": "ebullioscopy_boiling_elevation",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Elevation in Boiling Point (Ebullioscopy)",
+    "expr": "ΔT_b = i · K_b · m   |   K_b = (R · T_b°² · M_solvent) / (1000 · ΔH_vap)"
+  },
+  {
+    "id": "henrys_law_gas_solubility",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Henry's Law of Gas Solubility in Liquids",
+    "expr": "p = K_H · x   |   m = k · p"
+  },
+  {
+    "id": "landsberger_cottrell_ebullioscopy",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Landsberger & Cottrell Ebullioscopic Methods",
+    "expr": "M_B = (1000 · K_b · w_B) / (ΔT_b · W_A)   |   Beckmann Thermometer Precision = 0.01 °C"
+  },
+  {
+    "id": "molality",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Molality (m)",
+    "expr": "m = (w_B × 1000) / (M_B × W_A_g) = (1000 × M) / (1000 × d − M × M_B)"
+  },
+  {
+    "id": "mole_fraction_relations",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Mole Fraction & Molality Exact Relation",
+    "expr": "m = (x_B × 1000) / (x_A × M_A)   ,   x_B = (m × M_A) / (1000 + m × M_A)"
+  },
+  {
+    "id": "nernst_distribution_law",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Nernst Distribution / Partition Law",
+    "expr": "K_D = C₁ / C₂ = constant   (at constant temperature for same molecular species in both immiscible solvents)"
+  },
+  {
+    "id": "osmotic",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Osmotic pressure",
+    "expr": "π = CRT"
+  },
+  {
+    "id": "osmotic_pressure_pfeffer",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Osmotic Pressure & van 't Hoff Equation",
+    "expr": "π = i · C · R · T = i · (n / V) · R · T = i · (w_B · R · T) / (M_B · V)"
+  },
+  {
+    "id": "raoult_binary",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Raoult's Law for Volatile Binary Liquid Mixtures",
+    "expr": "P_total = P_A + P_B = P_A° x_A + P_B° x_B = P_B° + (P_A° − P_B°) x_A"
+  },
+  {
+    "id": "raoults_law_binary_liquid",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Raoult's Law for Volatile Binary Liquid Mixtures",
+    "expr": "P_total = P_A + P_B = P_A° · x_A + P_B° · x_B = P_A° + (P_B° − P_A°) · x_B"
+  },
+  {
+    "id": "rasts_method_camphor",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Rast's Camphor Method for High-Precision Cryoscopy",
+    "expr": "M_B = (1000 · K_f · w_B) / (ΔT_f · W_A)   (for Camphor: K_f = 40.0 K kg mol⁻¹)"
+  },
+  {
+    "id": "raoult",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Relative lowering of vapour pressure",
+    "expr": "(p° − p)/p° = x₂"
+  },
+  {
+    "id": "relative_lowering_vapour_pressure",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Relative Lowering of Vapour Pressure (RLVP)",
+    "expr": "(P° − P_s) / P° = x_B   |   Exact: (P° − P_s) / P_s = n_B / n_A = (w_B · M_A) / (M_B · W_A)"
+  },
+  {
+    "id": "steam_distillation_formula",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "Steam Distillation Law for Immiscible Liquids",
+    "expr": "(w_organic / w_water) = (P_organic° · M_organic) / (P_water° · M_water)"
+  },
+  {
+    "id": "vant_hoff_factor_association_dissociation",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "title": "van 't Hoff Factor (i), Dissociation (α) & Association (β)",
+    "expr": "Dissociation: α = (i − 1) / (n − 1)   |   Association: β = (1 − i) / (1 − 1/m)"
+  },
+  {
+    "id": "dilution_and_mix",
+    "branch": "Physical",
+    "chapter": "Solutions & Stoichiometry",
+    "title": "Dilution Law & Solution Mixtures",
+    "expr": "M₁ V₁ = M₂ V₂   ,   M_mix = (M₁V₁ + M₂V₂ + ...) / (V₁ + V₂ + ...)"
+  },
+  {
+    "id": "molarity",
+    "branch": "Physical",
+    "chapter": "Solutions & Stoichiometry",
+    "title": "Molarity (M)",
+    "expr": "M = (w_B × 1000) / (M_B × V_mL) = (10 × %w/v) / M_B = (10 × %w/w × d) / M_B"
+  },
+  {
+    "id": "parts_per_million_ppm",
+    "branch": "Physical",
+    "chapter": "Solutions & Stoichiometry",
+    "title": "Parts per Million (ppm) & Parts per Billion (ppb)",
+    "expr": "ppm = (Mass of solute / Total mass of solution) × 10⁶   |   ppb = (Mass of solute / Total mass) × 10⁹"
+  },
+  {
+    "id": "avogadro_number_constant",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Avogadro Constant & Microscopic Masses",
+    "expr": "N_A = 6.02214 × 10²³ mol⁻¹   |   1 amu = 1 Da = 1.66054 × 10⁻²⁴ g = 1 / N_A g"
+  },
+  {
+    "id": "dulong_petit_law",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Dulong and Petit's Law of Atomic Heat",
+    "expr": "Approximate Atomic Mass × Specific Heat (cal g⁻¹ °C⁻¹) ≈ 6.4"
+  },
+  {
+    "id": "atomicity_molar_ratio",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Dulong–Petit Molar Heat Capacity Limit",
+    "expr": "C_m = 3 R ≈ 24.94 J K⁻¹ mol⁻¹   (High Temperature Limit)"
+  },
+  {
+    "id": "empirical_molecular_formula",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Empirical & Molecular Formula Relation",
+    "expr": "Molecular Formula = (Empirical Formula)_n   ,   n = (Molar Mass) / (Empirical Formula Mass)"
+  },
+  {
+    "id": "eudiometry_hydrocarbon",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Eudiometry & Hydrocarbon Gas Combustion",
+    "expr": "C_x H_y + (x + y/4) O₂ → x CO₂ + (y/2) H₂O(l)   |   Contraction = 1 + y/4"
+  },
+  {
+    "id": "combustion_alkane_general",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "General Alkane Stoichiometric Combustion",
+    "expr": "C_n H_{2n+2} + [(3n+1)/2] O₂ → n CO₂ + (n+1) H₂O"
+  },
+  {
+    "id": "combustion_alkyne_general",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "General Alkyne Stoichiometric Combustion",
+    "expr": "C_n H_{2n-2} + [(3n-1)/2] O₂ → n CO₂ + (n-1) H₂O"
+  },
+  {
+    "id": "law_chemical_equivalence",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Law of Chemical Equivalents in Neutralisation",
+    "expr": "N₁ V₁ = N₂ V₂   =>   (w₁ / E₁) = (w₂ / E₂)"
+  },
+  {
+    "id": "limiting_reagent_yield",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Limiting Reagent & Percentage Yield",
+    "expr": "Moles / Stoichiometric Coefficient = Minimum => Limiting Reagent   |   % Yield = (Actual Yield / Theoretical Yield) × 100"
+  },
+  {
+    "id": "molar_volume_gas_conditions",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Molar Volume of Ideal Gas at STP vs SATP",
+    "expr": "V_m(STP: 273.15 K, 1 atm) = 22.414 L   |   V_m(SATP: 298.15 K, 1 bar) = 24.789 L"
+  },
+  {
+    "id": "mole_basic",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Mole Concept Fundamentals",
+    "expr": "n = w / M = N / N_A = V(STP) / 22.4 L"
+  },
+  {
+    "id": "percentage_purity",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Percentage Purity of Chemical Sample",
+    "expr": "% Purity = (Mass of pure chemical in sample / Total mass of impure sample) × 100"
+  },
+  {
+    "id": "poac_principle",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Principle of Atom Conservation (POAC)",
+    "expr": "Moles of atom X in reactant = Moles of atom X in product"
+  },
+  {
+    "id": "vd_gas_law",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Vapour Density of Gas Mixtures",
+    "expr": "V.D._mix = (M_avg) / 2 = (Σ n_i M_i) / (2 Σ n_i)"
+  },
+  {
+    "id": "victor_meyer_vapour_density_method",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "title": "Victor Meyer Method for Volatile Liquid Molar Mass",
+    "expr": "Molar Mass = (w · 22400) / V(STP)   |   V(STP) = [ (P − p) · V · 273 ] / [ 760 · (273 + t) ]"
+  },
+  {
+    "id": "idealgas",
+    "branch": "Physical",
+    "chapter": "States of matter",
+    "title": "Ideal gas equation",
+    "expr": "PV = nRT"
+  },
+  {
+    "id": "amagat_law_partial_volumes",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Amagat's Law of Partial Additive Volumes",
+    "expr": "V_total = Σ V_i   |   % V_i = (V_i / V_total) × 100 = % n_i"
+  },
+  {
+    "id": "kinetic_energy_gas_molecules",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Average Kinetic Energy of Gas Molecules",
+    "expr": "KE_total = (3/2) n R T   |   KE_per_molecule = (3/2) k_B T"
+  },
+  {
+    "id": "boyle_inversion_temp",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Boyle & Inversion Temperatures of Real Gases",
+    "expr": "T_B = a / (R b)   ,   T_i = 2a / (R b) = 2 T_B"
+  },
+  {
+    "id": "boyles_law_isotherm",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Boyle's Law & Isothermal Compressibility",
+    "expr": "P₁ V₁ = P₂ V₂ = constant (at const T, n)   |   β = −(1/V)(∂V/∂P)_T = 1/P"
+  },
+  {
+    "id": "charles_law_absolute_zero",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Charles's Law & Absolute Zero Definition",
+    "expr": "V_t = V₀ · (1 + t / 273.15)   |   V = 0 at t = −273.15 °C"
+  },
+  {
+    "id": "compressibility_factor_limits",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Compressibility Factor Z & Limiting Behaviors",
+    "expr": "Z = (P V_m) / (R T)   |   Low P: Z ≈ 1 − a / (V_m R T)   |   High P: Z ≈ 1 + (P b) / (R T)"
+  },
+  {
+    "id": "critical_constants_vdw",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Critical Constants from van der Waals Parameters",
+    "expr": "T_c = 8a / (27 R b)   ,   P_c = a / (27 b²)   ,   V_c = 3 b   |   Z_c = (P_c V_c) / (R T_c) = 3/8 = 0.375"
+  },
+  {
+    "id": "dalton_amagat",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Dalton & Amagat Laws of Partial Quantities",
+    "expr": "P_i = x_i · P_total   ,   V_i = x_i · V_total"
+  },
+  {
+    "id": "dalton_aqueous_tension",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Dalton's Partial Pressure & Aqueous Tension",
+    "expr": "P_dry_gas = P_moist_gas − Aqueous Tension (P_H2O)"
+  },
+  {
+    "id": "gay_lussac_pressure_temp",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Gay-Lussac's Law of Pressure-Temperature",
+    "expr": "P_t = P₀ · (1 + t / 273.15)   =>   P₁ / T₁ = P₂ / T₂"
+  },
+  {
+    "id": "graham_diffusion",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Graham's Law of Diffusion & Effusion",
+    "expr": "r₁ / r₂ = √(M₂ / M₁) = √(d₂ / d₁) = (V₁ / t₁) / (V₂ / t₂)"
+  },
+  {
+    "id": "grahams_law_effusion",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Graham's Law of Diffusion & Effusion",
+    "expr": "r₁ / r₂ = √(M₂ / M₁) = √(d₂ / d₁) = (V₁ / t₁) / (V₂ / t₂) = (n₁ / t₁) / (n₂ / t₂)"
+  },
+  {
+    "id": "kinetic_gas_equation_speeds",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Kinetic Gas Equation & Molecular Speeds",
+    "expr": "u_rms = √(3RT/M)   ,   u_avg = √(8RT/πM)   ,   u_mp = √(2RT/M)"
+  },
+  {
+    "id": "van_der_waals_reduced_eq",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Law of Corresponding States & Reduced Equation",
+    "expr": "[ P_r + (3 / V_r²) ] · [ 3 V_r − 1 ] = 8 T_r"
+  },
+  {
+    "id": "mean_free_path_and_collision",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Mean Free Path & Collision Frequency",
+    "expr": "λ = 1 / (√2 π d² N*) = (k_B T) / (√2 π d² P)   |   Z₁ = √2 π d² u_avg N*"
+  },
+  {
+    "id": "gas_speeds",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Molecular Speeds (Maxwell-Boltzmann)",
+    "expr": "v_rms = √(3RT/M)   ,   v_avg = √(8RT/πM)   ,   v_mp = √(2RT/M)"
+  },
+  {
+    "id": "surface_tension_capillary",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Surface Tension & Capillary Rise Equation",
+    "expr": "h = (2 γ cos θ) / (r ρ g)   |   γ = (r h ρ g) / (2 cos θ)"
+  },
+  {
+    "id": "vanderwaals",
+    "branch": "Physical",
+    "chapter": "States of Matter",
+    "title": "Van der Waals Equation for Real Gases",
+    "expr": "(P + an²/V²) (V − nb) = nRT"
+  },
+  {
+    "id": "bohr_energy_joules",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Bohr Energy in Joules per Atom",
+    "expr": "E_n = −2.18 × 10⁻¹⁸ × (Z² / n²) J"
+  },
+  {
+    "id": "bohr_radius_derivation",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Bohr Orbit Radius for Hydrogen-like Species",
+    "expr": "r_n = (ε₀ h² n²) / (π m e² Z) = 0.529 × (n² / Z) Å = 52.9 × (n² / Z) pm"
+  },
+  {
+    "id": "angular_momentum_quantisation",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Bohr Postulate: Orbital Angular Momentum Quantisation",
+    "expr": "m v r = n · (h / 2π) = n · ℏ"
+  },
+  {
+    "id": "de_broglie_thermal_neutrons",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "de Broglie Wavelength of Thermal Neutrons",
+    "expr": "λ = h / √(3 m k_B T) = 0.286 / √E(eV) Å"
+  },
+  {
+    "id": "de_broglie_potentials",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "de Broglie Wavelength under Accelerating Potentials",
+    "expr": "λ = h / p = h / √(2 m q V)   |   For electron: λ = 12.27 / √V Å = √(150 / V) Å"
+  },
+  {
+    "id": "photoelectric_work_function",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Einstein's Photoelectric Equation & Stopping Potential",
+    "expr": "E = h ν = h ν₀ + KE_max   =>   KE_max = h(ν − ν₀) = e V_s"
+  },
+  {
+    "id": "heisenberg_uncertainty_relations",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Heisenberg's Uncertainty Principle (Position, Velocity, Energy)",
+    "expr": "Δx · Δp ≥ h / (4π)   =>   Δx · Δv ≥ h / (4π m)   |   ΔE · Δt ≥ h / (4π)"
+  },
+  {
+    "id": "bohr_energies_relation",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Kinetic, Potential & Total Energy of Bohr Orbit",
+    "expr": "Total Energy E_n = −13.6 × (Z² / n²) eV   |   KE = −E_n   |   PE = 2 E_n"
+  },
+  {
+    "id": "packing_fraction_mass_defect",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Mass Defect & Nuclear Binding Energy",
+    "expr": "Δm = [ Z · m_p + (A − Z) · m_n ] − M_nucleus   |   BE = Δm · c² = Δm(amu) × 931.5 MeV"
+  },
+  {
+    "id": "moseley_law_xray",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Moseley's Law for Characteristic X-rays",
+    "expr": "√ν = a (Z − b)"
+  },
+  {
+    "id": "number_of_spectral_lines",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Number of Spectral Lines on Electron De-excitation",
+    "expr": "N = [ (n₂ − n₁) (n₂ − n₁ + 1) ] / 2   =   [ Δn (Δn + 1) ] / 2"
+  },
+  {
+    "id": "orbital_and_spin_momenta",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Orbital & Spin Angular Momentum",
+    "expr": "L = √[ l(l + 1) ] · (h / 2π)   |   S = √[ s(s + 1) ] · (h / 2π)   |   μ_s = √[ n(n + 2) ] BM"
+  },
+  {
+    "id": "radial_probability_distribution",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Radial Probability Function P(r)",
+    "expr": "P(r) dr = 4 π r² R²(r) dr"
+  },
+  {
+    "id": "quantum_nodes_formula",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Radial, Angular & Total Nodes in Atomic Orbitals",
+    "expr": "Radial Nodes = n − l − 1   |   Angular Nodes = l   |   Total Nodes = n − 1"
+  },
+  {
+    "id": "rydberg_formula_series",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Rydberg Formula & Hydrogen Spectral Series",
+    "expr": "1 / λ = ν̄ = R_H · Z² · [ (1 / n₁²) − (1 / n₂²) ]   ,   R_H ≈ 109,677 cm⁻¹ ≈ 1.097 × 10⁷ m⁻¹"
+  },
+  {
+    "id": "group_displacement_soddy_fajans",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Soddy–Fajans Group Displacement Law",
+    "expr": "α-emission: (Z−2, A−4)   |   β⁻-emission: (Z+1, A)   |   γ-emission: (Z, A) unchanged"
+  },
+  {
+    "id": "bohr_orbital_time_period",
+    "branch": "Physical",
+    "chapter": "Structure of Atom",
+    "title": "Time Period of Bohr Orbit Revolution",
+    "expr": "T_n = (2 π r_n) / v_n ∝ n³ / Z²"
+  },
+  {
+    "id": "cmc_kraft_temperature",
+    "branch": "Physical",
+    "chapter": "Surface Chemistry",
+    "title": "Critical Micelle Concentration (CMC) & Kraft Temperature",
+    "expr": "Micelle Formation occurs ONLY when: T ≥ T_k (Kraft Temperature)   and   Concentration ≥ CMC"
+  },
+  {
+    "id": "adsorption_isotherms",
+    "branch": "Physical",
+    "chapter": "Surface Chemistry",
+    "title": "Freundlich & Langmuir Adsorption Isotherms",
+    "expr": "Freundlich: x/m = k · P^(1/n)   =>   log(x/m) = log k + (1/n) log P   (0 < 1/n < 1)"
+  },
+  {
+    "id": "freundlich_isotherm_log",
+    "branch": "Physical",
+    "chapter": "Surface Chemistry",
+    "title": "Freundlich Adsorption Isotherm",
+    "expr": "x / m = k · P^(1/n)   =>   log(x / m) = log k + (1/n) · log P   (where 0 ≤ 1/n ≤ 1)"
+  },
+  {
+    "id": "hardy_schulze_coagulation",
+    "branch": "Physical",
+    "chapter": "Surface Chemistry",
+    "title": "Hardy–Schulze Rule for Colloid Coagulation",
+    "expr": "Coagulating Power ∝ (Valency of Oppositely Charged Ion)⁴   |   Coagulation Value ∝ 1 / Power"
+  },
+  {
+    "id": "langmuir_isotherm_linear",
+    "branch": "Physical",
+    "chapter": "Surface Chemistry",
+    "title": "Langmuir Adsorption Isotherm Linear Form",
+    "expr": "(P / (x/m)) = (1 / (a · b)) + (P / a)"
+  },
+  {
+    "id": "zeta_potential_helmholtz",
+    "branch": "Physical",
+    "chapter": "Surface Chemistry",
+    "title": "Zeta Potential (Helmholtz–Smoluchowski Equation)",
+    "expr": "ζ = (4 π η u) / ε"
+  },
+  {
+    "id": "adiabatic_relations_poisson",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Adiabatic Reversible Process (Poisson's Relations)",
+    "expr": "P V^γ = constant   |   T V^(γ−1) = constant   |   T^γ P^(1−γ) = constant"
+  },
+  {
+    "id": "born_haber_cycle_lattice",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Born–Haber Cycle for Crystal Lattice Enthalpy",
+    "expr": "ΔH_f° = ΔH_sub(M) + (1/2) D(X₂) + IE(M) + EA(X) + U_lattice"
+  },
+  {
+    "id": "carnot_engine_efficiency",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Carnot Engine Maximum Thermal Efficiency",
+    "expr": "η = (w_net / q_H) = (T_H − T_C) / T_H = 1 − (T_C / T_H)"
+  },
+  {
+    "id": "chemical_potential_definition",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Chemical Potential (μ) & Partial Molar Gibbs Energy",
+    "expr": "μ_i = (∂G / ∂n_i)_{T, P, n_j} = μ_i° + R · T · ln a_i"
+  },
+  {
+    "id": "clapeyron_clausius_equation",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Clausius–Clapeyron Equation for Vapour Pressure",
+    "expr": "ln(P₂ / P₁) = (ΔH_vap / R) · [ (T₂ − T₁) / (T₁ T₂) ]"
+  },
+  {
+    "id": "heat_capacity_crystals_einstein_debye",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Debye T³ Law for Low-Temperature Heat Capacity",
+    "expr": "C_v = a · T³   (as T → 0 K for non-magnetic non-metallic crystalline solids)"
+  },
+  {
+    "id": "enthalpy_reaction",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Enthalpy and Internal Energy Relation",
+    "expr": "ΔH = ΔU + Δn_g RT"
+  },
+  {
+    "id": "enthalpy_internal_energy_diff",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Enthalpy–Internal Energy Gaseous Reaction Difference",
+    "expr": "ΔH − ΔU = Δn_g · R · T"
+  },
+  {
+    "id": "entropy_ideal_gas_expansion",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Entropy Change for Ideal Gas Processes",
+    "expr": "ΔS = n C_v ln(T₂ / T₁) + n R ln(V₂ / V₁)   =   n C_p ln(T₂ / T₁) − n R ln(P₂ / P₁)"
+  },
+  {
+    "id": "entropy_change",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Entropy Changes (System and Transitions)",
+    "expr": "ΔS = ∫ dq_rev / T   ,   ΔS_ideal = n C_v ln(T₂/T₁) + nR ln(V₂/V₁)"
+  },
+  {
+    "id": "entropy_phase_transitions",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Entropy of Phase Transitions & Trouton's Rule",
+    "expr": "ΔS_fusion = ΔH_fus / T_mp   |   ΔS_vap = ΔH_vap / T_bp   |   Trouton: ΔS_vap ≈ 88 J K⁻¹ mol⁻¹"
+  },
+  {
+    "id": "first_law_work",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "First Law & Expansion Work",
+    "expr": "ΔU = q + w   ,   w_rev(iso) = −2.303 nRT log(V₂/V₁)   ,   w_irrev = −P_ext ΔV"
+  },
+  {
+    "id": "first_law_sign_conventions",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "First Law of Thermodynamics & IUPAC Sign Convention",
+    "expr": "ΔU = q + w   |   w = −∫ P_ext dV"
+  },
+  {
+    "id": "gibbs",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Gibbs energy and spontaneity",
+    "expr": "ΔG = ΔH − TΔS"
+  },
+  {
+    "id": "gibbs_free_energy_spontaneity",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Gibbs Free Energy & Spontaneity Criteria",
+    "expr": "ΔG = ΔH − T ΔS   |   ΔG < 0: Spontaneous   |   ΔG = 0: Equilibrium   |   ΔG > 0: Non-spontaneous"
+  },
+  {
+    "id": "gibbs_duhem_equation",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Gibbs–Duhem Fundamental Equation",
+    "expr": "Σ n_i · dμ_i = 0   (at constant T and P)   =>   x_A · dμ_A + x_B · dμ_B = 0"
+  },
+  {
+    "id": "gibbs_helmholtz_differential",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Gibbs–Helmholtz Equation Differential Form",
+    "expr": "[ ∂(ΔG / T) / ∂T ]_P = −ΔH / T²"
+  },
+  {
+    "id": "heat_capacities",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Heat Capacities & Poisson's Ratio",
+    "expr": "C_p − C_v = R   ,   γ = C_p / C_v   ,   ΔU = n C_v ΔT   ,   ΔH = n C_p ΔT"
+  },
+  {
+    "id": "hess_law",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Hess's Law & Bond Energies",
+    "expr": "ΔH_rxn = Σ ΔH_f°(products) − Σ ΔH_f°(reactants) = Σ B.E.(reactants) − Σ B.E.(products)"
+  },
+  {
+    "id": "hess_law_summation",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Hess's Law of Constant Heat Summation",
+    "expr": "ΔH_reaction = Σ ΔH_f°(products) − Σ ΔH_f°(reactants)   =   Σ BE(reactants) − Σ BE(products)"
+  },
+  {
+    "id": "joule_thomson_coefficient",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Joule–Thomson Coefficient & Isenthalpic Expansion",
+    "expr": "μ_JT = (∂T / ∂P)_H = (1 / C_p) · [ T · (∂V / ∂T)_P − V ]   |   Ideal gas: μ_JT = 0"
+  },
+  {
+    "id": "kirchhoff_thermochemistry",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Kirchhoff's Law of Reaction Enthalpy with Temperature",
+    "expr": "ΔH_T2 − ΔH_T1 = ΔC_p · (T₂ − T₁)   |   ΔU_T2 − ΔU_T1 = ΔC_v · (T₂ − T₁)"
+  },
+  {
+    "id": "kirchhoff_law",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Kirchhoff's Law of Thermochemistry",
+    "expr": "ΔH(T₂) − ΔH(T₁) = ΔC_p (T₂ − T₁)   ,   ΔU(T₂) − ΔU(T₁) = ΔC_v (T₂ − T₁)"
+  },
+  {
+    "id": "maxwell_thermodynamic_relations",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Maxwell's Fundamental Thermodynamic Relations",
+    "expr": "(∂T/∂V)_S = −(∂P/∂S)_V   |   (∂T/∂P)_S = (∂V/∂S)_P   |   (∂S/∂V)_T = (∂P/∂T)_V   |   (∂S/∂P)_T = −(∂V/∂T)_P"
+  },
+  {
+    "id": "heat_capacities_difference",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Mayer's Relation Between Cp and Cv",
+    "expr": "C_p − C_v = R   |   γ = C_p / C_v = 1 + (2 / f)"
+  },
+  {
+    "id": "third_law_thermodynamics",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Third Law of Thermodynamics & Absolute Entropy",
+    "expr": "lim(T→0 K) S = 0   (for a perfectly crystalline substance)"
+  },
+  {
+    "id": "vant_hoff_isotherm_isobar",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "van 't Hoff Reaction Isotherm & Isobar",
+    "expr": "Isotherm: ΔG° = −RT ln K_eq   |   Isobar: ln(K₂ / K₁) = (ΔH° / R) · [ 1/T₁ − 1/T₂ ]"
+  },
+  {
+    "id": "adiabatic_work_formula",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Work Done in Reversible Adiabatic Process",
+    "expr": "w_ad = ΔU = n C_v (T₂ − T₁) = (P₂ V₂ − P₁ V₁) / (γ − 1) = n R (T₂ − T₁) / (γ − 1)"
+  },
+  {
+    "id": "isothermal_reversible_work",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "Work in Isothermal Reversible Expansion",
+    "expr": "w_rev = −2.303 n R T log(V₂ / V₁) = −2.303 n R T log(P₁ / P₂)"
+  },
+  {
+    "id": "gibbsk",
+    "branch": "Physical",
+    "chapter": "Thermodynamics",
+    "title": "ΔG° and the equilibrium constant",
+    "expr": "ΔG° = −RT ln K = −2.303 RT log K = −nFE°"
+  },
+  {
+    "id": "clapeyron_clausius",
+    "branch": "Physical",
+    "chapter": "Thermodynamics & Equilibrium",
+    "title": "Clausius–Clapeyron Equation",
+    "expr": "log (P₂ / P₁) = (ΔH_vap / 2.303 R) · (1/T₁ − 1/T₂)"
+  },
+  {
+    "id": "formalcharge",
+    "branch": "Inorganic",
+    "chapter": "Chemical bonding",
+    "title": "Formal charge",
+    "expr": "FC = V − N − B/2"
+  },
+  {
+    "id": "hybrid",
+    "branch": "Inorganic",
+    "chapter": "Chemical bonding",
+    "title": "Hybridisation number",
+    "expr": "H = ½ (V + M − C + A)"
+  },
+  {
+    "id": "bents_rule_orbital_character",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Bent's Rule & Hybrid Orbital s/p-Character",
+    "expr": "More electronegative substituents prefer hybrid orbitals having LESS s-character (MORE p-character)"
+  },
+  {
+    "id": "born_lande",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Born–Landé Lattice Energy Equation",
+    "expr": "U₀ = − (N_A · M · z₊ · z₋ · e²) / (4πε₀ r₀) · (1 − 1/n)"
+  },
+  {
+    "id": "dipole_ionic",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Dipole Moment & % Ionic Character",
+    "expr": "μ = q × d   ,   % Ionic Character = (μ_obs / μ_theo) × 100 = 16 |Δχ| + 3.5 |Δχ|²"
+  },
+  {
+    "id": "dipole_moment_nh3_nf3",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Dipole Moment Comparison: NH₃ vs NF₃",
+    "expr": "μ(NH₃) = 1.47 D   >>   μ(NF₃) = 0.24 D"
+  },
+  {
+    "id": "electronegativity_scales",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Electronegativity Scales (Pauling & Mulliken)",
+    "expr": "Pauling: |χ_A − χ_B| = 0.208 √(Δ) (kcal) = 0.102 √(Δ) (kJ)   |   Mulliken: χ_M = (IE + EA) / 2"
+  },
+  {
+    "id": "fajans_rules_covalency",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Fajan's Rules for Covalent Character in Ionic Compounds",
+    "expr": "Polarising Power of Cation ϕ = (Charge) / (Radius)   |   Covalency ∝ ϕ · (Polarisability of Anion)"
+  },
+  {
+    "id": "formal_charge_formula",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Formal Charge Calculation on Lewis Structures",
+    "expr": "FC = V − L − (B / 2)"
+  },
+  {
+    "id": "hannay_smith_percent_ionic",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Hannay–Smith Equation for Percentage Ionic Character",
+    "expr": "% Ionic Character = 16 |χ_A − χ_B| + 3.5 (χ_A − χ_B)²"
+  },
+  {
+    "id": "hydrogen_bonding_boiling_points",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Hydrogen Bonding & Anomalous Hydride Boiling Points",
+    "expr": "Boiling Points: H₂O (100 °C) >> H₂Te (−2 °C) > H₂Se (−41 °C) > H₂S (−60 °C)"
+  },
+  {
+    "id": "dipole_moment_geometry_vector",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Molecular Dipole Moment Vector Addition",
+    "expr": "μ_net = √[ μ₁² + μ₂² + 2 μ₁ μ₂ cos θ ]"
+  },
+  {
+    "id": "mot_bond_order_formula",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Molecular Orbital Theory (MOT) Bond Order & Magnetism",
+    "expr": "Bond Order = ½ (N_b − N_a)   |   Magnetic Moment μ = √[ n(n + 2) ] BM"
+  },
+  {
+    "id": "back_bonding_lewis_acidity",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "pπ–pπ Back Bonding & Boron Trihalide Lewis Acidity",
+    "expr": "Lewis Acidity Order: BF₃ < BCl₃ < BBr₃ < BI₃"
+  },
+  {
+    "id": "hybrid_vsepr",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Steric Number & Hybridisation Formula",
+    "expr": "H = ½ (V + M − C + A)   ,   Steric Number = (Bond Pairs) + (Lone Pairs)"
+  },
+  {
+    "id": "steric_number_hybridisation",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "title": "Steric Number & Orbital Hybridisation",
+    "expr": "SN = ½ [ V + M − C + A ]   =   (Number of σ-bonds) + (Number of Lone Pairs)"
+  },
+  {
+    "id": "bondorder",
+    "branch": "Inorganic",
+    "chapter": "Chemical bonding (MOT)",
+    "title": "Bond order from MOT",
+    "expr": "Bond order = ½ (Nb − Na)"
+  },
+  {
+    "id": "mot_bond_order",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding (MOT)",
+    "title": "Molecular Orbital Theory (MOT) Bond Order",
+    "expr": "Bond Order = ½ (N_b − N_a)"
+  },
+  {
+    "id": "diagonal_relationship_lithium_magnesium",
+    "branch": "Inorganic",
+    "chapter": "Classification of Elements",
+    "title": "Diagonal Relationship: Lithium & Magnesium Similarities",
+    "expr": "Similar ionic potential ϕ = z/r explains identical chemical behaviors of Li⁺ and Mg²⁺"
+  },
+  {
+    "id": "electron_gain_enthalpy_anomalies",
+    "branch": "Inorganic",
+    "chapter": "Classification of Elements",
+    "title": "Electron Gain Enthalpy Trends & Anomalies",
+    "expr": "Order: Cl > F > Br > I   and   S > Se > Te > O"
+  },
+  {
+    "id": "inert_pair_effect_stability",
+    "branch": "Inorganic",
+    "chapter": "Classification of Elements",
+    "title": "Inert Pair Effect & Lower Oxidation State Stability",
+    "expr": "Group 13: Tl⁺ > Tl³⁺   |   Group 14: Pb²⁺ > Pb⁴⁺   |   Group 15: Bi³⁺ > Bi⁵⁺"
+  },
+  {
+    "id": "ionisation_enthalpy_nitrogen_oxygen",
+    "branch": "Inorganic",
+    "chapter": "Classification of Elements",
+    "title": "Ionisation Enthalpy Anomaly: N > O and Be > B",
+    "expr": "IE₁(N: 1402 kJ) > IE₁(O: 1314 kJ)   |   IE₁(Be: 899 kJ) > IE₁(B: 801 kJ)"
+  },
+  {
+    "id": "pauling_electronegativity_scale",
+    "branch": "Inorganic",
+    "chapter": "Classification of Elements",
+    "title": "Pauling's Electronegativity Formula",
+    "expr": "χ_A − χ_B = 0.208 · √Δ   (Δ in kcal mol⁻¹)   =   0.102 · √Δ   (Δ in kJ mol⁻¹)"
+  },
+  {
+    "id": "slater_rules",
+    "branch": "Inorganic",
+    "chapter": "Classification of Elements",
+    "title": "Slater's Rules & Effective Nuclear Charge",
+    "expr": "Z* = Z − σ"
+  },
+  {
+    "id": "slater_rules_zeff",
+    "branch": "Inorganic",
+    "chapter": "Classification of Elements",
+    "title": "Slater's Rules for Effective Nuclear Charge (Zeff)",
+    "expr": "Z_eff = Z − σ   |   For ns/np electron: σ = 0.35(n−1_same) + 0.85(n−1) + 1.0(n−2_lower)"
+  },
+  {
+    "id": "ean",
+    "branch": "Inorganic",
+    "chapter": "Coordination compounds",
+    "title": "Effective atomic number (EAN)",
+    "expr": "EAN = Z − (oxidation state) + 2 × (coordination number)"
+  },
+  {
+    "id": "spinonly",
+    "branch": "Inorganic",
+    "chapter": "Coordination compounds",
+    "title": "Spin-only magnetic moment",
+    "expr": "μ = √[n(n + 2)] BM"
+  },
+  {
+    "id": "chelate_effect_thermodynamics",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Chelate Effect & Macrocyclic Thermodynamic Stability",
+    "expr": "ΔG° = ΔH° − T ΔS°   (where ΔS° >> 0 due to release of multiple monodentate solvent molecules)"
+  },
+  {
+    "id": "cfse_octahedral_formula",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Crystal Field Splitting Energy (CFSE) in Octahedral Complexes",
+    "expr": "CFSE_oct = [ −0.4 · n(t_2g) + 0.6 · n(e_g) ] · Δ_o + m · P"
+  },
+  {
+    "id": "cfse_oct_tet",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Crystal Field Stabilization Energy (CFSE)",
+    "expr": "Octahedral: CFSE = (−0.4 n_t2g + 0.6 n_eg) Δ_o + mP   |   Tetrahedral: Δ_t = (4/9) Δ_o"
+  },
+  {
+    "id": "ean_rule",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Effective Atomic Number (EAN / Sidgwick Rule)",
+    "expr": "EAN = Z − (Oxidation State) + 2 × (Coordination Number)"
+  },
+  {
+    "id": "geometrical_isomerism_octahedral",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Fac–Mer Geometrical Isomerism in Octahedral [MA₃B₃]",
+    "expr": "Fac (facial): three identical ligands occupy same face of octahedron   |   Mer (meridional): three ligands form arc around meridian"
+  },
+  {
+    "id": "ferrocene_sandwich_structure",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Ferrocene: Bis(cyclopentadienyl) Iron(II) Sandwich",
+    "expr": "Fe(η⁵−C₅H₅)₂   |   Total Valence Electrons = 6 (Fe²⁺) + 2 × 6 (Cp⁻) = 18 e⁻"
+  },
+  {
+    "id": "jahn_teller_distortion_d9",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Jahn–Teller Distortion in Octahedral Complexes",
+    "expr": "Any non-linear molecular system in a degenerate electronic state distorts to lower its symmetry and remove degeneracy"
+  },
+  {
+    "id": "pi_acid_synergy",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Metal–Carbonyl Synergic Bonding",
+    "expr": "Synergic Bond = (Ligand σ-donation L → M) + (Metal d-orbital π-backdonation M → L π*)"
+  },
+  {
+    "id": "effective_atomic_number_ean",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Sidgwick's Effective Atomic Number (EAN) Rule",
+    "expr": "EAN = Z − (Oxidation State) + 2 × (Coordination Number)"
+  },
+  {
+    "id": "spectrochemical_series_order",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Spectrochemical Series of Ligands",
+    "expr": "I⁻ < Br⁻ < S²⁻ < SCN⁻ < Cl⁻ < N₃⁻ < F⁻ < OH⁻ < C₂O₄²⁻ ≈ H₂O < NCS⁻ < edta⁴⁻ < NH₃ < en < NO₂⁻ < PPh₃ < CN⁻ < CO"
+  },
+  {
+    "id": "isomerism_types_coordination",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Structural Isomerism in Coordination Complexes",
+    "expr": "Ionisation: [Co(NH₃)₅Br]SO₄ vs [Co(NH₃)₅SO₄]Br   |   Linkage: M−NO₂ (nitro) vs M−ONO (nitrito)"
+  },
+  {
+    "id": "cfse_tetrahedral_relation",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Tetrahedral Splitting (Δt) & CFSE",
+    "expr": "Δ_t = (4 / 9) · Δ_o   |   CFSE_tet = [ −0.6 · n(e) + 0.4 · n(t_2) ] · Δ_t"
+  },
+  {
+    "id": "trans_effect_series",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Trans Effect in Square Planar Complexes",
+    "expr": "CN⁻ ≈ CO ≈ C₂H₄ > PR₃ ≈ H⁻ > CH₃⁻ > NO₂⁻ ≈ I⁻ ≈ SCN⁻ > Br⁻ > Cl⁻ > py > NH₃ > OH⁻ > H₂O"
+  },
+  {
+    "id": "zeises_salt_structure",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "title": "Zeise's Salt: First Organometallic Alkene Complex",
+    "expr": "K[PtCl₃(η²−C₂H₄)] · H₂O   (Platinum(II) Square Planar)"
+  },
+  {
+    "id": "chromyl_chloride_test_eq",
+    "branch": "Inorganic",
+    "chapter": "d- and f-Block Elements",
+    "title": "Chromyl Chloride Test for Chloride Ions",
+    "expr": "K₂Cr₂O₇ + 4 NaCl + 6 H₂SO₄(conc) → 2 CrO₂Cl₂↑ (deep red vapour) + 2 KHSO₄ + 4 NaHSO₄ + 3 H₂O"
+  },
+  {
+    "id": "lanthanide_contraction",
+    "branch": "Inorganic",
+    "chapter": "d- and f-Block Elements",
+    "title": "Lanthanide Contraction & Pair Equivalence",
+    "expr": "Radius(Zr⁴⁺) ≈ Radius(Hf⁴⁺) ≈ 160 pm   ,   Radius(Nb⁵⁺) ≈ Radius(Ta⁵⁺) ≈ 146 pm"
+  },
+  {
+    "id": "lanthanide_contraction_consequences",
+    "branch": "Inorganic",
+    "chapter": "d- and f-Block Elements",
+    "title": "Lanthanide Contraction & Pairs with Identical Radii",
+    "expr": "Cumulative contraction across 14 4f elements: r(4d series) ≈ r(5d series)"
+  },
+  {
+    "id": "potassium_dichromate_redox_eq",
+    "branch": "Inorganic",
+    "chapter": "d- and f-Block Elements",
+    "title": "Potassium Dichromate (K₂Cr₂O₇) Redox Half-Equation",
+    "expr": "Cr₂O₇²⁻ + 14 H⁺ + 6 e⁻ → 2 Cr³⁺ + 7 H₂O   (E° = +1.33 V   ,   n-factor = 6)"
+  },
+  {
+    "id": "potassium_permanganate_media",
+    "branch": "Inorganic",
+    "chapter": "d- and f-Block Elements",
+    "title": "Potassium Permanganate (KMnO₄) Redox in Acidic, Neutral & Alkaline Media",
+    "expr": "Acidic: MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O (n=5)   |   Neutral: MnO₄⁻ + 2H₂O + 3e⁻ → MnO₂ + 4OH⁻ (n=3)   |   Strongly Alkaline: MnO₄⁻ + e⁻ → MnO₄²⁻ (n=1)"
+  },
+  {
+    "id": "spin_only_magnetic_moment",
+    "branch": "Inorganic",
+    "chapter": "d- and f-Block Elements",
+    "title": "Spin-Only Magnetic Moment Formula",
+    "expr": "μ_s = √[ n(n + 2) ] Bohr Magnetons (BM)   |   1 BM = (e · h) / (4π · m_e) = 9.274 × 10⁻²⁴ J T⁻¹"
+  },
+  {
+    "id": "disproportionation_redox",
+    "branch": "Inorganic",
+    "chapter": "d- and f-Block Elements & Redox",
+    "title": "Disproportionation Equilibria (Frost & Latimer)",
+    "expr": "3 MnO₄²⁻ (green) + 4 H⁺ → 2 MnO₄⁻ (purple) + MnO₂ (brown) + 2 H₂O"
+  },
+  {
+    "id": "acid_rain_chemistry",
+    "branch": "Inorganic",
+    "chapter": "Environmental Chemistry",
+    "title": "Acid Rain Formation Chemistry",
+    "expr": "2 SO₂ + O₂ + 2 H₂O → 2 H₂SO₄   |   4 NO₂ + O₂ + 2 H₂O → 4 HNO₃   |   pH < 5.6"
+  },
+  {
+    "id": "photochemical_smog_reactions",
+    "branch": "Inorganic",
+    "chapter": "Environmental Chemistry",
+    "title": "Photochemical Smog Chain Reactions (PAN & Ozone)",
+    "expr": "NO₂ + hν (λ < 380 nm) → NO + O·   |   O· + O₂ → O₃   |   Hydrocarbons + O₃ + NO₂ → CH₃CO−OO−NO₂ (PAN)"
+  },
+  {
+    "id": "ozone_depletion_cfc_mechanism",
+    "branch": "Inorganic",
+    "chapter": "Environmental Chemistry",
+    "title": "Stratospheric Ozone Depletion by Chlorofluorocarbons (CFCs)",
+    "expr": "CF₂Cl₂ + hν → CF₂Cl· + Cl·   |   Cl· + O₃ → ClO· + O₂   |   ClO· + O· → Cl· + O₂   (Catalytic Chain)"
+  },
+  {
+    "id": "blast_furnace_slag_formation",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "title": "Blast Furnace Slag Formation & Flux Chemistry",
+    "expr": "CaCO₃ —heat (1070 K)→ CaO + CO₂   |   CaO (Basic Flux) + SiO₂ (Acidic Gangue) → CaSiO₃ (Molten Slag)"
+  },
+  {
+    "id": "roasting_vs_calcination",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "title": "Calcination vs Roasting of Ores",
+    "expr": "Calcination (No/Limited Air): ZnCO₃ —heat→ ZnO + CO₂   |   Roasting (Excess Air): 2 ZnS + 3 O₂ —heat→ 2 ZnO + 2 SO₂"
+  },
+  {
+    "id": "ellingham_thermo",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "title": "Ellingham Diagram Thermodynamics",
+    "expr": "ΔG° = ΔH° − TΔS°   =>   Slope = −ΔS°"
+  },
+  {
+    "id": "ellingham_diagram_slopes",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "title": "Ellingham Diagram Thermodynamics & Reducing Agent Selection",
+    "expr": "ΔG° = ΔH° − T · ΔS°   |   Slope = −ΔS°"
+  },
+  {
+    "id": "froth_floatation_collectors_frothers",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "title": "Froth Flotation Chemistry: Collectors, Frothers & Depressants",
+    "expr": "Mineral Sulfide Ore (wetted by pine oil) Floats in Froth   |   Gangue (wetted by water) Sinks in Pulp"
+  },
+  {
+    "id": "hall_heroult_aluminium_electrolysis",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "title": "Hall–Héroult Electrolytic Extraction of Aluminium",
+    "expr": "Cathode: Al³⁺ + 3e⁻ → Al(l)   |   Anode: C(s) + 2 O²⁻ → CO₂(g) + 4e⁻   |   Overall: 2 Al₂O₃ + 3 C → 4 Al + 3 CO₂"
+  },
+  {
+    "id": "cyanide_extraction_silver_gold",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "title": "MacArthur–Forrest Cyanide Extraction of Gold and Silver",
+    "expr": "4 Au + 8 NaCN + 2 H₂O + O₂ → 4 Na[Au(CN)₂] (Soluble Complex) + 4 NaOH   |   2 Na[Au(CN)₂] + Zn → Na₂[Zn(CN)₄] + 2 Au↓"
+  },
+  {
+    "id": "mond_van_arkel_refining",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "title": "Mond Process & van Arkel–de Boer Refining Reactions",
+    "expr": "Mond (Ni): Ni + 4CO (330–350 K) → Ni(CO)₄ —450–470 K→ Ni + 4CO   |   van Arkel (Zr/Ti): Zr + 2I₂ (870 K) → ZrI₄ —2075 K (W filament)→ Zr + 2I₂"
+  },
+  {
+    "id": "zone_refining_semiconductors",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "title": "Zone Refining (Fractional Crystallisation)",
+    "expr": "Segregation Coefficient k = C_solid / C_liquid < 1   (Impurities are more soluble in the molten melt)"
+  },
+  {
+    "id": "clarks_method_softening",
+    "branch": "Inorganic",
+    "chapter": "Hydrogen",
+    "title": "Clark's Lime Method for Temporary Hardness",
+    "expr": "Ca(HCO₃)₂ + Ca(OH)₂ → 2 CaCO₃↓ + 2 H₂O   |   Mg(HCO₃)₂ + 2 Ca(OH)₂ → 2 CaCO₃↓ + Mg(OH)₂↓ + 2 H₂O"
+  },
+  {
+    "id": "white_vs_red_phosphorus",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Allotropes of Phosphorus: White vs Red Phosphorus",
+    "expr": "White P₄ (Discrete Tetrahedra, 60° angle, ignites at 303 K)   |   Red P₄ (Polymeric Chain, non-toxic, ignites at 533 K)"
+  },
+  {
+    "id": "boric_acid_lewis_acidity",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Boric Acid (H₃BO₃) as Monobasic Lewis Acid",
+    "expr": "B(OH)₃ + 2 H₂O ⇌ [B(OH)₄]⁻ + H₃O⁺   (pK_a = 9.25)"
+  },
+  {
+    "id": "brown_ring_test_chemistry",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Brown Ring Test Chemistry for Nitrate Ions",
+    "expr": "NO₃⁻ + 3Fe²⁺ + 4H⁺ → 3Fe³⁺ + NO + 2H₂O   |   [Fe(H₂O)₆]²⁺ + NO → [Fe(H₂O)₅(NO)]²⁺ (Brown Ring) + H₂O"
+  },
+  {
+    "id": "fullerene_c60_geometry",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Buckminsterfullerene (C₆₀) Truncated Icosahedron Structure",
+    "expr": "C₆₀: 20 Six-Membered Rings (Hexagons)   +   12 Five-Membered Rings (Pentagons)"
+  },
+  {
+    "id": "catenation_group14_trend",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Catenation Tendency & Bond Energies in Group 14",
+    "expr": "Catenation Order: C >> Si > Ge ≈ Sn > Pb   |   Bond Enthalpy: C−C (348) > Si−Si (297) > Ge−Ge (260) > Sn−Sn (240 kJ mol⁻¹)"
+  },
+  {
+    "id": "contact_process_sulfuric_acid",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Contact Process for Sulfuric Acid (H₂SO₄) Manufacture",
+    "expr": "2SO₂ + O₂ ⇌ 2SO₃ (V₂O₅ catalyst, 720 K, 2 bar)   |   SO₃ + H₂SO₄ → H₂S₂O₇ (Oleum) —H₂O→ 2H₂SO₄"
+  },
+  {
+    "id": "diborane_banana_bonding",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Diborane (B₂H₆) 3-Centre 2-Electron Banana Bonds",
+    "expr": "B₂H₆: 4 Terminal 2c−2e B−H Bonds (1.19 Å)   +   2 Bridge 3c−2e B−H−B Bonds (1.33 Å)"
+  },
+  {
+    "id": "xenon_fluorides_hydrolysis",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Hydrolysis Equations of Xenon Fluorides",
+    "expr": "2XeF₂ + 2H₂O → 2Xe + 4HF + O₂   |   6XeF₄ + 12H₂O → 2XeO₃ + 4Xe + 3O₂ + 24HF   |   XeF₆ + 3H₂O → XeO₃ + 6HF"
+  },
+  {
+    "id": "inert_pair_effect",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Inert Pair Effect & Lower Oxidation State Stability",
+    "expr": "Stability of lower O.S. (Group − 2): Tl⁺ > Tl³⁺   ,   Pb²⁺ > Pb⁴⁺   ,   Bi³⁺ > Bi⁵⁺"
+  },
+  {
+    "id": "interhalogen_compounds_geometry",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Interhalogen Compounds (XX'n) Structures",
+    "expr": "XX' (linear) , XX'₃ (T-shaped, sp³d) , XX'₅ (square pyramidal, sp³d²) , XX'₇ (pentagonal bipyramidal, sp³d³)"
+  },
+  {
+    "id": "ostwald_nitric_acid_reactions",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Ostwald Process for Nitric Acid (HNO₃) Manufacture",
+    "expr": "4NH₃ + 5O₂ —Pt/Rh (1050 K)→ 4NO + 6H₂O   |   2NO + O₂ → 2NO₂   |   3NO₂ + H₂O → 2HNO₃ + NO"
+  },
+  {
+    "id": "oxoacids_phosphorus",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Oxoacids of Phosphorus & Reducing Power",
+    "expr": "H₃PO₂ (Hypophosphorous, 1 P–OH, 2 P–H)   |   H₃PO₃ (Phosphorous, 2 P–OH, 1 P–H)   |   H₃PO₄ (Phosphoric, 3 P–OH, 0 P–H)"
+  },
+  {
+    "id": "phosphorus_oxoacids_basicity",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Oxoacids of Phosphorus: Basicity & Reducing Power",
+    "expr": "Basicity = Number of P−OH Bonds   |   Reducing Power = Number of P−H Bonds"
+  },
+  {
+    "id": "sulfur_oxoacids_peroxo_links",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Oxoacids of Sulfur & Peroxo-Bonds",
+    "expr": "Caro's Acid: H₂SO₅ (O=S(=O)(OH)(O−OH))   |   Marshall's Acid: H₂S₂O₈ (HO−SO₂−O−O−SO₂−OH)"
+  },
+  {
+    "id": "silicates_classification_formula",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements",
+    "title": "Silicate Mineral Classification & Formula Frameworks",
+    "expr": "General Unit: [SiO₄]⁴⁻ Tetrahedron   |   Sharing n corners gives formula: [Si_x O_y]^(2y − 4x)−"
+  },
+  {
+    "id": "borax_bead_test",
+    "branch": "Inorganic",
+    "chapter": "p-Block Elements & Salt Analysis",
+    "title": "Borax Bead Test Chemistry",
+    "expr": "Na₂B₄O₇·10H₂O —heat→ 2 NaBO₂ + B₂O₃ (glassy bead)   =>   CoO + B₂O₃ → Co(BO₂)₂ (Deep Blue)"
+  },
+  {
+    "id": "borax_bead_test_reactions",
+    "branch": "Inorganic",
+    "chapter": "Qualitative Analysis",
+    "title": "Borax Bead Test Chemistry & Transition Metal Colours",
+    "expr": "Na₂B₄O₇ · 10H₂O —heat→ 2 NaBO₂ + B₂O₃ (Glassy Bead)   |   B₂O₃ + CuO —oxidising flame→ Cu(BO₂)₂ (Sky Blue Bead)"
+  },
+  {
+    "id": "flame_test_emission_colours",
+    "branch": "Inorganic",
+    "chapter": "Qualitative Analysis",
+    "title": "Flame Test Characteristic Atomic Emission Colours",
+    "expr": "Excited valence electrons de-excite to emit characteristic visible light photons: ΔE = h · c / λ"
+  },
+  {
+    "id": "nessler_reagent_ammonia",
+    "branch": "Inorganic",
+    "chapter": "Qualitative Analysis",
+    "title": "Nessler's Reagent Test for Ammonium (NH₄⁺) Ions",
+    "expr": "2 K₂[HgI₄] + NH₃ + 3 KOH → H₂N−Hg−O−Hg−I↓ (Iodide of Millon's Base, Brown ppt) + 7 KI + 2 H₂O"
+  },
+  {
+    "id": "salt_analysis_group_reagents",
+    "branch": "Inorganic",
+    "chapter": "Qualitative Analysis",
+    "title": "Systematic Group Reagents for Cation Analysis (Groups 0 to VI)",
+    "expr": "Group Reagent Table for Qualitative Cation Separation"
+  },
+  {
+    "id": "brown_ring_test",
+    "branch": "Inorganic",
+    "chapter": "Qualitative Inorganic Analysis",
+    "title": "Brown Ring Test for Nitrate (NO₃⁻)",
+    "expr": "NO₃⁻ + 3 Fe²⁺ + 4 H⁺ → NO + 3 Fe³⁺ + 2 H₂O   =>   [Fe(H₂O)₆]²⁺ + NO → [Fe(H₂O)₅(NO)]²⁺ (Brown Ring)"
+  },
+  {
+    "id": "plaster_of_paris_gypsum_reactions",
+    "branch": "Inorganic",
+    "chapter": "s-Block Elements",
+    "title": "Plaster of Paris & Gypsum Setting Reactions",
+    "expr": "CaSO₄ · 2H₂O (Gypsum) —393 K→ CaSO₄ · ½H₂O (POP) + 1½ H₂O   |   > 393 K: Dead Burnt Plaster (CaSO₄)"
+  },
+  {
+    "id": "thermal_stability_carbonates_sulfates",
+    "branch": "Inorganic",
+    "chapter": "s-Block Elements",
+    "title": "Thermal Stability Trends of Group 1 & 2 Carbonates and Nitrates",
+    "expr": "Thermal Stability ∝ 1 / (Ionic Potential ϕ of Cation) ∝ (Cation Size / Cation Charge)"
+  },
+  {
+    "id": "ether_cleavage_hi",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Cleavage of Ethers by Hydrogen Iodide (HI)",
+    "expr": "R−O−R' + HI(excess) —heat→ R−I + R'−I + H₂O"
+  },
+  {
+    "id": "cumene_phenol_process",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Cumene Hydroperoxide Process for Industrial Phenol",
+    "expr": "C₆H₅−CH(CH₃)₂ + O₂ → C₆H₅−C(CH₃)₂−OOH —dil. H₂SO₄→ C₆H₅OH + CH₃COCH₃"
+  },
+  {
+    "id": "cleavage_oxiranes_acid_base",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Epoxide (Oxirane) Ring Opening: Acidic vs Basic Media",
+    "expr": "Acidic: Nu attacks MORE substituted carbon (partial carbocation)   |   Basic: Nu⁻ attacks LESS substituted carbon (S_N2)"
+  },
+  {
+    "id": "duas_phenol_neutral_fecl3",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Ferric Chloride (FeCl₃) Test for Phenolic Group",
+    "expr": "6 C₆H₅OH + FeCl₃ → [Fe(OC₆H₅)₆]³⁻ (Violet/Purple Complex) + 3 H⁺ + 3 HCl"
+  },
+  {
+    "id": "fries_rearrangement",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Fries Rearrangement of Phenolic Esters",
+    "expr": "C₆H₅−O−COCH₃ (Phenyl Acetate) —anhyd. AlCl₃ (heat)→ o- & p-Hydroxyacetophenone"
+  },
+  {
+    "id": "libermann_nitroso_phenol",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Liebermann's Nitroso Reaction for Phenol",
+    "expr": "Phenol + NaNO₂ / conc. H₂SO₄ → p-nitrosophenol ⇌ Indophenol (Deep Green/Blue) —dilute with water→ Red —add NaOH→ Deep Blue"
+  },
+  {
+    "id": "lucas_test_kinetics",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Lucas Test for Distinguishing 1°, 2°, and 3° Alcohols",
+    "expr": "R−OH + conc. HCl / anhyd. ZnCl₂ → R−Cl↓ (turbidity) + H₂O"
+  },
+  {
+    "id": "oxymercuration_demercuration",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Oxymercuration–Demercuration (Markovnikov Hydration Without Rearrangement)",
+    "expr": "R−CH=CH₂ + Hg(OAc)₂ / H₂O → R−CH(OH)−CH₂−HgOAc —NaBH₄ / OH⁻→ R−CH(OH)−CH₃"
+  },
+  {
+    "id": "pcc_vs_jones_reagent",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "PCC vs Jones Reagent: Controlled Alcohol Oxidation",
+    "expr": "PCC (in CH₂Cl₂): 1° Alcohol → Aldehyde (Stops here)   |   Jones (CrO₃ / aq. H₂SO₄ / Acetone): 1° Alcohol → Carboxylic Acid"
+  },
+  {
+    "id": "pinacol_pinacolone_rearrangement",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Pinacol–Pinacolone Rearrangement",
+    "expr": "(CH₃)₂C(OH)−C(OH)(CH₃)₂ (Pinacol) + conc. H₂SO₄ —heat→ CH₃−CO−C(CH₃)₃ (Pinacolone) + H₂O"
+  },
+  {
+    "id": "sharpless_epoxidation",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Sharpless Asymmetric Epoxidation of Allylic Alcohols",
+    "expr": "Allylic Alcohol + t-BuOOH + Ti(O-i-Pr)₄ + (+)-DET or (−)-DET → Enantiopure Chiral Epoxide (>90% ee)"
+  },
+  {
+    "id": "swern_oxidation_alcohols",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Swern Mild Oxidation of Alcohols",
+    "expr": "R−CH₂OH + (COCl)₂ + DMSO + Et₃N (−78 °C) → R−CHO + (CH₃)₂S + CO + CO₂ + Et₃NH⁺ Cl⁻"
+  },
+  {
+    "id": "victor_meyer_alcohol_test",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Victor Meyer Test: Red, Blue, White Sequence",
+    "expr": "1° Alcohol → Nitroalkane → Nitrolic Acid —alkali→ BLOOD RED   |   2° Alcohol → Pseudonitrol —alkali→ BLUE   |   3° Alcohol → No reaction → COLOURLESS"
+  },
+  {
+    "id": "williamson_ether_synthesis_limits",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "title": "Williamson Ether Synthesis & Substrate Limitations",
+    "expr": "R−O⁻ Na⁺ + R'−X → R−O−R' + NaX   (R' must be 1° or methyl)"
+  },
+  {
+    "id": "dnp_carbonyl_test",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "2,4-DNP (Brady's Reagent) Test for Aldehydes & Ketones",
+    "expr": ">C=O + 2,4-(NO₂)₂C₆H₃−NHNH₂ → >C=N−NH−C₆H₃(NO₂)₂ (Yellow/Orange Precipitate) + H₂O"
+  },
+  {
+    "id": "aldol_cannizzaro",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Aldol & Cannizzaro Reaction Principles",
+    "expr": "Aldol (with α-H): Carbonyl + dil. base → β-hydroxy carbonyl → α,β-unsaturated carbonyl   |   Cannizzaro (no α-H): 2 RCHO + 50% KOH → RCH₂OH + RCOOK"
+  },
+  {
+    "id": "aldol_condensation",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Aldol & Cross-Aldol Condensation",
+    "expr": "2 R–CH₂–CHO + dil. NaOH ⇌ β-hydroxyaldehyde −H₂O → α,β-unsaturated aldehyde"
+  },
+  {
+    "id": "baeyer_villiger_oxidation",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Baeyer–Villiger Carbonyl Oxidation to Esters / Lactones",
+    "expr": "R−CO−R' + Peroxy Acid (mCPBA / CF₃COOOH) → R−COO−R' (Ester)"
+  },
+  {
+    "id": "beckmann_rearrangement",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Beckmann Rearrangement of Oximes to Amides",
+    "expr": "Ketoxime (R R' C=N−OH) + H₂SO₄ / PCl₅ / SOCl₂ → N-substituted Amide (R−CO−NH−R')"
+  },
+  {
+    "id": "benzoin_condensation_cyanide",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Benzoin Condensation Catalysed by Cyanide Ion",
+    "expr": "2 C₆H₅CHO —aq. alc. KCN (heat)→ C₆H₅−CH(OH)−CO−C₆H₅ (Benzoin)"
+  },
+  {
+    "id": "cannizzaro_reaction",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Cannizzaro Disproportionation",
+    "expr": "2 R–CHO (no α-H) + 50% KOH → R–CH₂OH + R–COOK"
+  },
+  {
+    "id": "clemmensen_wolff",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Carbonyl Reductions to Hydrocarbons",
+    "expr": "Clemmensen: >C=O + Zn-Hg / conc. HCl → >CH₂   |   Wolff–Kishner: >C=O + NH₂NH₂ / KOH / glycol → >CH₂"
+  },
+  {
+    "id": "clemmensen_vs_wolff_kishner",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Carbonyl to Methylene Reduction: Clemmensen vs Wolff–Kishner",
+    "expr": "Clemmensen (Acidic): >C=O + Zn−Hg / conc. HCl → >CH₂   |   Wolff–Kishner (Basic): >C=O + NH₂NH₂ / KOH , glycol —heat→ >CH₂ + N₂↑"
+  },
+  {
+    "id": "claisen_ester_condensation",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Claisen Ester Condensation",
+    "expr": "2 R−CH₂−COOR' + NaOR' —reflux→ R−CH₂−CO−CH(R)−COOR' (β-Keto Ester) + R'OH"
+  },
+  {
+    "id": "aldol_cross_aldol_products",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Cross-Aldol Condensation Product Count",
+    "expr": "Two different aldehydes, each with α-H, yield FOUR distinct aldol products on basic condensation"
+  },
+  {
+    "id": "cannizzaro_cross_formaldehyde",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Cross-Cannizzaro Reaction with Formaldehyde",
+    "expr": "Ar−CHO + HCHO + conc. NaOH → Ar−CH₂OH + HCOONa"
+  },
+  {
+    "id": "etard_reaction_benzaldehyde",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Étard Reaction for Benzaldehyde Preparation",
+    "expr": "C₆H₅−CH₃ + 2 CrO₂Cl₂ (in CS₂ or CCl₄) → C₆H₅−CH(OCrOHCl₂)₂ (Brown Complex) —H₃O⁺→ C₆H₅−CHO + 2 Cr(OH)₂Cl₂"
+  },
+  {
+    "id": "favorskii_rearrangement",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Favorskii Rearrangement of α-Haloketones",
+    "expr": "α-Haloketone + Base (RO⁻ / OH⁻) → Cyclopropanone Intermediate → Ester / Carboxylic Acid"
+  },
+  {
+    "id": "silver_mirror_formic_acid",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Formic Acid (HCOOH) Anomalous Reducing Action",
+    "expr": "HCOOH + 2 [Ag(NH₃)₂]⁺ + 2 OH⁻ → 2 Ag↓ (Silver Mirror) + CO₂↑ + 4 NH₃ + 2 H₂O"
+  },
+  {
+    "id": "gattermann_koch_formylation",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Gattermann–Koch Formylation of Benzene",
+    "expr": "C₆H₆ + CO + HCl —anhyd. AlCl₃ / CuCl (high P)→ C₆H₅−CHO + HCl"
+  },
+  {
+    "id": "hvz_reaction",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Hell–Volhard–Zelinsky (HVZ) Reaction",
+    "expr": "R–CH₂–COOH + X₂ / red P → R–CH(X)–COOH + HX   (X = Cl, Br)"
+  },
+  {
+    "id": "hunsdiecker_reaction_decarboxylation",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Hunsdiecker Reaction (Decarboxylative Halogenation)",
+    "expr": "R−COOAg + Br₂ —CCl₄ (reflux)→ R−Br + CO₂↑ + AgBr↓"
+  },
+  {
+    "id": "hell_volhard_zelinsky_mechanism",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "HVZ Reaction Intermediate: Enolisation of Acyl Halide",
+    "expr": "R−CH₂−COOH + PCl₃ / PBr₃ → R−CH₂−COX ⇌ R−CH=C(OH)X —X₂→ R−CH(X)−COX —RCH₂COOH→ R−CH(X)−COOH + RCH₂COX"
+  },
+  {
+    "id": "haloform_iodoform_test",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Iodoform (Haloform) Test for Methyl Carbonyls & Carbinols",
+    "expr": "CH₃−C(=O)−R + 3 I₂ + 4 NaOH → CHI₃↓ (yellow ppt) + R−COONa + 3 NaI + 3 H₂O"
+  },
+  {
+    "id": "michael_conjugate_addition",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Michael 1,4-Conjugate Addition",
+    "expr": "Active Methylene Enolate (Donor) + α,β-Unsaturated Carbonyl (Acceptor) —base→ 1,5-Dicarbonyl Adduct"
+  },
+  {
+    "id": "acid_derivatives_reactivity_order",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Nucleophilic Acyl Substitution: Relative Reactivity of Acid Derivatives",
+    "expr": "Acyl Chloride (RCOCl) > Acid Anhydride ((RCO)₂O) > Ester (RCOOR') > Amide (RCONH₂)"
+  },
+  {
+    "id": "carboxylic_acid_ortho_effect",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Ortho Effect in Substituted Benzoic Acids",
+    "expr": "Ortho-substituted benzoic acids are STRONGER acids than benzoic acid, REGARDLESS of the electronic nature (+I/+M or −I/−M) of the substituent"
+  },
+  {
+    "id": "perkin_cinnamic_acid",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Perkin Reaction for Cinnamic Acid Synthesis",
+    "expr": "C₆H₅CHO + (CH₃CO)₂O —CH₃COONa (450 K)→ C₆H₅−CH=CH−COOH (Cinnamic Acid) + CH₃COOH"
+  },
+  {
+    "id": "reformatsky_reaction",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Reformatsky Reaction with Organozinc Reagents",
+    "expr": "R₂C=O + Br−CH₂−COOR' + Zn (dry ether) → R₂C(OH)−CH₂−COOR' (β-Hydroxy Ester)"
+  },
+  {
+    "id": "robinson_annulation_cascade",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Robinson Annulation (Ring-Forming Cascade)",
+    "expr": "Ketone + Methyl Vinyl Ketone —base (Michael Addition)→ 1,5-Diketone —base (Intramolecular Aldol)→ 2-Cyclohexenone"
+  },
+  {
+    "id": "rosenmund_reduction",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Rosenmund Catalytic Reduction of Acyl Chlorides",
+    "expr": "R−COCl + H₂ —Pd / BaSO₄ , quinoline / S (poison)→ R−CHO + HCl"
+  },
+  {
+    "id": "schiff_reagent_test",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Schiff's Test for Aldehydes",
+    "expr": "R−CHO + Schiff's Reagent (decolourised rosaniline hydrochloride) → Restoration of Intense Magenta / Pink Colour"
+  },
+  {
+    "id": "silver_salt_method_acids",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Silver Salt Method for Carboxylic Acid Basicity & Molar Mass",
+    "expr": "Equivalent Mass of Acid = [ (108 · Mass of Silver Salt) / (Mass of Residue Ag) ] − 107"
+  },
+  {
+    "id": "stephen_reduction_nitriles",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Stephen Reduction of Nitriles to Aldehydes",
+    "expr": "R−C≡N + SnCl₂ + 2 HCl —ether→ R−CH=NH · HCl (Aldimine) —H₃O⁺→ R−CHO + NH₄Cl"
+  },
+  {
+    "id": "stork_enamine_synthesis",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Stork Enamine Alkylation & Acylation of Carbonyls",
+    "expr": "Ketone + 2° Amine (Pyrrolidine) —H⁺ (−H₂O)→ Enamine —R−X / RCOCl→ Alkylated / Acylated Enamine —H₃O⁺→ α-Substituted Ketone"
+  },
+  {
+    "id": "tollens_fehling_tests",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Tollens' & Fehling's Tests for Aldehydes",
+    "expr": "Tollens: R−CHO + 2 [Ag(NH₃)₂]⁺ + 3 OH⁻ → R−COO⁻ + 2 Ag↓ (silver mirror) + 4 NH₃ + 2 H₂O   |   Fehling: R−CHO + 2 Cu²⁺ + 5 OH⁻ → R−COO⁻ + Cu₂O↓ (red ppt) + 3 H₂O"
+  },
+  {
+    "id": "wittig_reaction_alkenes",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "title": "Wittig Reaction (Carbonyl to Alkene via Phosphonium Ylide)",
+    "expr": ">C=O + Ph₃P=CH−R (Phosphonium Ylide) → >C=CH−R (Alkene) + Ph₃P=O (Triphenylphosphine Oxide)"
+  },
+  {
+    "id": "amine_basicity_phases",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Aliphatic Amine Basicity: Gas Phase vs Aqueous Solution",
+    "expr": "Gas Phase: 3° > 2° > 1° > NH₃   |   Aqueous with Methyl: 2° > 1° > 3° > NH₃   |   Aqueous with Ethyl: 2° > 3° > 1° > NH₃"
+  },
+  {
+    "id": "carbylamine_isocyanide_test",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Carbylamine (Isocyanide) Test for Primary Amines",
+    "expr": "R−NH₂ + CHCl₃ + 3 KOH(alc) —warm→ R−NC (isocyanide) + 3 KCl + 3 H₂O"
+  },
+  {
+    "id": "curtius_rearrangement",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Curtius Rearrangement of Acyl Azides",
+    "expr": "R−COCl + NaN₃ → R−CO−N₃ (Acyl Azide) —heat (−N₂)→ R−N=C=O (Isocyanate) —H₂O→ R−NH₂ + CO₂"
+  },
+  {
+    "id": "diazotisation_temperature_limit",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Diazotisation Reaction Temperature Condition",
+    "expr": "Ar−NH₂ + NaNO₂ + 2 HCl —273–278 K (0–5 °C)→ Ar−N₂⁺ Cl⁻ + NaCl + 2 H₂O"
+  },
+  {
+    "id": "gabriel_phthalimide",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Gabriel Phthalimide Synthesis",
+    "expr": "Phthalimide + KOH → Potassium Phthalimide + R–X → N-alkylphthalimide + H₂O/H⁺ or N₂H₄ → R–NH₂ (1° amine)"
+  },
+  {
+    "id": "gabriel_phthalimide_limitations",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Gabriel Phthalimide Synthesis Scope & Limitations",
+    "expr": "Phthalimide + KOH → Potassium Salt —R−X (S_N2)→ N-alkylphthalimide —N₂H₄ / H⁺→ R−NH₂ (Pure 1° Amine)"
+  },
+  {
+    "id": "hinsberg_test_amines",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Hinsberg's Test for Distinguishing 1°, 2°, and 3° Amines",
+    "expr": "Reagent: Benzenesulfonyl Chloride (C₆H₅SO₂Cl)"
+  },
+  {
+    "id": "hofmann_bromamide_degradation",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Hofmann's Bromamide Degradation of Primary Amides",
+    "expr": "R−CONH₂ + Br₂ + 4 KOH → R−NH₂ (primary amine) + K₂CO₃ + 2 KBr + 2 H₂O"
+  },
+  {
+    "id": "platinic_chloride_base_method",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Platinic Chloride Method for Organic Base Molar Mass",
+    "expr": "Molar Mass of Monoacidic Base = ½ · [ (195 · Mass of Salt) / (Mass of Residue Pt) − 410 ]"
+  },
+  {
+    "id": "sandmeyer_vs_gattermann",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "title": "Sandmeyer vs Gattermann Reactions Comparison",
+    "expr": "Sandmeyer: Ar−N₂⁺ Cl⁻ + CuCl/HCl → Ar−Cl + N₂   |   Gattermann: Ar−N₂⁺ Cl⁻ + Cu powder / HCl → Ar−Cl + N₂"
+  },
+  {
+    "id": "azo_coupling_reactions",
+    "branch": "Organic",
+    "chapter": "Amines & Diazonium Salts",
+    "title": "Azo Coupling Reactions of Arenediazonium Salts",
+    "expr": "Phenol (pH 9–10): Ar−N₂⁺ + C₆H₅OH → p-hydroxyazobenzene (Orange Dye)   |   Aniline (pH 4–5): Ar−N₂⁺ + C₆H₅NH₂ → p-aminoazobenzene (Yellow Dye)"
+  },
+  {
+    "id": "balz_schiemann_fluorination",
+    "branch": "Organic",
+    "chapter": "Amines & Diazonium Salts",
+    "title": "Balz–Schiemann Fluorination of Arenes",
+    "expr": "Ar−N₂⁺ Cl⁻ + HBF₄ → Ar−N₂⁺ BF₄⁻↓ (Insoluble Fluoroborate) —dry heat→ Ar−F + BF₃↑ + N₂↑"
+  },
+  {
+    "id": "diazotisation_sandmeyer",
+    "branch": "Organic",
+    "chapter": "Amines & Diazonium Salts",
+    "title": "Diazotisation & Sandmeyer Reactions",
+    "expr": "Ar–NH₂ + NaNO₂ + 2HCl (0–5 °C) → Ar–N₂⁺ Cl⁻   =>   Sandmeyer: CuCl/CuBr/CuCN → Ar–Cl/Ar–Br/Ar–CN"
+  },
+  {
+    "id": "sandmeyer_reaction_cyanide",
+    "branch": "Organic",
+    "chapter": "Amines & Diazonium Salts",
+    "title": "Sandmeyer Cyano Substitution & Carboxylic Acid Route",
+    "expr": "Ar−N₂⁺ Cl⁻ + CuCN / KCN → Ar−CN + N₂↑   —H₃O⁺ (complete hydrolysis)→ Ar−COOH + NH₄⁺"
+  },
+  {
+    "id": "benzyne_mechanism_elimination_addition",
+    "branch": "Organic",
+    "chapter": "Aromatic Compounds",
+    "title": "Benzyne (Elimination–Addition) Mechanism in Aryl Halides",
+    "expr": "Chlorobenzene + KNH₂ / liq. NH₃ (196 K) → [Benzyne intermediate] → Aniline"
+  },
+  {
+    "id": "friedel_crafts_acylation_clean",
+    "branch": "Organic",
+    "chapter": "Aromatic Compounds",
+    "title": "Friedel–Crafts Acylation (No Rearrangement & Monoacylation)",
+    "expr": "Ar−H + R−COCl + AlCl₃ → Ar−CO−R (Aromatic Ketone) + HCl"
+  },
+  {
+    "id": "friedel_crafts_alkylation_traps",
+    "branch": "Organic",
+    "chapter": "Aromatic Compounds",
+    "title": "Friedel–Crafts Alkylation Limitations & Carbocation Rearrangement",
+    "expr": "Ar−H + R−Cl + AlCl₃ → Ar−R' + HCl   (Rearrangement occurs if R⁺ can form more stable ion)"
+  },
+  {
+    "id": "biuret_peptide_test",
+    "branch": "Organic",
+    "chapter": "Biomolecules",
+    "title": "Biuret Test for Peptide Bonds & Proteins",
+    "expr": "Protein + 10% NaOH + 1% CuSO₄ → [Cu(Peptide)₄]²⁻ (Violet / Purple Complex)"
+  },
+  {
+    "id": "dna_chargaff_rules",
+    "branch": "Organic",
+    "chapter": "Biomolecules",
+    "title": "Chargaff's Rules of DNA Base Pairing",
+    "expr": "[A] = [T]   ,   [G] = [C]   |   [A + G] = [T + C]   (Purines = Pyrimidines)   |   A=T (2 H-bonds) , G≡C (3 H-bonds)"
+  },
+  {
+    "id": "inversion_of_cane_sugar",
+    "branch": "Organic",
+    "chapter": "Biomolecules",
+    "title": "Inversion of Cane Sugar (Sucrose Hydrolysis)",
+    "expr": "Sucrose [α = +66.5°] + H₂O —H⁺ / Invertase→ D-(+)-Glucose [+52.5°] + D-(−)-Fructose [−92.4°]   =>   Invert Sugar [α = −19.9°]"
+  },
+  {
+    "id": "amino_acid_isoelectric_point",
+    "branch": "Organic",
+    "chapter": "Biomolecules",
+    "title": "Isoelectric Point (pI) of Amino Acids",
+    "expr": "Neutral: pI = ½ (pK_a1 + pK_a2)   |   Acidic: pI = ½ (pK_a1 + pK_aR)   |   Basic: pI = ½ (pK_aR + pK_a2)"
+  },
+  {
+    "id": "molisch_carbohydrate_test",
+    "branch": "Organic",
+    "chapter": "Biomolecules",
+    "title": "Molisch's General Test for Carbohydrates",
+    "expr": "Carbohydrate + conc. H₂SO₄ —dehydration→ Furfural / 5-HMF + α-Naphthol → Purple / Violet Ring at Interface"
+  },
+  {
+    "id": "mutarotation_glucose_equilibrium",
+    "branch": "Organic",
+    "chapter": "Biomolecules",
+    "title": "Mutarotation Equilibrium of D-Glucose Anomers",
+    "expr": "α-D-Glucopyranose [+112°] (36%) ⇌ Open Chain Form [0.02%] ⇌ β-D-Glucopyranose [+19°] (64%)   =>   Equilibrium [α = +52.7°]"
+  },
+  {
+    "id": "ninhydrin_amino_acid_test",
+    "branch": "Organic",
+    "chapter": "Biomolecules",
+    "title": "Ninhydrin Test for α-Amino Acids",
+    "expr": "α-Amino Acid + 2 Ninhydrin → Ruhemann's Purple (Diketohydrindylidene-diketohydrindamine) + R−CHO + CO₂ + NH₄⁺"
+  },
+  {
+    "id": "xanthoproteic_test_aromatic_amino_acids",
+    "branch": "Organic",
+    "chapter": "Biomolecules",
+    "title": "Xanthoproteic Test for Aromatic Amino Acids",
+    "expr": "Protein with Phenyl Ring (Tyr, Trp, Phe) + conc. HNO₃ —heat→ Yellow Nitro Derivative —add alkali (NaOH)→ ORANGE"
+  },
+  {
+    "id": "antiseptics_vs_disinfectants",
+    "branch": "Organic",
+    "chapter": "Chemistry in Everyday Life",
+    "title": "Antiseptics vs Disinfectants Concentration Dependence",
+    "expr": "Phenol: 0.2% aqueous solution = Antiseptic   |   1.0% aqueous solution = Disinfectant"
+  },
+  {
+    "id": "artificial_sweeteners_comparison",
+    "branch": "Organic",
+    "chapter": "Chemistry in Everyday Life",
+    "title": "Artificial Sweeteners Relative Sweetness Scale",
+    "expr": "Aspartame (100×) < Saccharin (550×) < Sucralose (600×) < Alitame (2000×)   (relative to cane sugar = 1)"
+  },
+  {
+    "id": "soap_saponification_cleansing",
+    "branch": "Organic",
+    "chapter": "Chemistry in Everyday Life",
+    "title": "Saponification & Cleansing Action of Soap",
+    "expr": "Fat / Oil (Triglyceride) + 3 NaOH → Glycerol + 3 R−COONa (Soap)   |   Hard Water: 2 RCOO⁻ + Ca²⁺ → (RCOO)₂Ca↓ (Curd)"
+  },
+  {
+    "id": "aspirin_synthesis_equation",
+    "branch": "Organic",
+    "chapter": "Chemistry in Everyday Life",
+    "title": "Synthesis of Aspirin (Acetylsalicylic Acid)",
+    "expr": "C₆H₄(OH)COOH (Salicylic Acid) + (CH₃CO)₂O (Acetic Anhydride) —conc. H₂SO₄→ C₆H₄(OCOCH₃)COOH (Aspirin) + CH₃COOH"
+  },
+  {
+    "id": "paracetamol_synthesis",
+    "branch": "Organic",
+    "chapter": "Chemistry in Everyday Life",
+    "title": "Synthesis of Paracetamol (Acetaminophen)",
+    "expr": "p-aminophenol (HO−C₆H₄−NH₂) + (CH₃CO)₂O → p-acetamidophenol (HO−C₆H₄−NHCOCH₃) + CH₃COOH"
+  },
+  {
+    "id": "dbe",
+    "branch": "Organic",
+    "chapter": "General organic chemistry",
+    "title": "Degree of unsaturation",
+    "expr": "DBE = (2C + 2 + N − H − X) / 2"
+  },
+  {
+    "id": "carbocation_stability_aromatic_ions",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Aromatic Carbocations: Tropylium & Cyclopropenyl",
+    "expr": "Cyclopropenyl Cation (C₃H₃⁺, 2 π e⁻, n=0): AROMATIC   |   Tropylium Cation (C₇H₇⁺, 6 π e⁻, n=1): AROMATIC"
+  },
+  {
+    "id": "stereoisomers_calculation_formula",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Calculation of Optical & Geometrical Isomers",
+    "expr": "Dissimilar ends: Optically Active = 2^n , Meso = 0   |   Similar ends (even n): Active = 2^(n−1) , Meso = 2^(n/2 − 1)"
+  },
+  {
+    "id": "carbocation_stability_hierarchy",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Carbocation Stability Hierarchy & Rearrangements",
+    "expr": "Stability: Tropylium > Cyclopropenyl > Trityl (Ph₃C⁺) > Benzyl ≈ Allyl > 3° > 2° > 1° > Methyl > Vinyl > Phenyl"
+  },
+  {
+    "id": "free_radical_stability_bond_dissociation",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Carbon Free Radical Stability & C–H Bond Dissociation Energy",
+    "expr": "Stability: 3° > 2° > 1° > Methyl   |   C–H Bond Energy: 3° (381 kJ) < 2° (401 kJ) < 1° (422 kJ) < CH₄ (435 kJ)"
+  },
+  {
+    "id": "hyperconjugation_carbocation_heat",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Heat of Hydrogenation vs Alkene Substitution",
+    "expr": "Heat of Hydrogenation (ΔH_hydrog) is INVERSELY proportional to alkene stability"
+  },
+  {
+    "id": "huckel_aromaticity_criteria",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Hückel's Rule of Aromaticity & Antiaromaticity",
+    "expr": "Aromatic: (4n + 2) π electrons   |   Antiaromatic: 4n π electrons   (n = 0, 1, 2, 3... in planar cyclic conjugated ring)"
+  },
+  {
+    "id": "hyperconjugation_stability_order",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Hyperconjugation (Baker–Nathan Effect) & Alkene Stability",
+    "expr": "Number of Hyperconjugable Structures = Number of α-Hydrogens   |   Heat of Hydrogenation ∝ 1 / (Number of α-H)"
+  },
+  {
+    "id": "inductive_effect_ranking",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Inductive Effect (−I and +I) Relative Orders",
+    "expr": "−I: −NF₃⁺ > −NR₃⁺ > −NO₂ > −CN > −SO₃H > −CHO > −COOH > −F > −Cl > −Br > −I > −OR > −OH > −NH₂ > −C₆H₅ > −H   |   +I: −O⁻ > −COO⁻ > −C(CH₃)₃ > −CH(CH₃)₂ > −CH₂CH₃ > −CH₃ > −T > −D > −H"
+  },
+  {
+    "id": "tautomerism_enol_content",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Keto–Enol Tautomerism Factors Governing Enol Content",
+    "expr": "Enol content increased by: Aromatisation > Extended Conjugation > Intramolecular H-Bonding"
+  },
+  {
+    "id": "lassaigne_nitrogen_sulfur_together",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Lassaigne's Blood-Red Test for N and S Together",
+    "expr": "Na + C + N + S —fusion (insufficient Na)→ NaSCN   |   3 NaSCN + FeCl₃ → Fe(SCN)₃ (Blood-Red Solution) + 3 NaCl"
+  },
+  {
+    "id": "lassaigne_nitrogen_test",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Lassaigne's Test for Nitrogen (Prussian Blue)",
+    "expr": "Na + C + N —fusion→ NaCN   |   6 NaCN + FeSO₄ → Na₄[Fe(CN)₆] + Na₂SO₄   |   3 Na₄[Fe(CN)₆] + 4 FeCl₃ → Fe₄[Fe(CN)₆]₃↓ (Prussian Blue) + 12 NaCl"
+  },
+  {
+    "id": "lassaigne_sulfur_nitroprusside",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Lassaigne's Test for Sulfur (Sodium Nitroprusside)",
+    "expr": "2 Na + S —fusion→ Na₂S   |   Na₂S + Na₂[Fe(CN)₅NO] → Na₄[Fe(CN)₅NOS] (Deep Violet Complex)"
+  },
+  {
+    "id": "mesomeric_effect_ranking",
+    "branch": "Organic",
+    "chapter": "General Organic Chemistry",
+    "title": "Mesomeric / Resonance (+M and −M) Relative Orders",
+    "expr": "+M: −O⁻ > −NH₂ > −NHR > −OH > −OR > −NHCOR > −OCOR > −Ph > −X   |   −M: −NO₂ > −CN > −SO₃H > −CHO > −COR > −COOH > −COOR > −CONH₂"
+  },
+  {
+    "id": "saytzeff_hofmann",
+    "branch": "Organic",
+    "chapter": "Haloalkanes & Elimination",
+    "title": "Saytzeff vs Hofmann Elimination Regiochemistry",
+    "expr": "Saytzeff (Zaitsev): More substituted alkene   |   Hofmann: Less substituted alkene"
+  },
+  {
+    "id": "finkelstein_swarts_reactions",
+    "branch": "Organic",
+    "chapter": "Haloalkanes and Haloarenes",
+    "title": "Finkelstein & Swarts Halogen Exchange Reactions",
+    "expr": "Finkelstein: R−Cl / R−Br + NaI —acetone→ R−I + NaCl / NaBr↓   |   Swarts: R−Cl / R−Br + AgF / SbF₃ / Hg₂F₂ → R−F"
+  },
+  {
+    "id": "sn1_sn2_summary",
+    "branch": "Organic",
+    "chapter": "Haloalkanes and Haloarenes",
+    "title": "S_N1 vs S_N2 Kinetic Rate Laws & Stereochemistry",
+    "expr": "S_N1: Rate = k [R−X] (Racemisation)   |   S_N2: Rate = k [R−X][Nu⁻] (Walden Inversion)"
+  },
+  {
+    "id": "sn1_vs_sn2_rate_laws",
+    "branch": "Organic",
+    "chapter": "Haloalkanes and Haloarenes",
+    "title": "S_N1 vs S_N2 Nucleophilic Substitution Mechanisms",
+    "expr": "S_N1: Rate = k [R−X]   (2 steps, carbocation, racemisation)   |   S_N2: Rate = k [R−X] [Nu⁻]   (1 step, backside attack, Walden inversion)"
+  },
+  {
+    "id": "haloalkane_elimination_saytzeff_hofmann",
+    "branch": "Organic",
+    "chapter": "Haloalkanes and Haloarenes",
+    "title": "Saytzeff vs Hofmann Elimination Regioselectivity",
+    "expr": "Saytzeff (Small base, good leaving group Br⁻/I⁻): More Substituted Alkene   |   Hofmann (Bulky base t-BuO⁻ or poor leaving group F⁻/−NR₃⁺): Less Substituted Alkene"
+  },
+  {
+    "id": "specific_rotation_equation",
+    "branch": "Organic",
+    "chapter": "Haloalkanes and Haloarenes",
+    "title": "Specific Optical Rotation Formula",
+    "expr": "[α]_D^T = α_observed / (l · c)"
+  },
+  {
+    "id": "wurtz_fittig",
+    "branch": "Organic",
+    "chapter": "Haloalkanes and Haloarenes",
+    "title": "Wurtz, Fittig & Wurtz–Fittig Reactions",
+    "expr": "Wurtz: 2 R–X + 2 Na (dry ether) → R–R   |   Fittig: 2 Ar–X + 2 Na → Ar–Ar   |   Wurtz–Fittig: R–X + Ar–X + 2 Na → Ar–R"
+  },
+  {
+    "id": "baeyer_reagent_oxidation",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Baeyer's Test for Unsaturation (Cold Alkaline KMnO₄)",
+    "expr": "R−CH=CH₂ + cold dil. KMnO₄ (alkaline) → R−CH(OH)−CH₂(OH) (Syn-1,2-Diol)"
+  },
+  {
+    "id": "cope_claisen_sigmatropic",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Cope & Claisen [3,3]-Sigmatropic Rearrangements",
+    "expr": "Cope: 1,5-Diene —heat (300 °C)→ Isomeric 1,5-Diene   |   Claisen: Allyl Vinyl Ether —heat (200 °C)→ γ,δ-Unsaturated Carbonyl"
+  },
+  {
+    "id": "corey_house_synthesis",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Corey–House Synthesis of Unsymmetrical Alkanes",
+    "expr": "R₂CuLi (Gilman Reagent) + R'−X → R−R' + R−Cu + LiX"
+  },
+  {
+    "id": "diels_alder_cycloaddition",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Diels–Alder [4+2] Cycloaddition",
+    "expr": "Conjugated Diene (4 π e⁻, s-cis) + Dienophile (2 π e⁻) —heat→ Cyclohexene Adduct"
+  },
+  {
+    "id": "free_radical_halogenation_selectivity",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Free Radical Halogenation Reactivity-Selectivity Ratio",
+    "expr": "Chlorination at 300 K: 3° : 2° : 1° = 5.0 : 3.8 : 1.0   |   Bromination at 400 K: 3° : 2° : 1° = 1600 : 82 : 1"
+  },
+  {
+    "id": "hydroboration_oxidation_alkenes",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Hydroboration–Oxidation of Alkenes (Anti-Markovnikov Syn-Hydration)",
+    "expr": "3 R−CH=CH₂ + BH₃ · THF → (RCH₂CH₂)₃B —H₂O₂ / OH⁻→ 3 R−CH₂−CH₂OH + B(OH)₃"
+  },
+  {
+    "id": "kolbe_electrolysis_anion_discharge",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Kolbe Electrolysis: Saturated vs Unsaturated Products",
+    "expr": "Monocarboxylate: 2 RCOO⁻ → R−R + 2 CO₂   |   Succinates: −OOC−(CH₂)₂−COO⁻ → CH₂=CH₂ (Ethene)   |   Maleate: −OOC−CH=CH−COO⁻ → CH≡CH (Ethyne)"
+  },
+  {
+    "id": "kolbe_electrolytic_synthesis",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Kolbe's Electrolytic Decarboxylation",
+    "expr": "2 R−COOK + 2 H₂O —electrolysis→ R−R + 2 CO₂ (anode)   +   H₂ + 2 KOH (cathode)"
+  },
+  {
+    "id": "kucherov_reaction_alkynes",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Kucherov Hydration of Alkynes to Carbonyls",
+    "expr": "R−C≡CH + H₂O —1% HgSO₄ / 20% H₂SO₄ (333 K)→ [R−C(OH)=CH₂] (enol) → R−COCH₃ (Methyl Ketone)"
+  },
+  {
+    "id": "markovnikov_peroxide",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Markovnikov & Anti-Markovnikov (Kharasch Effect)",
+    "expr": "Ionic: CH₃CH=CH₂ + HX → CH₃CH(X)CH₃   |   Peroxide (HBr only): CH₃CH=CH₂ + HBr → CH₃CH₂CH₂Br"
+  },
+  {
+    "id": "markovnikov_peroxide_addition",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Markovnikov's Rule vs Kharasch Peroxide Effect",
+    "expr": "Normal: R−CH=CH₂ + HX → R−CH(X)−CH₃   |   Peroxide (HBr only): R−CH=CH₂ + HBr / R₂O₂ → R−CH₂−CH₂Br"
+  },
+  {
+    "id": "ozonolysis_cleavage_alkenes",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Ozonolysis of Alkenes (Reductive vs Oxidative Cleavage)",
+    "expr": "Reductive (Zn/H₂O or Me₂S): C=C → C=O + O=C   |   Oxidative (H₂O₂): Aldehyde RCHO oxidised to RCOOH"
+  },
+  {
+    "id": "alkyne_reduction_stereospecific",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Stereospecific Reduction of Alkynes to Cis and Trans Alkenes",
+    "expr": "Cis (Z): R−C≡C−R' + H₂ / Pd−CaCO₃ (Lindlar) → Cis-Alkene   |   Trans (E): R−C≡C−R' + Na / liq. NH₃ (Birch) → Trans-Alkene"
+  },
+  {
+    "id": "wurtz_coupling_alkanes",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "title": "Wurtz Reaction Coupling & Symmetrical Alkanes",
+    "expr": "2 R−X + 2 Na —dry ether→ R−R + 2 NaX"
+  },
+  {
+    "id": "huckel_aromaticity",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons & GOC",
+    "title": "Hückel's Rule of Aromaticity",
+    "expr": "Aromatic: (4n + 2) π electrons   |   Anti-Aromatic: 4n π electrons   (n = 0, 1, 2, 3...)"
+  },
+  {
+    "id": "kolbe_schmitt",
+    "branch": "Organic",
+    "chapter": "Phenols",
+    "title": "Kolbe–Schmitt Carboxylation of Phenol",
+    "expr": "Sodium Phenoxide + CO₂ (400 K, 4–7 atm) → Sodium Salicylate —H⁺→ Salicylic Acid"
+  },
+  {
+    "id": "reimer_tiemann",
+    "branch": "Organic",
+    "chapter": "Phenols",
+    "title": "Reimer–Tiemann Formylation of Phenol",
+    "expr": "C₆H₅OH + CHCl₃ + 3 NaOH (340 K) → Salicylaldehyde (o-hydroxybenzaldehyde) + 3 NaCl + 2 H₂O"
+  },
+  {
+    "id": "polymer_molar_mass",
+    "branch": "Organic",
+    "chapter": "Polymers",
+    "title": "Average Molecular Weights of Polymers",
+    "expr": "M_n = (Σ N_i M_i) / (Σ N_i)   ,   M_w = (Σ N_i M_i²) / (Σ N_i M_i)   ,   PDI = M_w / M_n"
+  },
+  {
+    "id": "bakelite_phenol_formaldehyde",
+    "branch": "Organic",
+    "chapter": "Polymers",
+    "title": "Bakelite (Phenol–Formaldehyde Thermosetting Polymer)",
+    "expr": "Phenol + HCHO —acid or base→ o- & p-Hydroxymethylphenols —condense→ Novolac (Linear) —heat with HCHO (Urotropine)→ Bakelite (3D Cross-linked Network)"
+  },
+  {
+    "id": "gutta_percha_trans_rubber",
+    "branch": "Organic",
+    "chapter": "Polymers",
+    "title": "Gutta-Percha: All-Trans-1,4-Polyisoprene",
+    "expr": "Natural Rubber = All-Cis-1,4-Polyisoprene (Elastic)   |   Gutta-Percha = All-Trans-1,4-Polyisoprene (Non-Elastic, Crystalline)"
+  },
+  {
+    "id": "nylon_66_reaction",
+    "branch": "Organic",
+    "chapter": "Polymers",
+    "title": "Nylon 6,6 Condensation Polymerisation",
+    "expr": "n HOOC−(CH₂)₄−COOH (Adipic Acid) + n H₂N−(CH₂)₆−NH₂ (Hexamethylenediamine) —553 K, high P→ [−CO−(CH₂)₄−CO−NH−(CH₂)₆−NH−]_n + (2n−1) H₂O"
+  },
+  {
+    "id": "biodegradable_phbv_copolymer",
+    "branch": "Organic",
+    "chapter": "Polymers",
+    "title": "PHBV: Biodegradable Aliphatic Polyester",
+    "expr": "3-hydroxybutanoic acid + 3-hydroxypentanoic acid → Poly(β-hydroxybutyrate-co-β-hydroxyvalerate) (PHBV) + H₂O"
+  },
+  {
+    "id": "polymer_pdi_molecular_mass",
+    "branch": "Organic",
+    "chapter": "Polymers",
+    "title": "Polydispersity Index (PDI) & Polymer Molar Masses",
+    "expr": "PDI = M_w / M_n   |   M_n = (Σ N_i M_i) / (Σ N_i)   |   M_w = (Σ N_i M_i²) / (Σ N_i M_i)"
+  },
+  {
+    "id": "rubber_types_neoprene_buna",
+    "branch": "Organic",
+    "chapter": "Polymers",
+    "title": "Synthetic Rubbers: Neoprene, Buna-S, and Buna-N",
+    "expr": "Neoprene: [−CH₂−C(Cl)=CH−CH₂−]_n (Chloroprene)   |   Buna-S: 1,3-Butadiene + Styrene   |   Buna-N: 1,3-Butadiene + Acrylonitrile"
+  },
+  {
+    "id": "terylene_dacron_esterification",
+    "branch": "Organic",
+    "chapter": "Polymers",
+    "title": "Terylene / Dacron Polyester Condensation",
+    "expr": "n HOOC−C₆H₄−COOH (Terephthalic Acid) + n HO−CH₂CH₂−OH (Ethylene Glycol) —420–460 K, Zn-Sb catalyst→ [−CO−C₆H₄−CO−O−CH₂CH₂−O−]_n + (2n−1) H₂O"
+  },
+  {
+    "id": "vulcanisation_natural_rubber",
+    "branch": "Organic",
+    "chapter": "Polymers",
+    "title": "Vulcanisation of Natural Rubber (cis-1,4-Polyisoprene)",
+    "expr": "[−CH₂−C(CH₃)=CH−CH₂−]_n + 3–5% Sulfur —373–415 K→ Polyisoprene Chains Cross-linked with −S_x− Bridges"
+  },
+  {
+    "id": "distinguishing_tests",
+    "branch": "Organic",
+    "chapter": "Practical Organic Chemistry",
+    "title": "Diagnostic Organic Functional Group Tests",
+    "expr": "Lucas: 3° (fast), 2° (5 min), 1° (heat)   |   Carbylamine: 1° R-NH₂ + CHCl₃ + KOH → R-NC foul odour"
+  },
+  {
+    "id": "elemental",
+    "branch": "Organic",
+    "chapter": "Purification and analysis",
+    "title": "Liebig and Kjeldahl estimations",
+    "expr": "%C = (12/44)(m_CO₂/m)×100   ,   %H = (2/18)(m_H₂O/m)×100   ,   %N = 1.4 × N × V / m"
+  },
+  {
+    "id": "elemental_analysis",
+    "branch": "Organic",
+    "chapter": "Quantitative Organic Analysis",
+    "title": "Quantitative Elemental Estimation Formulas",
+    "expr": "Liebig: %C = (12/44)(m_CO₂/m)×100 , %H = (2/18)(m_H₂O/m)×100   |   Kjeldahl: %N = 1.4 × N × V / m"
+  },
+  {
+    "id": "stereoisomer_counts",
+    "branch": "Organic",
+    "chapter": "Stereochemistry",
+    "title": "Formulas for Counting Stereoisomers",
+    "expr": "Unsymmetrical: Total = 2ⁿ   |   Symmetrical (even n): Optically Active = 2ⁿ⁻¹ , Meso = 2^(n/2 − 1) , Total = 2ⁿ⁻¹ + 2^(n/2 − 1)"
+  },
+  {
+    "id": "optical_rotation",
+    "branch": "Organic",
+    "chapter": "Stereochemistry",
+    "title": "Specific Rotation & Enantiomeric Excess",
+    "expr": "[α]_D^T = α_obs / (l · c)   ,   %ee = Optical Purity = (|R − S| / (R + S)) × 100 = ([α]_obs / [α]_pure) × 100"
+  },
+  {
+    "id": "optical",
+    "branch": "Organic",
+    "chapter": "Stereochemistry",
+    "title": "Specific rotation and optical purity",
+    "expr": "[α] = α_obs / (l·c)   ,   %ee = |R − S| / (R + S) × 100"
+  }
+]

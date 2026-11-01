@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071126">
+  <meta name="description" content="Nemo is a chemistry study companion for CBSE, JEE Main and JEE Advanced with chat, 3D molecules, practice questions and a formula bank.">
+  <title>Nemo — AI Chemistry Tutor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <script src="molecules.js" defer></script>
+  <script src="data.js" defer></script>
+  <script src="lib-physical.js" defer></script>
+  <script src="lib-inorganic.js" defer></script>
+  <script src="lib-organic.js" defer></script>
+  <script src="lib-organic2.js" defer></script>
+  <script src="lib-practical.js" defer></script>
+  <script src="pyq.js" defer></script>
+  <script src="system-prompt.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#chatPanel">Skip to chat</a>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#top" aria-label="Nemo home"><span class="brand-mark" aria-hidden="true">⚛</span><span>Nemo<small>AI Chemistry Tutor</small></span></a>
+      <div class="syllabus-pill" aria-label="Syllabus coverage">CBSE <i></i> JEE MAIN <i></i> JEE ADVANCED</div>
+      <nav aria-label="Sections">
+        <a class="nav-item active" href="#chatPanel" data-target="chatPanel"><em aria-hidden="true">▣</em><span>Chat with Nemo</span></a>
+        <a class="nav-item" href="#moleculePanel" data-target="moleculePanel"><em aria-hidden="true">⬡</em><span>3D Molecules</span></a>
+        <a class="nav-item" href="#practicePanel" data-target="practicePanel"><em aria-hidden="true">✔</em><span>Practice</span></a>
+        <a class="nav-item" href="#analyticsPanel" data-target="analyticsPanel"><em aria-hidden="true">▥</em><span>Study Analytics</span></a>
+        <a class="nav-item" href="#canvasPanel" data-target="canvasPanel"><em aria-hidden="true">✎</em><span>Reaction Canvas</span></a>
+        <a class="nav-item" href="#libraryPanel" data-target="libraryPanel"><em aria-hidden="true">§</em><span>Rules &amp; Exceptions</span></a>
+        <a class="nav-item" href="#pyqPanel" data-target="pyqPanel"><em aria-hidden="true">⌗</em><span>PYQ Bank</span></a>
+        <a class="nav-item" href="#formulasPanel" data-target="formulasPanel"><em aria-hidden="true">∑</em><span>Formula Bank</span></a>
+      </nav>
+      <div class="sidebar-note">
+        <span class="online-dot" id="modeDot"></span><span id="modeLabel">Offline study mode</span>
+        <p>Physical • Organic • Inorganic</p>
+        <small>AI answers should be checked against trusted textbooks and official answer keys.</small>
+        <details class="ai-settings" id="aiSettings">
+          <summary>Use my own Gemini key</summary>
+          <p>For the single-file build or any copy without a server. The key is stored only in this browser and sent only to Google. Use a restricted key and never on a shared computer. When a server is configured, it is used instead.</p>
+          <input id="aiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Gemini API key" aria-label="Gemini API key">
+          <input id="aiModel" type="text" autocomplete="off" spellcheck="false" placeholder="model (default gemini-flash-latest)" aria-label="Gemini model name">
+          <div class="btn-row"><button class="outline-btn" id="aiSave">Save</button><button class="outline-btn danger" id="aiRemove">Remove</button></div>
+          <p id="aiMsg" role="status"></p>
+        </details>
+      </div>
+    </aside>
+
+    <main class="main" id="top">
+      <header class="topbar">
+        <div><span class="eyebrow">YOUR PERSONAL CHEMISTRY LAB</span><h1>Learn chemistry with <span>Nemo</span></h1></div>
+        <div class="top-actions">
+          <button class="ghost-btn" id="fxToggle" aria-pressed="true" title="Turn animations and visual effects on or off">✦ Effects</button>
+          <button class="ghost-btn" id="floatToggle" aria-pressed="true" title="Show or hide floating Nemo">◉ Floating Nemo</button>
+        </div>
+      </header>
+
+      <section class="hero" aria-label="Welcome">
+        <div class="hero-copy">
+          <span class="tag">✦ YOUR AI STUDY COMPANION</span>
+          <h2>Hey there, chemist!<br>What shall we <span>explore?</span></h2>
+          <p>Work through tricky mechanisms, inorganic exceptions, physical chemistry numericals and exam-style questions, step by step.</p>
+          <div class="hero-chips"><span>⚗ Physical • Organic • Inorganic</span><span>↗ Step-by-step reasoning</span><span>◎ Rotatable 3D molecules</span></div>
+        </div>
+        <div class="hero-mascot" aria-hidden="true">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="nemo-face"><div class="eyes"><i></i><i></i></div><div class="smile"></div><div class="cheek left"></div><div class="cheek right"></div><b>N</b></div>
+          <span class="float-symbol symbol-a">CH₃</span><span class="float-symbol symbol-b">H₂O</span><span class="float-symbol symbol-c">⌬</span>
+        </div>
+      </section>
+
+      <noscript><p class="small-muted">Nemo needs JavaScript to run.</p></noscript>
+
+      <section class="workspace">
+        <!-- CHAT -->
+        <section class="panel chat-panel" id="chatPanel" aria-labelledby="chatTitle">
+          <div class="panel-head">
+            <div><span class="status-dot"></span><strong id="chatTitle">Chat with Nemo</strong><small>Reasoning • explanations • exam practice</small></div>
+            <div class="head-actions">
+              <select id="levelSelect" class="level-select" aria-label="Answer level for AI replies" title="Answer level (used when the AI is connected)">
+                <option value="auto">Level: Auto</option>
+                <option value="cbse">CBSE 11/12</option>
+                <option value="main">JEE Main</option>
+                <option value="adv">JEE Advanced</option>
+              </select>
+              <button class="icon-btn" id="speakToggle" aria-pressed="false" title="Read answers aloud">🔇</button>
+              <button class="icon-btn" id="clearChat" title="Clear conversation" aria-label="Clear conversation">↺</button>
+            </div>
+          </div>
+          <div class="chat-messages" id="messages" role="log" aria-live="polite" aria-label="Conversation"></div>
+          <div class="prompt-row">
+            <button class="round-action" id="voiceBtn" title="Start voice input" aria-label="Start voice input">🎙</button>
+            <textarea id="questionInput" rows="1" maxlength="2000" aria-label="Your question" placeholder="Ask Nemo about a reaction, exception, or numerical…"></textarea>
+            <button class="send-btn" id="sendBtn" aria-label="Send message" disabled>➤</button>
+          </div>
+          <div class="quick-prompts" aria-label="Quick prompts">
+            <button data-topic="sn1" data-prompt="Explain the SN1 reaction mechanism step by step, including factors affecting the rate.">SN1 mechanism</button>
+            <button data-topic="sn2" data-prompt="Explain the SN2 reaction mechanism, its stereochemistry and the factors affecting the rate.">SN2 mechanism</button>
+            <button data-topic="nernst" data-prompt="Explain the Nernst equation and show how to apply it in a JEE numerical.">Nernst equation</button>
+            <button data-topic="exceptions" data-prompt="Give me a structured revision table of important coordination compound exceptions and reasons.">Inorganic exceptions</button>
+            <button data-topic="vsepr" data-prompt="Explain VSEPR theory, hybridisation and shapes of molecules with lone pairs.">VSEPR &amp; shapes</button>
+            <button data-topic="markovnikov" data-prompt="Explain Markovnikov's rule and the peroxide effect with examples.">Markovnikov rule</button>
+            <button data-topic="eas" data-prompt="Explain electrophilic aromatic substitution and directing effects of substituents.">Aromatic substitution</button>
+          </div>
+        </section>
+
+        <!-- 3D MOLECULES -->
+        <section class="panel molecule-panel" id="moleculePanel" aria-labelledby="molTitle">
+          <div class="panel-head"><div><strong id="molTitle">3D Molecular Viewer</strong><small>Drag to rotate • scroll or pinch to zoom</small></div><span class="tiny-tag">WORKS OFFLINE</span></div>
+          <div class="molecule-controls">
+            <label for="moleculeSelect">Molecule</label>
+            <select id="moleculeSelect"></select>
+          </div>
+          <div class="molecule-controls mol-filter-row">
+            <input type="search" id="molFilter" placeholder="Filter: NaCl, octahedral, benzene, unit cell…" aria-label="Filter the molecule list" autocomplete="off" />
+            <small class="small-muted" id="molCount" aria-live="polite"></small>
+          </div>
+          <div id="moleculeViewer">
+            <canvas id="molCanvas" aria-label="Interactive 3D molecule" tabindex="0"></canvas>
+            <div class="viewer-hint" id="viewerHint">Loading…</div>
+          </div>
+          <div class="viewer-tools" role="group" aria-label="Viewer options">
+            <label>Style
+              <select id="molStyle"><option value="ball">Ball &amp; stick</option><option value="stick">Sticks</option><option value="space">Space-filling</option></select>
+            </label>
+            <label class="check"><input type="checkbox" id="molSpin" checked> Spin</label>
+            <label class="check"><input type="checkbox" id="molLabels"> Labels</label>
+            <label class="check" id="lpWrap"><input type="checkbox" id="molLP" checked> Lone pairs</label>
+            <button id="molReset" type="button">Reset view</button>
+          </div>
+          <div class="viewer-legend" id="viewerLegend"></div>
+          <dl class="mol-info" id="moleculeInfo" aria-live="polite"></dl>
+          <form class="pubchem-row" id="pubchemForm">
+            <label for="pubchemInput" class="sr-only">Search PubChem</label>
+            <input id="pubchemInput" type="text" placeholder="Search any molecule on PubChem, e.g. caffeine" autocomplete="off" maxlength="80">
+            <button type="submit">Fetch 3D</button>
+          </form>
+          <p class="small-muted" id="pubchemMsg">Optional: PubChem search needs internet. Built-in molecules always work offline.</p>
+        </section>
+
+        <!-- PRACTICE -->
+        <section class="panel practice-panel" id="practicePanel" aria-labelledby="pracTitle">
+          <div class="panel-head"><div><strong id="pracTitle">Practice</strong><small>Original study questions • not official PYQs</small></div>
+            <select id="practiceBranch" aria-label="Choose branch"><option value="All">All branches</option><option>Physical</option><option>Inorganic</option><option>Organic</option></select></div>
+          <div id="quizBody" aria-live="polite"></div>
+        </section>
+
+        <!-- ANALYTICS -->
+        <section class="panel analytics-panel" id="analyticsPanel" aria-labelledby="anaTitle">
+          <div class="panel-head"><div><strong id="anaTitle">Study Analytics</strong><small>Based on your own practice answers</small></div><span class="tiny-tag">YOUR DATA</span></div>
+          <div class="stat-row" id="statRow"></div>
+          <div class="chart-bars" id="chartBars"></div>
+          <div class="analytics-callout" id="focusCallout"></div>
+          <div class="btn-row">
+            <button class="outline-btn" id="analyticsExplain">How should PYQ analytics work?</button>
+            <button class="outline-btn danger" id="resetStats">Reset my stats</button>
+          </div>
+          <p class="small-muted">Stored only in this browser. Nothing is uploaded and nothing here is official JEE or CBSE statistics.</p>
+        </section>
+
+        <!-- CANVAS -->
+        <section class="panel canvas-panel" id="canvasPanel" aria-labelledby="canTitle">
+          <div class="panel-head"><div><strong id="canTitle">Reaction Canvas</strong><small>Sketch and annotate mechanisms</small></div></div>
+          <div class="canvas-tools" role="toolbar" aria-label="Drawing tools">
+            <button id="toolPen" class="tool active" aria-pressed="true">✎ Pen</button>
+            <button id="toolArrow" class="tool" aria-pressed="false">↗ Arrow</button>
+            <button id="toolEraser" class="tool" aria-pressed="false">⌫ Eraser</button>
+            <label>Ink <input id="inkColor" type="color" value="#53e4ff"></label>
+            <label>Width <input id="inkWidth" type="range" min="1" max="10" value="3"></label>
+            <button id="undoStroke">↶ Undo</button>
+            <button id="clearCanvas">Clear</button>
+            <button id="saveCanvas">⇩ Save PNG</button>
+          </div>
+          <canvas id="reactionCanvas" aria-label="Chemistry drawing canvas"></canvas>
+          <p class="small-muted">Draw with your finger, pen or mouse. Arrows are visual annotations only; this is a sketch pad, not a structure or mechanism validator.</p>
+        </section>
+
+        <!-- LIBRARY -->
+        <section class="panel library-panel" id="libraryPanel" aria-labelledby="libTitle">
+          <div class="panel-head"><div><strong id="libTitle">Rules &amp; Exceptions Library</strong><small>Laws, special cases, exceptions, trends, name reactions and tests for Physical, Inorganic and Organic</small></div>
+            <input id="libSearch" type="search" placeholder="Search e.g. Bredt, Hofmann, Jahn–Teller…" aria-label="Search the library" autocomplete="off"></div>
+          <div class="chip-row" id="libBranch" role="group" aria-label="Filter by branch"></div>
+          <div class="lib-filters">
+            <select id="libChapter" aria-label="Filter by chapter"></select>
+            <select id="libType" aria-label="Filter by type"></select>
+            <select id="libLevel" aria-label="Filter by level"></select>
+            <span class="small-muted" id="libCount" role="status"></span>
+          </div>
+          <div class="lib-list" id="libList"></div>
+          <div class="btn-row"><button class="outline-btn" id="libMore" hidden>Show more</button></div>
+          <p class="small-muted" id="libEmpty" hidden>No entry matches those filters.</p>
+          <p class="small-muted">Original summaries written from standard NCERT, IUPAC and textbook knowledge. They are not copied from any coaching module or paper. Check them against your NCERT and class notes, and report anything that looks wrong.</p>
+        </section>
+
+        <!-- PYQ BANK -->
+        <section class="panel pyq-panel" id="pyqPanel" aria-labelledby="pyqTitle">
+          <div class="panel-head"><div><strong id="pyqTitle">PYQ Bank</strong><small id="pyqStatus">0 questions in your bank</small></div><span class="tiny-tag">YOUR DATA</span></div>
+          <p class="small-muted pyq-intro">Nemo ships <b>no</b> official question text, because it cannot be verified from here. Import questions you have taken from the official papers (<a href="https://jeeadv.ac.in/archive.html" target="_blank" rel="noopener noreferrer">JEE Advanced archive</a>, <a href="https://jeemain.nta.nic.in/" target="_blank" rel="noopener noreferrer">JEE Main / NTA</a>) and the practice and the chapter-by-year table below are computed from what you import.</p>
+          <details class="import-box" id="pyqImportBox" open>
+            <summary>Import questions</summary>
+            <textarea id="pyqText" rows="5" placeholder="Paste a JSON array or CSV here, or choose a file. Download a template to see the exact format." aria-label="Paste questions as JSON or CSV" spellcheck="false"></textarea>
+            <div class="btn-row">
+              <button class="primary" id="pyqImport">Import pasted text</button>
+              <label class="outline-btn file-btn">Choose file<input type="file" id="pyqFile" accept=".json,.csv,.txt,application/json,text/csv,text/plain" hidden></label>
+              <button class="outline-btn" id="pyqTplJson">Template (JSON)</button>
+              <button class="outline-btn" id="pyqTplCsv">Template (CSV)</button>
+              <button class="outline-btn" id="pyqPrompt" title="Prompt for turning an official paper plus its answer key into this format with an AI model">Copy extraction prompt</button>
+              <button class="outline-btn" id="pyqExport">Back up</button>
+              <button class="outline-btn danger" id="pyqClear">Remove imported</button>
+            </div>
+            <p class="small-muted">Answers are option letters (<code>B</code>, <code>A;C</code>) or a number. Type is <code>mcq</code>, <code>msq</code> or <code>num</code>. Rows that fail validation are skipped and listed.</p>
+          </details>
+          <p class="pyq-msg" id="pyqMsg" role="status" hidden></p>
+          <div class="pyq-filters">
+            <select id="pyqExam" aria-label="Exam"></select>
+            <select id="pyqYear" aria-label="Year"></select>
+            <select id="pyqBranch" aria-label="Branch"><option value="All">All branches</option><option>Physical</option><option>Inorganic</option><option>Organic</option></select>
+            <select id="pyqChapter" aria-label="Chapter"></select>
+            <select id="pyqState" aria-label="Progress"><option value="All">All questions</option><option value="new">Not attempted</option><option value="missed">Missed last time</option></select>
+            <button class="outline-btn" id="pyqStart">Start / restart</button>
+          </div>
+          <div id="pyqBody" aria-live="polite"></div>
+          <div class="pyq-analytics">
+            <div class="panel-head"><div><strong>Chapter frequency by year</strong><small>Counts of questions in your imported set</small></div><select id="pyqTableExam" aria-label="Exam for the table"></select></div>
+            <p class="pyq-msg warn" id="pyqCaution" hidden></p>
+            <div id="pyqTable"></div>
+            <div class="btn-row"><button class="outline-btn" id="pyqShowAll" hidden></button></div>
+            <div class="analytics-callout" id="pyqInsight"></div>
+            <p class="small-muted">Frequency shows how often a chapter appears in <i>your</i> imported questions. It is not an official statistic and says nothing about future papers.</p>
+          </div>
+        </section>
+
+        <!-- FORMULAS -->
+        <section class="panel formula-panel" id="formulasPanel" aria-labelledby="forTitle">
+          <div class="panel-head"><div><strong id="forTitle">Formula Bank</strong><small>Tap a formula for symbols, tips and a worked example</small></div>
+            <input id="formulaSearch" type="search" placeholder="Search formulas…" aria-label="Search formulas" autocomplete="off"></div>
+          <div class="chip-row" id="formulaFilters" role="group" aria-label="Filter by branch"></div>
+          <div class="formula-grid" id="formulaGrid"></div>
+          <p class="small-muted" id="formulaEmpty" hidden>No formula matches that search.</p>
+        </section>
+      </section>
+      <footer>Built for CBSE • JEE Main • JEE Advanced <span>Learn smarter. Think chemically. Verify carefully.</span></footer>
+    </main>
+  </div>
+
+  <div class="floating-nemo" id="nemoWidget">
+    <button class="widget-orb" id="widgetOrb" aria-label="Nemo assistant: open or close"><span class="widget-eye"></span><span class="widget-eye"></span><span class="widget-smile"></span><b>N</b></button>
+    <div class="widget-popover" id="widgetPopover" hidden>
+      <div class="popover-head"><b>Need a chemistry hint?</b><button id="closePopover" aria-label="Close">×</button></div>
+      <p>I'm Nemo. Tap below to jump back into your study session.</p>
+      <button id="jumpToChat">Chat with Nemo ↗</button>
+      <small>Drag the orb to move it. Use − to shrink it.</small>
+    </div>
+    <button class="widget-minimize" id="minimizeWidget" aria-label="Shrink Nemo" title="Shrink Nemo">−</button>
+  </div>
+</body>
+</html>

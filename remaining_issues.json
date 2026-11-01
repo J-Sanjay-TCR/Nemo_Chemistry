@@ -1,0 +1,758 @@
+[
+  {
+    "id": "reaction_quotient_direction",
+    "title": "Reaction Quotient Q & Equilibrium Direction",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "expr": "Q_c = Π [Products]^coeff / Π [Reactants]^coeff   |   Q < K: Forward   |   Q > K: Reverse",
+    "latex": "Q_c = Π [Products]^coeff / Π [Reactants]^coeff \\quad \\Big| \\quad Q < K: Forward \\quad \\Big| \\quad Q > K: Reverse",
+    "problems": [
+      "unicode: ΠΠ",
+      "merged_words: Products,coeff,Reactants,coeff,Forward,Reverse"
+    ]
+  },
+  {
+    "id": "simultaneous_solubility",
+    "title": "Simultaneous Solubility of Two Sparingly Soluble Salts",
+    "branch": "Physical",
+    "chapter": "Equilibrium",
+    "expr": "Common ion concentration is sum of contributions from both salts",
+    "latex": "Common ion concentration is sum of contributions from both salts",
+    "problems": [
+      "merged_words: Common,concentration,contributions,from,both,salts"
+    ]
+  },
+  {
+    "id": "hardness_of_water_calculation",
+    "title": "Total Hardness of Water in ppm CaCO₃ Equivalent",
+    "branch": "Physical",
+    "chapter": "Hydrogen",
+    "expr": "Hardness (ppm) = [ (Mass of hardness causing salt in mg) / (Molar mass of salt) ] × 100 × (10³ / V_water in L)",
+    "latex": "Hardness (ppm) = [ \\frac{Mass of hardness causing salt in mg}{Molar mass of salt} ]  \\times  100  \\times  (10^\\frac{3}{V_water} in L)",
+    "problems": [
+      "merged_words: Hardness,Mass,hardness,causing,salt,Molar,mass,salt,water"
+    ]
+  },
+  {
+    "id": "henderson",
+    "title": "Henderson–Hasselbalch equation",
+    "branch": "Physical",
+    "chapter": "Ionic equilibrium",
+    "expr": "pH = pKa + log ([A⁻]/[HA])",
+    "latex": "pH = pKa + \\log_{10} ([A^{-}]/[HA])",
+    "problems": [
+      "raw_slash_fraction"
+    ]
+  },
+  {
+    "id": "solubility_product",
+    "title": "Solubility Product (K_sp)",
+    "branch": "Physical",
+    "chapter": "Ionic Equilibrium",
+    "expr": "A_x B_y ⇌ x A^(y+) + y B^(x−)   =>   K_sp = x^x · y^y · S^(x+y)",
+    "latex": "\\ce{A_x B_y  <=>  x A^(y+) + y B^(x-)   =>   K_sp = x^x · y^y · S^(x+y)}",
+    "problems": [
+      "unicode: ··"
+    ]
+  },
+  {
+    "id": "density",
+    "title": "Density of a unit cell",
+    "branch": "Physical",
+    "chapter": "Solid state",
+    "expr": "ρ = Z·M / (a³·N_A)",
+    "latex": "\\rho  = Z \\cdot M / (a^3 \\cdot N_A)",
+    "problems": [
+      "raw_slash_fraction"
+    ]
+  },
+  {
+    "id": "braggs_law_diffraction",
+    "title": "Bragg's Law of X-Ray Diffraction",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "expr": "n · λ = 2 d · sin θ   |   d_hkl = a / √(h² + k² + l²)   (for cubic)",
+    "latex": "n  \\cdot  \\lambda  = 2 d  \\cdot  sin \\theta \\quad \\Big| \\quad d_hkl = a / \\sqrt{h^2 + k^2 + l^2}   (for cubic)",
+    "problems": [
+      "merged_words: cubic"
+    ]
+  },
+  {
+    "id": "solid_density",
+    "title": "Density and Geometry of Cubic Unit Cells",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "expr": "ρ = (Z · M) / (a³ · N_A)   ,   SC: a = 2r   ,   BCC: √3 a = 4r   ,   FCC: √2 a = 4r",
+    "latex": "\\rho  = (Z  \\cdot  M) / (a^3  \\cdot  N_A), \\quad SC: a = 2r, \\quad BCC: \\sqrt{3} a = 4r, \\quad FCC: \\sqrt{2} a = 4r",
+    "problems": [
+      "raw_slash_fraction"
+    ]
+  },
+  {
+    "id": "semiconductors_n_type_p_type",
+    "title": "Extrinsic Semiconductors: n-Type vs p-Type Doping",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "expr": "n-Type (Group 14 + Group 15, e.g. Si + P/As): Extra Free Electrons   |   p-Type (Group 14 + Group 13, e.g. Si + B/Al/Ga): Electron Holes",
+    "latex": "n-Type (Group 14 + Group 15, \\quad e.g. Si + \\frac{P}{As}): Extra Free Electrons \\quad \\Big| \\quad p-Type (Group 14 + Group 13, \\quad e.g. Si + \\frac{B}{Al}/Ga): Electron Holes",
+    "problems": [
+      "merged_words: Type,Group,Group,Extra,Free,Electrons,Type,Group,Group,Electron,Holes"
+    ]
+  },
+  {
+    "id": "f_centers_non_stoichiometric_colour",
+    "title": "F-Centres (Farbe Centres) & Non-Stoichiometric Crystal Colours",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "expr": "Anion Vacancy occupied by Trapped Electron = F-Centre (Farbe Centre)",
+    "latex": "Anion Vacancy occupied by Trapped Electron = F-Centre (Farbe Centre)",
+    "problems": [
+      "merged_words: Anion,Vacancy,occupied,Trapped,Electron,Centre,Farbe,Centre"
+    ]
+  },
+  {
+    "id": "frenkel_schottky_comparison",
+    "title": "Frenkel vs Schottky Defects in Ionic Solids",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "expr": "Schottky: missing cation-anion pair (lowers density, e.g. NaCl)   |   Frenkel: ion in interstitial site (density unchanged, e.g. AgCl)",
+    "latex": "Schottky: missing cation-anion pair (lowers density, \\quad e.g. NaCl) \\quad \\Big| \\quad Frenkel: ion in interstitial site (density unchanged, \\quad e.g. AgCl)",
+    "problems": [
+      "merged_words: Schottky,missing,cation,anion,pair,lowers,density,NaCl,Frenkel,interstitial,site,density,unchanged,AgCl"
+    ]
+  },
+  {
+    "id": "ferromagnetism_curie_weiss",
+    "title": "Magnetic Behaviors: Ferromagnetism, Antiferromagnetism & Ferrimagnetism",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "expr": "Ferromagnetic: Domains aligned parallel (Fe, Co, Ni, CrO₂)   |   Antiferromagnetic: Domains antiparallel, cancel (MnO)   |   Ferrimagnetic: Unequal opposing domains (Fe₃O₄, MgFe₂O₄)",
+    "latex": "Ferromagnetic: Domains aligned parallel (Fe, \\quad Co, \\quad Ni, \\quad CrO_2) \\quad \\Big| \\quad Antiferromagnetic: Domains antiparallel, \\quad cancel (MnO) \\quad \\Big| \\quad Ferrimagnetic: Unequal opposing domains (Fe_3O_4, \\quad MgFe_2O_4)",
+    "problems": [
+      "merged_words: Ferromagnetic,Domains,aligned,parallel,Antiferromagnetic,Domains,antiparallel,cancel,Ferrimagnetic,Unequal,opposing,domains,MgFe"
+    ]
+  },
+  {
+    "id": "piezoelectricity_pyroelectricity",
+    "title": "Piezoelectricity & Ferroelectricity in Crystals",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "expr": "Piezoelectric: Mechanical Stress ⇄ Electric Voltage (Quartz, Rochelle Salt)   |   Ferroelectric: Permanent spontaneous dipole moments (BaTiO₃)",
+    "latex": "Piezoelectric: Mechanical Stress ⇄ Electric Voltage (Quartz, \\quad Rochelle Salt) \\quad \\Big| \\quad Ferroelectric: Permanent spontaneous dipole moments (BaTiO_3)",
+    "problems": [
+      "unicode: ⇄",
+      "merged_words: Piezoelectric,Mechanical,Stress,Electric,Voltage,Quartz,Rochelle,Salt,Ferroelectric,Permanent,spontaneous,dipole,moments,BaTiO"
+    ]
+  },
+  {
+    "id": "fcc_tetrahedral_octahedral",
+    "title": "Tetrahedral & Octahedral Voids in FCC/CCP",
+    "branch": "Physical",
+    "chapter": "Solid State",
+    "expr": "N atoms in CCP: Octahedral Voids = N   ,   Tetrahedral Voids = 2N   ,   Total = 3N",
+    "latex": "N atoms in CCP: Octahedral Voids = N, \\quad Tetrahedral Voids = 2N, \\quad Total = 3N",
+    "problems": [
+      "merged_words: atoms,Octahedral,Voids,Tetrahedral,Voids,Total"
+    ]
+  },
+  {
+    "id": "azeotrope_types",
+    "title": "Azeotropic Binary Mixtures (Minimum vs Maximum Boiling)",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "expr": "Min-Boiling (Large +ve Deviation from Raoult): T_bp(azeo) < T_bp(pure)   |   Max-Boiling (Large −ve Deviation): T_bp(azeo) > T_bp(pure)",
+    "latex": "Min-Boiling (Large +ve Deviation from Raoult): T_bp(azeo) < T_bp(pure) \\quad \\Big| \\quad Max-Boiling (Large -ve Deviation): T_bp(azeo) > T_bp(pure)",
+    "problems": [
+      "merged_words: Boiling,Large,Deviation,from,Raoult,azeo,pure,Boiling,Large,Deviation,azeo,pure"
+    ]
+  },
+  {
+    "id": "colligative_properties",
+    "title": "Colligative Properties & Van 't Hoff Factor",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "expr": "RLVP: (P° − P)/P° = i · x_B   |   ΔT_b = i · K_b · m   |   ΔT_f = i · K_f · m   |   π = i · CRT",
+    "latex": "RLVP: (P^\\circ  - P)/P^\\circ  = i  \\cdot  x_B \\quad \\Big| \\quad \\Delta T_b = i  \\cdot  K_b  \\cdot  m \\quad \\Big| \\quad \\Delta T_f = i  \\cdot  K_f  \\cdot  m \\quad \\Big| \\quad \\pi  = i  \\cdot  CRT",
+    "problems": [
+      "raw_slash_fraction",
+      "merged_words: RLVP"
+    ]
+  },
+  {
+    "id": "landsberger_cottrell_ebullioscopy",
+    "title": "Landsberger & Cottrell Ebullioscopic Methods",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "expr": "M_B = (1000 · K_b · w_B) / (ΔT_b · W_A)   |   Beckmann Thermometer Precision = 0.01 °C",
+    "latex": "M_B = \\frac{1000  \\cdot  K_b  \\cdot  w_B}{\\Delta T_b  \\cdot  W_A} \\quad \\Big| \\quad Beckmann Thermometer Precision = 0.01 ^\\circ C",
+    "problems": [
+      "merged_words: Beckmann,Thermometer,Precision"
+    ]
+  },
+  {
+    "id": "nernst_distribution_law",
+    "title": "Nernst Distribution / Partition Law",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "expr": "K_D = C₁ / C₂ = constant   (at constant temperature for same molecular species in both immiscible solvents)",
+    "latex": "K_D = \\frac{C_1}{C_2} = constant   (at constant temperature for same molecular species in both immiscible solvents)",
+    "problems": [
+      "merged_words: constant,constant,temperature,same,molecular,species,both,immiscible,solvents"
+    ]
+  },
+  {
+    "id": "rasts_method_camphor",
+    "title": "Rast's Camphor Method for High-Precision Cryoscopy",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "expr": "M_B = (1000 · K_f · w_B) / (ΔT_f · W_A)   (for Camphor: K_f = 40.0 K kg mol⁻¹)",
+    "latex": "M_B = \\frac{1000  \\cdot  K_f  \\cdot  w_B}{\\Delta T_f  \\cdot  W_A}   (for Camphor: K_f = 40.0 K kg mol^{-1})",
+    "problems": [
+      "merged_words: Camphor"
+    ]
+  },
+  {
+    "id": "raoult",
+    "title": "Relative lowering of vapour pressure",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "expr": "(p° − p)/p° = x₂",
+    "latex": "(p^\\circ  - p)/p^\\circ  = x_2",
+    "problems": [
+      "raw_slash_fraction"
+    ]
+  },
+  {
+    "id": "relative_lowering_vapour_pressure",
+    "title": "Relative Lowering of Vapour Pressure (RLVP)",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "expr": "(P° − P_s) / P° = x_B   |   Exact: (P° − P_s) / P_s = n_B / n_A = (w_B · M_A) / (M_B · W_A)",
+    "latex": "(P^\\circ  - P_s) / P^\\circ  = x_B \\quad \\Big| \\quad Exact: (P^\\circ  - P_s) / P_s = \\frac{n_B}{n_A} = \\frac{w_B  \\cdot  M_A}{M_B  \\cdot  W_A}",
+    "problems": [
+      "raw_slash_fraction",
+      "merged_words: Exact"
+    ]
+  },
+  {
+    "id": "steam_distillation_formula",
+    "title": "Steam Distillation Law for Immiscible Liquids",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "expr": "(w_organic / w_water) = (P_organic° · M_organic) / (P_water° · M_water)",
+    "latex": "(\\frac{w_organic}{w_water}) = (P_organic^\\circ   \\cdot  M_organic) / (P_water^\\circ   \\cdot  M_water)",
+    "problems": [
+      "raw_slash_fraction",
+      "merged_words: organic,water,organic,organic,water,water"
+    ]
+  },
+  {
+    "id": "vant_hoff_factor_association_dissociation",
+    "title": "van 't Hoff Factor (i), Dissociation (α) & Association (β)",
+    "branch": "Physical",
+    "chapter": "Solutions",
+    "expr": "Dissociation: α = (i − 1) / (n − 1)   |   Association: β = (1 − i) / (1 − 1/m)",
+    "latex": "Dissociation: \\alpha  = \\frac{i - 1}{n - 1} \\quad \\Big| \\quad Association: \\beta  = (1 - i) / (1 - \\frac{1}{m})",
+    "problems": [
+      "raw_slash_fraction",
+      "merged_words: Dissociation,Association"
+    ]
+  },
+  {
+    "id": "dilution_and_mix",
+    "title": "Dilution Law & Solution Mixtures",
+    "branch": "Physical",
+    "chapter": "Solutions & Stoichiometry",
+    "expr": "M₁ V₁ = M₂ V₂   ,   M_mix = (M₁V₁ + M₂V₂ + ...) / (V₁ + V₂ + ...)",
+    "latex": "M_1 V_1 = M_2 V_2, \\quad M_mix = (M_1V_1 + M_2V_2 + ...) / (V_1 + V_2 + ...)",
+    "problems": [
+      "raw_slash_fraction"
+    ]
+  },
+  {
+    "id": "parts_per_million_ppm",
+    "title": "Parts per Million (ppm) & Parts per Billion (ppb)",
+    "branch": "Physical",
+    "chapter": "Solutions & Stoichiometry",
+    "expr": "ppm = (Mass of solute / Total mass of solution) × 10⁶   |   ppb = (Mass of solute / Total mass) × 10⁹",
+    "latex": "ppm = (Mass of \\frac{solute}{Total} mass of solution)  \\times  10^6 \\quad \\Big| \\quad ppb = (Mass of \\frac{solute}{Total} mass)  \\times  10^9",
+    "problems": [
+      "merged_words: Mass,solute,Total,mass,solution,Mass,solute,Total,mass"
+    ]
+  },
+  {
+    "id": "atomicity_molar_ratio",
+    "title": "Dulong–Petit Molar Heat Capacity Limit",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "expr": "C_m = 3 R ≈ 24.94 J K⁻¹ mol⁻¹   (High Temperature Limit)",
+    "latex": "C_m = 3 R  \\approx  24.94 J K^{-1} mol^{-1}   (High Temperature Limit)",
+    "problems": [
+      "merged_words: High,Temperature,Limit"
+    ]
+  },
+  {
+    "id": "empirical_molecular_formula",
+    "title": "Empirical & Molecular Formula Relation",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "expr": "Molecular Formula = (Empirical Formula)_n   ,   n = (Molar Mass) / (Empirical Formula Mass)",
+    "latex": "Molecular Formula = (Empirical Formula)_n, \\quad n = \\frac{Molar Mass}{Empirical Formula Mass}",
+    "problems": [
+      "merged_words: Molecular,Formula,Empirical,Formula,Molar,Mass,Empirical,Formula,Mass"
+    ]
+  },
+  {
+    "id": "combustion_alkane_general",
+    "title": "General Alkane Stoichiometric Combustion",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "expr": "C_n H_{2n+2} + [(3n+1)/2] O₂ → n CO₂ + (n+1) H₂O",
+    "latex": "\\ce{C_n H_{2n+2} + [(3n+1)/2] O_2  ->  n CO_2 + (n+1) H_2O}",
+    "problems": [
+      "raw_slash_fraction"
+    ]
+  },
+  {
+    "id": "combustion_alkyne_general",
+    "title": "General Alkyne Stoichiometric Combustion",
+    "branch": "Physical",
+    "chapter": "Some Basic Concepts of Chemistry",
+    "expr": "C_n H_{2n-2} + [(3n-1)/2] O₂ → n CO₂ + (n-1) H₂O",
+    "latex": "\\ce{C_n H_{2n-2} + [(3n-1)/2] O_2  ->  n CO_2 + (n-1) H_2O}",
+    "problems": [
+      "raw_slash_fraction"
+    ]
+  },
+  {
+    "id": "hydrogen_bonding_boiling_points",
+    "title": "Hydrogen Bonding & Anomalous Hydride Boiling Points",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "expr": "Boiling Points: H₂O (100 °C) >> H₂Te (−2 °C) > H₂Se (−41 °C) > H₂S (−60 °C)",
+    "latex": "Boiling Points: H_2O (100 ^\\circ C) >> H_2Te (-2 ^\\circ C) > H_2Se (-41 ^\\circ C) > H_2S (-60 ^\\circ C)",
+    "problems": [
+      "merged_words: Boiling,Points"
+    ]
+  },
+  {
+    "id": "hybrid_vsepr",
+    "title": "Steric Number & Hybridisation Formula",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "expr": "H = ½ (V + M − C + A)   ,   Steric Number = (Bond Pairs) + (Lone Pairs)",
+    "latex": "H = \\frac{1}{2} (V + M - C + A), \\quad Steric Number = (Bond Pairs) + (Lone Pairs)",
+    "problems": [
+      "merged_words: Steric,Number,Bond,Pairs,Lone,Pairs"
+    ]
+  },
+  {
+    "id": "steric_number_hybridisation",
+    "title": "Steric Number & Orbital Hybridisation",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding",
+    "expr": "SN = ½ [ V + M − C + A ]   =   (Number of σ-bonds) + (Number of Lone Pairs)",
+    "latex": "SN = \\frac{1}{2} [ V + M - C + A ]   =   (Number of σ-bonds) + (Number of Lone Pairs)",
+    "problems": [
+      "unicode: σ",
+      "merged_words: Number,bonds,Number,Lone,Pairs"
+    ]
+  },
+  {
+    "id": "bondorder",
+    "title": "Bond order from MOT",
+    "branch": "Inorganic",
+    "chapter": "Chemical bonding (MOT)",
+    "expr": "Bond order = ½ (Nb − Na)",
+    "latex": "Bond order = \\frac{1}{2} (Nb - Na)",
+    "problems": [
+      "merged_words: Bond,order"
+    ]
+  },
+  {
+    "id": "mot_bond_order",
+    "title": "Molecular Orbital Theory (MOT) Bond Order",
+    "branch": "Inorganic",
+    "chapter": "Chemical Bonding (MOT)",
+    "expr": "Bond Order = ½ (N_b − N_a)",
+    "latex": "Bond Order = \\frac{1}{2} (N_b - N_a)",
+    "problems": [
+      "merged_words: Bond,Order"
+    ]
+  },
+  {
+    "id": "slater_rules",
+    "title": "Slater's Rules & Effective Nuclear Charge",
+    "branch": "Inorganic",
+    "chapter": "Classification of Elements",
+    "expr": "Z* = Z − σ",
+    "latex": "Z* = Z - σ",
+    "problems": [
+      "unicode: σ"
+    ]
+  },
+  {
+    "id": "slater_rules_zeff",
+    "title": "Slater's Rules for Effective Nuclear Charge (Zeff)",
+    "branch": "Inorganic",
+    "chapter": "Classification of Elements",
+    "expr": "Z_eff = Z − σ   |   For ns/np electron: σ = 0.35(n−1_same) + 0.85(n−1) + 1.0(n−2_lower)",
+    "latex": "Z_eff = Z - σ \\quad \\Big| \\quad For \\frac{ns}{np} electron: σ = 0.35(n-1_same) + 0.85(n-1) + 1.0(n-2_lower)",
+    "problems": [
+      "unicode: σσ",
+      "merged_words: electron,same,lower"
+    ]
+  },
+  {
+    "id": "ean",
+    "title": "Effective atomic number (EAN)",
+    "branch": "Inorganic",
+    "chapter": "Coordination compounds",
+    "expr": "EAN = Z − (oxidation state) + 2 × (coordination number)",
+    "latex": "EAN = Z - (oxidation state) + 2  \\times  (coordination number)",
+    "problems": [
+      "merged_words: oxidation,state,coordination,number"
+    ]
+  },
+  {
+    "id": "chelate_effect_thermodynamics",
+    "title": "Chelate Effect & Macrocyclic Thermodynamic Stability",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "expr": "ΔG° = ΔH° − T ΔS°   (where ΔS° >> 0 due to release of multiple monodentate solvent molecules)",
+    "latex": "\\Delta G^\\circ  = \\Delta H^\\circ  - T \\Delta S^\\circ    (where \\Delta S^\\circ  >> 0 due to release of multiple monodentate solvent molecules)",
+    "problems": [
+      "merged_words: where,release,multiple,monodentate,solvent,molecules"
+    ]
+  },
+  {
+    "id": "cfse_octahedral_formula",
+    "title": "Crystal Field Splitting Energy (CFSE) in Octahedral Complexes",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "expr": "CFSE_oct = [ −0.4 · n(t_2g) + 0.6 · n(e_g) ] · Δ_o + m · P",
+    "latex": "CFSE_oct = [ -0.4  \\cdot  n(t_2g) + 0.6  \\cdot  n(e_g) ]  \\cdot  \\Delta _o + m  \\cdot  P",
+    "problems": [
+      "merged_words: CFSE"
+    ]
+  },
+  {
+    "id": "cfse_oct_tet",
+    "title": "Crystal Field Stabilization Energy (CFSE)",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "expr": "Octahedral: CFSE = (−0.4 n_t2g + 0.6 n_eg) Δ_o + mP   |   Tetrahedral: Δ_t = (4/9) Δ_o",
+    "latex": "Octahedral: CFSE = (-0.4 n_t2g + 0.6 n_eg) \\Delta _o + mP \\quad \\Big| \\quad Tetrahedral: \\Delta _t = (\\frac{4}{9}) \\Delta _o",
+    "problems": [
+      "merged_words: Octahedral,CFSE,Tetrahedral"
+    ]
+  },
+  {
+    "id": "ean_rule",
+    "title": "Effective Atomic Number (EAN / Sidgwick Rule)",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "expr": "EAN = Z − (Oxidation State) + 2 × (Coordination Number)",
+    "latex": "EAN = Z - (Oxidation State) + 2  \\times  (Coordination Number)",
+    "problems": [
+      "merged_words: Oxidation,State,Coordination,Number"
+    ]
+  },
+  {
+    "id": "effective_atomic_number_ean",
+    "title": "Sidgwick's Effective Atomic Number (EAN) Rule",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "expr": "EAN = Z − (Oxidation State) + 2 × (Coordination Number)",
+    "latex": "EAN = Z - (Oxidation State) + 2  \\times  (Coordination Number)",
+    "problems": [
+      "merged_words: Oxidation,State,Coordination,Number"
+    ]
+  },
+  {
+    "id": "cfse_tetrahedral_relation",
+    "title": "Tetrahedral Splitting (Δt) & CFSE",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "expr": "Δ_t = (4 / 9) · Δ_o   |   CFSE_tet = [ −0.6 · n(e) + 0.4 · n(t_2) ] · Δ_t",
+    "latex": "\\Delta _t = (\\frac{4}{9})  \\cdot  \\Delta _o \\quad \\Big| \\quad CFSE_tet = [ -0.6  \\cdot  n(e) + 0.4  \\cdot  n(t_2) ]  \\cdot  \\Delta _t",
+    "problems": [
+      "merged_words: CFSE"
+    ]
+  },
+  {
+    "id": "zeises_salt_structure",
+    "title": "Zeise's Salt: First Organometallic Alkene Complex",
+    "branch": "Inorganic",
+    "chapter": "Coordination Compounds",
+    "expr": "K[PtCl₃(η²−C₂H₄)] · H₂O   (Platinum(II) Square Planar)",
+    "latex": "K[PtCl_3(\\eta ^2-C_2H_4)]  \\cdot  H_2O   (Platinum(II) Square Planar)",
+    "problems": [
+      "merged_words: PtCl,Platinum,Square,Planar"
+    ]
+  },
+  {
+    "id": "ellingham_thermo",
+    "title": "Ellingham Diagram Thermodynamics",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "expr": "ΔG° = ΔH° − TΔS°   =>   Slope = −ΔS°",
+    "latex": "\\Delta G^\\circ  = \\Delta H^\\circ  - T\\Delta S^\\circ     \\implies    Slope = -\\Delta S^\\circ ",
+    "problems": [
+      "merged_words: Slope"
+    ]
+  },
+  {
+    "id": "ellingham_diagram_slopes",
+    "title": "Ellingham Diagram Thermodynamics & Reducing Agent Selection",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "expr": "ΔG° = ΔH° − T · ΔS°   |   Slope = −ΔS°",
+    "latex": "\\Delta G^\\circ  = \\Delta H^\\circ  - T  \\cdot  \\Delta S^\\circ \\quad \\Big| \\quad Slope = -\\Delta S^\\circ ",
+    "problems": [
+      "merged_words: Slope"
+    ]
+  },
+  {
+    "id": "mond_van_arkel_refining",
+    "title": "Mond Process & van Arkel–de Boer Refining Reactions",
+    "branch": "Inorganic",
+    "chapter": "General Principles of Metallurgy",
+    "expr": "Mond (Ni): Ni + 4CO (330–350 K) → Ni(CO)₄ —450–470 K→ Ni + 4CO   |   van Arkel (Zr/Ti): Zr + 2I₂ (870 K) → ZrI₄ —2075 K (W filament)→ Zr + 2I₂",
+    "latex": "\\ce{Mond \\text{ (Ni)}: Ni + 4CO (330–350 K)  ->  Ni\\text{ (CO)}_4  - 450–470 K ->  Ni + 4CO   |   van Arkel (Zr/Ti): Zr + 2I_2 (870 K)  ->  ZrI_4  - 2075 K \\text{ (W filament)} ->  Zr + 2I_2}",
+    "problems": [
+      "unicode: ––"
+    ]
+  },
+  {
+    "id": "borax_bead_test_reactions",
+    "title": "Borax Bead Test Chemistry & Transition Metal Colours",
+    "branch": "Inorganic",
+    "chapter": "Qualitative Analysis",
+    "expr": "Na₂B₄O₇ · 10H₂O —heat→ 2 NaBO₂ + B₂O₃ (Glassy Bead)   |   B₂O₃ + CuO —oxidising flame→ Cu(BO₂)₂ (Sky Blue Bead)",
+    "latex": "\\ce{Na_2B_4O_7 · 10H_2O  ->[\\Delta]  2 NaBO_2 + B_2O_3 \\text{ (Glassy Bead)}   |   B_2O_3 + CuO  - oxidising flame ->  Cu(BO_2)_2 \\text{ (Sky Blue Bead)}}",
+    "problems": [
+      "unicode: ·"
+    ]
+  },
+  {
+    "id": "flame_test_emission_colours",
+    "title": "Flame Test Characteristic Atomic Emission Colours",
+    "branch": "Inorganic",
+    "chapter": "Qualitative Analysis",
+    "expr": "Excited valence electrons de-excite to emit characteristic visible light photons: ΔE = h · c / λ",
+    "latex": "Excited valence electrons de-excite to emit characteristic visible light photons: \\Delta E = h  \\cdot  c / \\lambda ",
+    "problems": [
+      "merged_words: Excited,valence,electrons,excite,emit,characteristic,visible,light,photons"
+    ]
+  },
+  {
+    "id": "salt_analysis_group_reagents",
+    "title": "Systematic Group Reagents for Cation Analysis (Groups 0 to VI)",
+    "branch": "Inorganic",
+    "chapter": "Qualitative Analysis",
+    "expr": "Group Reagent Table for Qualitative Cation Separation",
+    "latex": "Group Reagent Table for Qualitative Cation Separation",
+    "problems": [
+      "merged_words: Group,Reagent,Table,Qualitative,Cation,Separation"
+    ]
+  },
+  {
+    "id": "fries_rearrangement",
+    "title": "Fries Rearrangement of Phenolic Esters",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "expr": "C₆H₅−O−COCH₃ (Phenyl Acetate) —anhyd. AlCl₃ (heat)→ o- & p-Hydroxyacetophenone",
+    "latex": "\\ce{C6H5-O-COCH3 ->[\\text{anhyd. } \\ce{AlCl3}][\\Delta] \\textit{o}- \\& \\textit{p}-hydroxyacetophenone}",
+    "problems": [
+      "merged_words: hydroxyacetophenone"
+    ]
+  },
+  {
+    "id": "libermann_nitroso_phenol",
+    "title": "Liebermann's Nitroso Reaction for Phenol",
+    "branch": "Organic",
+    "chapter": "Alcohols, Phenols and Ethers",
+    "expr": "Phenol + NaNO₂ / conc. H₂SO₄ → p-nitrosophenol ⇌ Indophenol (Deep Green/Blue) —dilute with water→ Red —add NaOH→ Deep Blue",
+    "latex": "\\ce{Phenol + NaNO2 + conc. H2SO4 -> \\textit{p}-nitrosophenol <=> Indophenol \\text{ (Green/Blue)}} \\xrightarrow{\\ce{H2O}} \\text{Red} \\xrightarrow{\\ce{NaOH}} \\text{Deep Blue}",
+    "problems": [
+      "merged_words: nitrosophenol,Indophenol"
+    ]
+  },
+  {
+    "id": "aldol_condensation",
+    "title": "Aldol & Cross-Aldol Condensation",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "expr": "2 R–CH₂–CHO + dil. NaOH ⇌ β-hydroxyaldehyde −H₂O → α,β-unsaturated aldehyde",
+    "latex": "\\ce{2 R–CH_2–CHO + dil. NaOH  <=>  \\beta -hydroxyaldehyde -H_2O  ->  \\alpha ,\\beta -unsaturated aldehyde}",
+    "problems": [
+      "unicode: ––"
+    ]
+  },
+  {
+    "id": "clemmensen_wolff",
+    "title": "Carbonyl Reductions to Hydrocarbons",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "expr": "Clemmensen: >C=O + Zn-Hg / conc. HCl → >CH₂   |   Wolff–Kishner: >C=O + NH₂NH₂ / KOH / glycol → >CH₂",
+    "latex": "\\textbf{Clemmensen: } \\ce{>C=O + Zn-Hg / conc. HCl  ->  >CH_2   |   Wolff–Kishner: >C=O + NH_2NH_2 / KOH / glycol  ->  >CH_2}",
+    "problems": [
+      "unicode: –"
+    ]
+  },
+  {
+    "id": "favorskii_rearrangement",
+    "title": "Favorskii Rearrangement of α-Haloketones",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "expr": "α-Haloketone + Base (RO⁻ / OH⁻) → Cyclopropanone Intermediate → Ester / Carboxylic Acid",
+    "latex": "\\ce{\\alpha -Haloketone + Base (RO^{-} / OH^{-})  ->  Cyclopropanone Intermediate  ->  Ester / Carboxylic Acid}",
+    "problems": [
+      "merged_words: Cyclopropanone,Intermediate,Ester,Carboxylic,Acid"
+    ]
+  },
+  {
+    "id": "hvz_reaction",
+    "title": "Hell–Volhard–Zelinsky (HVZ) Reaction",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "expr": "R–CH₂–COOH + X₂ / red P → R–CH(X)–COOH + HX   (X = Cl, Br)",
+    "latex": "\\ce{R–CH_2–COOH + X_2 / red P  ->  R–CH\\text{ (X)}–COOH + HX   (X = Cl, Br)}",
+    "problems": [
+      "unicode: ––––"
+    ]
+  },
+  {
+    "id": "hunsdiecker_reaction_decarboxylation",
+    "title": "Hunsdiecker Reaction (Decarboxylative Halogenation)",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "expr": "R−COOAg + Br₂ —CCl₄ (reflux)→ R−Br + CO₂↑ + AgBr↓",
+    "latex": "\\ce{R-COOAg + Br2 ->[\\ce{CCl4}, \\Delta] R-Br + CO2 ^ + AgBr v}",
+    "problems": [
+      "merged_words: AgBr"
+    ]
+  },
+  {
+    "id": "carboxylic_acid_ortho_effect",
+    "title": "Ortho Effect in Substituted Benzoic Acids",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "expr": "Ortho-substituted benzoic acids are STRONGER acids than benzoic acid, REGARDLESS of the electronic nature (+I/+M or −I/−M) of the substituent",
+    "latex": "\\text{\\textit{ortho}-Substituted benzoic acids are stronger acids than benzoic acid regardless of } \\pm I / \\pm M",
+    "problems": [
+      "merged_words: Substituted,benzoic,acids,stronger,acids,than,benzoic,acid,regardless"
+    ]
+  },
+  {
+    "id": "silver_salt_method_acids",
+    "title": "Silver Salt Method for Carboxylic Acid Basicity & Molar Mass",
+    "branch": "Organic",
+    "chapter": "Aldehydes, Ketones & Carboxylic Acids",
+    "expr": "Equivalent Mass of Acid = [ (108 · Mass of Silver Salt) / (Mass of Residue Ag) ] − 107",
+    "latex": "Equivalent Mass of Acid = [ \\frac{108  \\cdot  Mass of Silver Salt}{Mass of Residue Ag} ] - 107",
+    "problems": [
+      "merged_words: Equivalent,Mass,Acid,Mass,Silver,Salt,Mass,Residue"
+    ]
+  },
+  {
+    "id": "platinic_chloride_base_method",
+    "title": "Platinic Chloride Method for Organic Base Molar Mass",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "expr": "Molar Mass of Monoacidic Base = ½ · [ (195 · Mass of Salt) / (Mass of Residue Pt) − 410 ]",
+    "latex": "Molar Mass of Monoacidic Base = \\frac{1}{2}  \\cdot  [ \\frac{195  \\cdot  Mass of Salt}{Mass of Residue Pt} - 410 ]",
+    "problems": [
+      "merged_words: Molar,Mass,Monoacidic,Base,Mass,Salt,Mass,Residue"
+    ]
+  },
+  {
+    "id": "sandmeyer_vs_gattermann",
+    "title": "Sandmeyer vs Gattermann Reactions Comparison",
+    "branch": "Organic",
+    "chapter": "Amines",
+    "expr": "Sandmeyer: Ar−N₂⁺ Cl⁻ + CuCl/HCl → Ar−Cl + N₂   |   Gattermann: Ar−N₂⁺ Cl⁻ + Cu powder / HCl → Ar−Cl + N₂",
+    "latex": "\\textbf{Sandmeyer: } \\ce{Ar-N_2^{+} Cl^{-} + CuCl/HCl  ->  Ar-Cl + N_2   |   Gattermann: Ar-N_2^{+} Cl^{-} + Cu powder / HCl  ->  Ar-Cl + N_2}",
+    "problems": [
+      "merged_words: CuCl,Gattermann,powder"
+    ]
+  },
+  {
+    "id": "friedel_crafts_alkylation_traps",
+    "title": "Friedel–Crafts Alkylation Limitations & Carbocation Rearrangement",
+    "branch": "Organic",
+    "chapter": "Aromatic Compounds",
+    "expr": "Ar−H + R−Cl + AlCl₃ → Ar−R' + HCl   (Rearrangement occurs if R⁺ can form more stable ion)",
+    "latex": "\\ce{Ar-H + R-Cl + AlCl_3  ->  Ar-R' + HCl   (Rearrangement occurs if R^{+} can form more stable ion)}",
+    "problems": [
+      "merged_words: form,more,stable"
+    ]
+  },
+  {
+    "id": "amino_acid_isoelectric_point",
+    "title": "Isoelectric Point (pI) of Amino Acids",
+    "branch": "Organic",
+    "chapter": "Biomolecules",
+    "expr": "Neutral: pI = ½ (pK_a1 + pK_a2)   |   Acidic: pI = ½ (pK_a1 + pK_aR)   |   Basic: pI = ½ (pK_aR + pK_a2)",
+    "latex": "Neutral: pI = \\frac{1}{2} (pK_a1 + pK_a2) \\quad \\Big| \\quad Acidic: pI = \\frac{1}{2} (pK_a1 + pK_aR) \\quad \\Big| \\quad Basic: pI = \\frac{1}{2} (pK_aR + pK_a2)",
+    "problems": [
+      "merged_words: Neutral,Acidic,Basic"
+    ]
+  },
+  {
+    "id": "aspirin_synthesis_equation",
+    "title": "Synthesis of Aspirin (Acetylsalicylic Acid)",
+    "branch": "Organic",
+    "chapter": "Chemistry in Everyday Life",
+    "expr": "C₆H₄(OH)COOH (Salicylic Acid) + (CH₃CO)₂O (Acetic Anhydride) —conc. H₂SO₄→ C₆H₄(OCOCH₃)COOH (Aspirin) + CH₃COOH",
+    "latex": "\\ce{C6H4(OH)COOH + (CH3CO)2O ->[\\text{conc. } \\ce{H2SO4}] C6H4(OCOCH3)COOH \\text{ (Aspirin)} + CH3COOH}",
+    "problems": [
+      "merged_words: OCOCH,COOH,COOH"
+    ]
+  },
+  {
+    "id": "paracetamol_synthesis",
+    "title": "Synthesis of Paracetamol (Acetaminophen)",
+    "branch": "Organic",
+    "chapter": "Chemistry in Everyday Life",
+    "expr": "p-aminophenol (HO−C₆H₄−NH₂) + (CH₃CO)₂O → p-acetamidophenol (HO−C₆H₄−NHCOCH₃) + CH₃COOH",
+    "latex": "\\ce{\\textit{p}-aminophenol + (CH3CO)2O -> \\textit{p}-acetamidophenol \\text{ (Paracetamol)} + CH3COOH}",
+    "problems": [
+      "merged_words: aminophenol,acetamidophenol,COOH"
+    ]
+  },
+  {
+    "id": "baeyer_reagent_oxidation",
+    "title": "Baeyer's Test for Unsaturation (Cold Alkaline KMnO₄)",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "expr": "R−CH=CH₂ + cold dil. KMnO₄ (alkaline) → R−CH(OH)−CH₂(OH) (Syn-1,2-Diol)",
+    "latex": "\\ce{R-CH=CH2 + cold dil. KMnO4(alkaline) -> R-CH(OH)-CH2OH \\; (\\textit{syn}-1,2-diol)}",
+    "problems": [
+      "merged_words: diol"
+    ]
+  },
+  {
+    "id": "kucherov_reaction_alkynes",
+    "title": "Kucherov Hydration of Alkynes to Carbonyls",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "expr": "R−C≡CH + H₂O —1% HgSO₄ / 20% H₂SO₄ (333 K)→ [R−C(OH)=CH₂] (enol) → R−COCH₃ (Methyl Ketone)",
+    "latex": "\\ce{R-C#CH + H2O ->[1\\% \\ce{HgSO4} / 20\\% \\ce{H2SO4}][333\\text{ K}] [R-C(OH)=CH2] -> R-COCH3}",
+    "problems": [
+      "merged_words: COCH"
+    ]
+  },
+  {
+    "id": "alkyne_reduction_stereospecific",
+    "title": "Stereospecific Reduction of Alkynes to Cis and Trans Alkenes",
+    "branch": "Organic",
+    "chapter": "Hydrocarbons",
+    "expr": "Cis (Z): R−C≡C−R' + H₂ / Pd−CaCO₃ (Lindlar) → Cis-Alkene   |   Trans (E): R−C≡C−R' + Na / liq. NH₃ (Birch) → Trans-Alkene",
+    "latex": "\\textbf{\\textit{Cis} (Z): } \\ce{R-C#C-R' + H2 ->[\\text{Lindlar}] \\textit{cis}-alkene} \\quad \\Big| \\quad \\textbf{\\textit{Trans} (E): } \\ce{R-C#C-R' + Na/liq. NH3 -> \\textit{trans}-alkene}",
+    "problems": [
+      "merged_words: alkene,alkene"
+    ]
+  }
+]

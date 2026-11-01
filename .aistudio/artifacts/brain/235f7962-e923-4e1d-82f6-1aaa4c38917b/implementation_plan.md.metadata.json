@@ -1,0 +1,6 @@
+{
+  "summary": "Comprehensive implementation plan to fully integrate Nemo Chemistry Tutor into ChemPYQ Studio as a unified, synchronized web application. Replaces the standalone iframe with native React panels for Nemo Chat, Reaction Canvas, and Study Analytics; ports Nemo's signature CSS animations, vibrating haptics, shake on wrong answer, and neon-green correct pulse; introduces an interactive floating Nemo mascot with real-time reactive expressions; and unifies visual styles and navigation across all views.",
+  "updatedAt": "2026-10-13T11:49:20.692988183Z",
+  "requestFeedback": true,
+  "userFacing": true
+}

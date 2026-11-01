@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071126">
+  <meta name="description" content="Offline-first chemistry tutor for CBSE and JEE: rotatable 3D molecules, a rules and exceptions library, a PYQ bank you import yourself, practice analytics, and optional Gemini chat through a server-side key.">
+  <meta property="og:title" content="Nemo Chemistry Tutor">
+  <meta property="og:description" content="Offline-first chemistry tutor for CBSE and JEE: rotatable 3D molecules, a rules and exceptions library, a PYQ bank you import yourself, practice analytics, and optional Gemini chat through a server-side key.">
+  <title>Nemo Chemistry Tutor — CBSE &amp; JEE Chemistry Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="vendor/katex/katex.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css'">
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/katex/katex.min.js" defer></script>
+  <script src="vendor/katex/contrib/mhchem.min.js" defer></script>
+  <script src="molecules.js" defer></script>
+  <script src="data.js" defer></script>
+  <script src="lib-physical.js" defer></script>
+  <script src="lib-inorganic.js" defer></script>
+  <script src="lib-organic.js" defer></script>
+  <script src="lib-organic2.js" defer></script>
+  <script src="lib-practical.js" defer></script>
+  <script src="pyq.js" defer></script>
+  <script src="system-prompt.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#chatPanel">Skip to chat</a>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#top" aria-label="Nemo home"><span class="brand-mark" aria-hidden="true">⚛</span><span>Nemo<small>AI Chemistry Tutor</small></span></a>
+      <div class="syllabus-pill" aria-label="Syllabus coverage">CBSE <i></i> JEE MAIN <i></i> JEE ADVANCED</div>
+      
+      <div class="nav-group">
+        <div class="nav-group-title">STUDY &amp; SIMULATION</div>
+        <nav aria-label="Study Sections">
+          <a class="nav-item active" href="#chatPanel" data-target="chatPanel"><em aria-hidden="true">▣</em><span>Chat with Nemo</span></a>
+          <a class="nav-item" href="#moleculePanel" data-target="moleculePanel"><em aria-hidden="true">⬡</em><span>3D Molecules</span><span class="nav-badge-pill">3D</span></a>
+          <a class="nav-item" href="#canvasPanel" data-target="canvasPanel"><em aria-hidden="true">✎</em><span>Reaction Canvas</span></a>
+        </nav>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">DRILLS &amp; EXAMS</div>
+        <nav aria-label="Assessment Sections">
+          <a class="nav-item" href="#practicePanel" data-target="practicePanel"><em aria-hidden="true">✔</em><span>Practice Quiz</span></a>
+          <a class="nav-item" href="#analyticsPanel" data-target="analyticsPanel"><em aria-hidden="true">▥</em><span>Study Analytics</span></a>
+          <a class="nav-item" href="#pyqPanel" data-target="pyqPanel"><em aria-hidden="true">⌗</em><span>10-Yr PYQ Bank</span><span class="nav-badge-pill gold">2016-26</span></a>
+        </nav>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">REFERENCE &amp; RULES</div>
+        <nav aria-label="Reference Sections">
+          <a class="nav-item" href="#formulasPanel" data-target="formulasPanel"><em aria-hidden="true">∑</em><span>Formula Bank</span><span class="nav-badge-pill">400+</span></a>
+          <a class="nav-item" href="#libraryPanel" data-target="libraryPanel"><em aria-hidden="true">§</em><span>Rules &amp; Exceptions</span></a>
+        </nav>
+      </div>
+
+      <div class="nav-group founder-nav-group">
+        <div class="nav-group-title">VISIONARY ARCHITECT</div>
+        <nav aria-label="Founder section">
+          <button class="nav-item nav-founder-btn" id="founderNavBtn" type="button" aria-label="Open J.Sanjay Founder Tribute">
+            <em aria-hidden="true" class="founder-star">★</em>
+            <div class="founder-nav-label">
+              <span class="founder-name">J.Sanjay</span>
+              <span class="founder-role">Creator &amp; Engineer</span>
+            </div>
+            <span class="founder-chip">FOUNDER</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-note">
+        <div class="sidebar-status-row">
+          <span class="online-dot" id="modeDot"></span>
+          <span id="modeLabel">Offline study mode</span>
+        </div>
+        <p>Physical • Organic • Inorganic</p>
+        <small>AI answers should be checked against trusted textbooks and official keys.</small>
+        <details class="ai-settings" id="aiSettings">
+          <summary>Use my own Gemini key</summary>
+          <p>For the single-file build or any copy without a server. The key is stored only in this browser and sent only to Google.</p>
+          <input id="aiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Gemini API key" aria-label="Gemini API key">
+          <input id="aiModel" type="text" autocomplete="off" spellcheck="false" placeholder="model (default gemini-flash-latest)" aria-label="Gemini model name">
+          <div class="btn-row"><button class="outline-btn" id="aiSave">Save</button><button class="outline-btn danger" id="aiRemove">Remove</button></div>
+          <p id="aiMsg" role="status"></p>
+        </details>
+      </div>
+    </aside>
+
+    <main class="main" id="top">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">HIGH-PERFORMANCE CHEMISTRY INTELLIGENCE</span>
+          <h1>Master Chemistry with <span>Nemo</span></h1>
+        </div>
+        <div class="top-actions">
+          <button class="founder-top-btn" id="openFounderTopBtn" type="button" title="Meet the Creator &amp; Engineer J.Sanjay">
+            <span class="badge-star">★</span> Founder: J.Sanjay
+          </button>
+          <button class="ghost-btn" id="floatToggle" aria-pressed="true" title="Show or hide floating Nemo">◉ Floating Nemo</button>
+        </div>
+      </header>
+
+      <section class="hero" aria-label="Welcome">
+        <div class="hero-copy">
+          <div class="hero-tag-row">
+            <span class="tag">✦ AI CHEMISTRY COMPANION</span>
+            <button class="hero-founder-pill" id="openFounderHeroBtn" type="button">
+              ★ Engineered by J.Sanjay
+            </button>
+          </div>
+          <h2>Accelerate your chemistry with <span>deep reasoning</span> &amp; 3D insight.</h2>
+          <p>Master intricate organic mechanisms, crystal field orbital splitting, coordination exceptions, and physical derivations for CBSE Class 12, JEE Main, and JEE Advanced.</p>
+          <div class="hero-chips">
+            <span>⚗ Physical • Organic • Inorganic</span>
+            <span>🧠 Gemini Flash Reasoning</span>
+            <span>◎ Rotatable 3D Molecules</span>
+            <span>∑ 418+ KaTeX Formulas</span>
+          </div>
+        </div>
+        <div class="hero-mascot" aria-hidden="true">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="nemo-face"><div class="eyes"><i></i><i></i></div><div class="smile"></div><div class="cheek left"></div><div class="cheek right"></div><b>N</b></div>
+          <span class="float-symbol symbol-a">CH₃</span><span class="float-symbol symbol-b">H₂O</span><span class="float-symbol symbol-c">⌬</span>
+        </div>
+      </section>
+
+      <div class="workspace-tabs-bar" role="tablist" aria-label="Filter workspace modules">
+        <button class="ws-tab active" data-filter="all" role="tab" aria-selected="true">✦ All Modules</button>
+        <button class="ws-tab" data-filter="tutor" role="tab" aria-selected="false">💬 AI Tutor &amp; 3D Lab</button>
+        <button class="ws-tab" data-filter="practice" role="tab" aria-selected="false">✔ Practice &amp; Analytics</button>
+        <button class="ws-tab" data-filter="library" role="tab" aria-selected="false">§ Rules &amp; Canvas</button>
+        <button class="ws-tab" data-filter="pyq" role="tab" aria-selected="false">⌗ 10-Yr PYQ Bank</button>
+        <button class="ws-tab" data-filter="formulas" role="tab" aria-selected="false">∑ Formula Bank</button>
+      </div>
+
+      <noscript><p class="small-muted">Nemo needs JavaScript to run.</p></noscript>
+
+      <section class="workspace">
+        <!-- CHAT -->
+        <section class="panel chat-panel" id="chatPanel" aria-labelledby="chatTitle">
+          <div class="panel-head">
+            <div><span class="status-dot"></span><strong id="chatTitle">Chat with Nemo</strong><small>Deep reasoning • step-by-step mechanisms • derivations</small></div>
+            <div class="head-actions">
+              <select id="levelSelect" class="level-select" aria-label="Answer level for AI replies" title="Answer level (used when the AI is connected)">
+                <option value="auto">Level: Auto</option>
+                <option value="cbse">CBSE 11/12</option>
+                <option value="main">JEE Main</option>
+                <option value="adv">JEE Advanced</option>
+              </select>
+              <button class="icon-btn" id="speakToggle" aria-pressed="false" title="Read answers aloud">🔇</button>
+              <button class="icon-btn" id="clearChat" title="Clear conversation" aria-label="Clear conversation">↺</button>
+            </div>
+          </div>
+          <div class="chat-messages" id="messages" role="log" aria-live="polite" aria-label="Conversation"></div>
+          <div class="prompt-row">
+            <button class="round-action" id="voiceBtn" title="Start voice input" aria-label="Start voice input">🎙</button>
+            <textarea id="questionInput" rows="1" maxlength="2000" aria-label="Your question" placeholder="Ask Nemo about a mechanism, exception, derivation, or numerical…"></textarea>
+            <button class="send-btn" id="sendBtn" aria-label="Send message" disabled>➤</button>
+          </div>
+          <div class="quick-prompts" aria-label="Quick prompts">
+            <button class="founder-prompt-btn" data-topic="founder" data-prompt="Who created and engineered Nemo Chemistry Tutor? Tell me about the founder J.Sanjay.">★ Founder: J.Sanjay</button>
+            <button data-topic="sn1" data-prompt="Explain the SN1 reaction mechanism step by step, including carbocation rearrangements and stereochemistry.">SN1 mechanism</button>
+            <button data-topic="sn2" data-prompt="Explain the SN2 reaction mechanism, its stereochemistry (Walden inversion) and steric hindrance factors.">SN2 mechanism</button>
+            <button data-topic="nernst" data-prompt="Explain the Nernst equation and show how to apply it in a multi-electron JEE numerical with cell potential.">Nernst equation</button>
+            <button data-topic="exceptions" data-prompt="Give me a structured revision of important coordination compound exceptions, Jahn-Teller effect, and spectrochemical series reasons.">Inorganic exceptions</button>
+            <button data-topic="vsepr" data-prompt="Explain VSEPR theory, steric number hybridisation and shapes of molecules with lone pairs (e.g. XeF4, SF4, ClF3).">VSEPR &amp; shapes</button>
+            <button data-topic="markovnikov" data-prompt="Explain Markovnikov's rule and the anti-Markovnikov peroxide effect (Kharasch effect) with free radical mechanism.">Markovnikov &amp; Peroxide</button>
+            <button data-topic="eas" data-prompt="Explain electrophilic aromatic substitution directing effects of ortho/para vs meta activators and deactivators with resonance structures.">Aromatic substitution</button>
+          </div>
+        </section>
+
+        <!-- 3D MOLECULES -->
+        <section class="panel molecule-panel" id="moleculePanel" aria-labelledby="molTitle">
+          <div class="panel-head"><div><strong id="molTitle">3D Molecular Viewer</strong><small>Drag to rotate • scroll or pinch to zoom</small></div><span class="tiny-tag">WORKS OFFLINE</span></div>
+          <div class="molecule-controls">
+            <label for="moleculeSelect">Molecule</label>
+            <select id="moleculeSelect"></select>
+          </div>
+          <div class="molecule-controls mol-filter-row">
+            <input type="search" id="molFilter" placeholder="Filter: NaCl, octahedral, benzene, unit cell…" aria-label="Filter the molecule list" autocomplete="off" />
+            <small class="small-muted" id="molCount" aria-live="polite"></small>
+          </div>
+          <div id="moleculeViewer">
+            <canvas id="molCanvas" aria-label="Interactive 3D molecule" tabindex="0"></canvas>
+            <div class="viewer-hint" id="viewerHint">Loading…</div>
+          </div>
+          <div class="viewer-tools" role="group" aria-label="Viewer options">
+            <label>Style
+              <select id="molStyle"><option value="ball">Ball &amp; stick</option><option value="stick">Sticks</option><option value="space">Space-filling</option></select>
+            </label>
+            <label class="check"><input type="checkbox" id="molSpin" checked> Spin</label>
+            <label class="check"><input type="checkbox" id="molLabels"> Labels</label>
+            <label class="check" id="lpWrap"><input type="checkbox" id="molLP" checked> Lone pairs</label>
+            <button id="molReset" type="button">Reset view</button>
+          </div>
+          <div class="viewer-legend" id="viewerLegend"></div>
+          <dl class="mol-info" id="moleculeInfo" aria-live="polite"></dl>
+          <form class="pubchem-row" id="pubchemForm">
+            <label for="pubchemInput" class="sr-only">Search PubChem</label>
+            <input id="pubchemInput" type="text" placeholder="Search any molecule on PubChem, e.g. caffeine" autocomplete="off" maxlength="80">
+            <button type="submit">Fetch 3D</button>
+          </form>
+          <p class="small-muted" id="pubchemMsg">Optional: PubChem search needs internet. Built-in molecules always work offline.</p>
+        </section>
+
+        <!-- PRACTICE -->
+        <section class="panel practice-panel" id="practicePanel" aria-labelledby="pracTitle">
+          <div class="panel-head"><div><strong id="pracTitle">Practice</strong><small>Original study questions • not official PYQs</small></div>
+            <select id="practiceBranch" aria-label="Choose branch"><option value="All">All branches</option><option>Physical</option><option>Inorganic</option><option>Organic</option></select></div>
+          <div id="quizBody" aria-live="polite"></div>
+        </section>
+
+        <!-- ANALYTICS -->
+        <section class="panel analytics-panel" id="analyticsPanel" aria-labelledby="anaTitle">
+          <div class="panel-head"><div><strong id="anaTitle">Study Analytics</strong><small>Based on your own practice answers</small></div><span class="tiny-tag">YOUR DATA</span></div>
+          <div class="stat-row" id="statRow"></div>
+          <div class="chart-bars" id="chartBars"></div>
+          <div class="analytics-callout" id="focusCallout"></div>
+          <div class="btn-row">
+            <button class="outline-btn" id="analyticsExplain">How should PYQ analytics work?</button>
+            <button class="outline-btn danger" id="resetStats">Reset my stats</button>
+          </div>
+          <p class="small-muted">Stored only in this browser. Nothing is uploaded and nothing here is official JEE or CBSE statistics.</p>
+        </section>
+
+        <!-- CANVAS -->
+        <section class="panel canvas-panel" id="canvasPanel" aria-labelledby="canTitle">
+          <div class="panel-head"><div><strong id="canTitle">Reaction Canvas</strong><small>Sketch and annotate mechanisms</small></div></div>
+          <div class="canvas-tools" role="toolbar" aria-label="Drawing tools">
+            <button id="toolPen" class="tool active" aria-pressed="true">✎ Pen</button>
+            <button id="toolArrow" class="tool" aria-pressed="false">↗ Arrow</button>
+            <button id="toolEraser" class="tool" aria-pressed="false">⌫ Eraser</button>
+            <label>Ink <input id="inkColor" type="color" value="#53e4ff"></label>
+            <label>Width <input id="inkWidth" type="range" min="1" max="10" value="3"></label>
+            <button id="undoStroke">↶ Undo</button>
+            <button id="clearCanvas">Clear</button>
+            <button id="saveCanvas">⇩ Save PNG</button>
+          </div>
+          <canvas id="reactionCanvas" aria-label="Chemistry drawing canvas"></canvas>
+          <p class="small-muted">Draw with your finger, pen or mouse. Arrows are visual annotations only; this is a sketch pad, not a structure or mechanism validator.</p>
+        </section>
+
+        <!-- LIBRARY -->
+        <section class="panel library-panel" id="libraryPanel" aria-labelledby="libTitle">
+          <div class="panel-head"><div><strong id="libTitle">Rules &amp; Exceptions Library</strong><small>Laws, special cases, exceptions, trends, name reactions and tests for Physical, Inorganic and Organic</small></div>
+            <input id="libSearch" type="search" placeholder="Search e.g. Bredt, Hofmann, Jahn–Teller…" aria-label="Search the library" autocomplete="off"></div>
+          <div class="chip-row" id="libBranch" role="group" aria-label="Filter by branch"></div>
+          <div class="lib-filters">
+            <select id="libChapter" aria-label="Filter by chapter"></select>
+            <select id="libType" aria-label="Filter by type"></select>
+            <select id="libLevel" aria-label="Filter by level"></select>
+            <span class="small-muted" id="libCount" role="status"></span>
+          </div>
+          <div class="lib-list" id="libList"></div>
+          <div class="btn-row"><button class="outline-btn" id="libMore" hidden>Show more</button></div>
+          <p class="small-muted" id="libEmpty" hidden>No entry matches those filters.</p>
+          <p class="small-muted">Original summaries written from standard NCERT, IUPAC and textbook knowledge. They are not copied from any coaching module or paper. Check them against your NCERT and class notes, and report anything that looks wrong.</p>
+        </section>
+
+        <!-- PYQ BANK -->
+        <section class="panel pyq-panel" id="pyqPanel" aria-labelledby="pyqTitle">
+          <div class="panel-head"><div><strong id="pyqTitle">PYQ Bank</strong><small id="pyqStatus">113 questions · 10-Year Archive (2016–2026)</small></div><span class="tiny-tag">CBSE &amp; JEE ARCHIVE</span></div>
+          <p class="small-muted pyq-intro">Browse, filter, and practice 113+ verified previous year questions from CBSE Class 12 Board, JEE Main, and JEE Advanced (all shifts and papers from 2016 to 2026). You can also import custom question sets or back up your progress below.</p>
+          <details class="import-box" id="pyqImportBox">
+            <summary>Import custom questions (optional)</summary>
+            <textarea id="pyqText" rows="4" placeholder="Paste a JSON array or CSV here, or choose a file. Download a template to see the exact format." aria-label="Paste questions as JSON or CSV" spellcheck="false"></textarea>
+            <div class="btn-row">
+              <button class="primary" id="pyqImport">Import pasted text</button>
+              <label class="outline-btn file-btn">Choose file<input type="file" id="pyqFile" accept=".json,.csv,.txt,application/json,text/csv,text/plain" hidden></label>
+              <button class="outline-btn" id="pyqTplJson">Template (JSON)</button>
+              <button class="outline-btn" id="pyqTplCsv">Template (CSV)</button>
+              <button class="outline-btn" id="pyqPrompt" title="Prompt for turning an official paper plus its answer key into this format with an AI model">Copy extraction prompt</button>
+              <button class="outline-btn" id="pyqExport">Back up</button>
+              <button class="outline-btn danger" id="pyqClear">Remove imported</button>
+            </div>
+            <p class="small-muted">Answers are option letters (<code>B</code>, <code>A;C</code>) or a number. Type is <code>mcq</code>, <code>msq</code> or <code>num</code>. Rows that fail validation are skipped and listed.</p>
+          </details>
+          <p class="pyq-msg" id="pyqMsg" role="status" hidden></p>
+          <div class="pyq-filters">
+            <select id="pyqExam" aria-label="Exam"></select>
+            <select id="pyqYear" aria-label="Year"></select>
+            <select id="pyqBranch" aria-label="Branch"><option value="All">All branches</option><option>Physical</option><option>Inorganic</option><option>Organic</option></select>
+            <select id="pyqChapter" aria-label="Chapter"></select>
+            <select id="pyqState" aria-label="Progress"><option value="All">All questions</option><option value="new">Not attempted</option><option value="missed">Missed last time</option></select>
+            <button class="outline-btn" id="pyqStart">Start / restart</button>
+          </div>
+          <div id="pyqBody" aria-live="polite"></div>
+          <div class="pyq-analytics">
+            <div class="panel-head"><div><strong>Chapter frequency by year</strong><small>Counts of questions in your imported set</small></div><select id="pyqTableExam" aria-label="Exam for the table"></select></div>
+            <p class="pyq-msg warn" id="pyqCaution" hidden></p>
+            <div id="pyqTable"></div>
+            <div class="btn-row"><button class="outline-btn" id="pyqShowAll" hidden></button></div>
+            <div class="analytics-callout" id="pyqInsight"></div>
+            <p class="small-muted">Frequency shows how often a chapter appears in <i>your</i> imported questions. It is not an official statistic and says nothing about future papers.</p>
+          </div>
+        </section>
+
+        <!-- FORMULAS -->
+        <section class="panel formula-panel" id="formulasPanel" aria-labelledby="forTitle">
+          <div class="panel-head">
+            <div>
+              <strong id="forTitle">Formula Bank</strong>
+              <small>Structured KaTeX equations &amp; derivations for CBSE &amp; JEE</small>
+            </div>
+            <div class="formula-head-controls">
+              <select id="formulaChapter" aria-label="Filter formulas by chapter">
+                <option value="All">All chapters</option>
+              </select>
+              <input id="formulaSearch" type="search" placeholder="Search 400+ formulas, symbols, topics…" aria-label="Search formulas" autocomplete="off">
+            </div>
+          </div>
+          <div class="chip-row" id="formulaFilters" role="group" aria-label="Filter by branch"></div>
+          <div class="formula-grid" id="formulaGrid"></div>
+          <p class="small-muted" id="formulaEmpty" hidden>No formula matches that search.</p>
+          <div class="btn-row formula-more-row" id="formulaMoreWrap" style="justify-content:center;margin-top:16px;">
+            <button class="outline-btn" id="formulaMore">Show more formulas</button>
+          </div>
+        </section>
+      </section>
+      <footer>Built for CBSE • JEE Main • JEE Advanced <span>Learn smarter. Think chemically. Verify carefully.</span></footer>
+    </main>
+  </div>
+
+  <div class="floating-nemo" id="nemoWidget">
+    <div class="nemo-sphere-anchor">
+      <!-- Ground contact oscillating shadow for 3D depth -->
+      <div class="nemo-contact-shadow" id="nemoShadow" aria-hidden="true"></div>
+
+      <!-- 3D Spherical Mascot Orb with Ray Shading, Specular Glass Sheen & Fresnel Rim -->
+      <button class="widget-orb nemo-3d-sphere" id="widgetOrb" aria-label="Nemo 3D companion: open or close" data-state="chat">
+        <!-- Curved Glass Specular Highlight -->
+        <span class="nemo-sphere-specular" aria-hidden="true"></span>
+        <!-- Ambient Bounce Rim Illumination -->
+        <span class="nemo-sphere-bounce" aria-hidden="true"></span>
+        <!-- Luminous Energy Halo Ring -->
+        <span class="nemo-energy-ring" aria-hidden="true"></span>
+
+        <!-- High-Contrast Illuminated Visor Faceplate (pops clearly in dark backgrounds) -->
+        <div class="nemo-visor-faceplate" id="nemoFaceplate">
+          <div class="nemo-visor-screen">
+            <!-- Glowing Neon Eyes with Pupils and Specular Glints -->
+            <div class="nemo-eyes-row" id="nemoEyes">
+              <span class="nemo-eye left"><i class="nemo-pupil"></i><i class="nemo-glint"></i></span>
+              <span class="nemo-eye right"><i class="nemo-pupil"></i><i class="nemo-glint"></i></span>
+            </div>
+            <!-- Luminous Blush Cheeks -->
+            <span class="nemo-blush left" aria-hidden="true"></span>
+            <span class="nemo-blush right" aria-hidden="true"></span>
+            <!-- Expressive Glowing Mouth -->
+            <div class="nemo-mouth" id="nemoMouth"></div>
+            <!-- Reactive Section Badge -->
+            <span class="nemo-orb-badge" id="nemoOrbBadge">Chat</span>
+          </div>
+        </div>
+        <b class="nemo-letter-n" aria-hidden="true">N</b>
+      </button>
+
+      <!-- Active View Mood Floating Bubble -->
+      <div class="nemo-mood-bubble" id="nemoMoodBubble" aria-hidden="true">
+        <span class="mood-icon" id="nemoMoodIcon">💬</span>
+        <span class="mood-text" id="nemoMoodText">Ready to help!</span>
+      </div>
+    </div>
+
+    <!-- Companion Quick Access & On-Demand Chemistry Hints Popover -->
+    <div class="widget-popover" id="widgetPopover" hidden>
+      <div class="popover-head">
+        <div class="popover-title">
+          <span class="pulse-spark">✨</span>
+          <strong id="popoverHeading">Nemo 3D Companion</strong>
+        </div>
+        <button id="closePopover" aria-label="Close popover">×</button>
+      </div>
+      <p id="popoverContextText">I'm tracking your study session! Jump into any section or listen to a key tip:</p>
+      <div class="nemo-quick-nav">
+        <button class="qn-btn" type="button" data-target="chatPanel">💬 Chat &amp; Hints</button>
+        <button class="qn-btn" type="button" data-target="moleculePanel">⬡ 3D Molecules</button>
+        <button class="qn-btn" type="button" data-target="practicePanel">✔ Practice Quiz</button>
+        <button class="qn-btn" type="button" data-target="analyticsPanel">▥ Analytics</button>
+        <button class="qn-btn" type="button" data-target="libraryPanel">§ Rules &amp; Traps</button>
+        <button class="qn-btn" type="button" data-target="pyqPanel">⌗ PYQ Bank</button>
+        <button class="qn-btn" type="button" data-target="formulasPanel">∑ Formulas</button>
+      </div>
+      <div class="popover-actions">
+        <button id="readSectionHint" class="action-btn-accent" type="button">🔊 Hear Section Tip</button>
+        <button id="jumpToChat" class="action-btn-primary" type="button">Open Chat with Nemo ↗</button>
+      </div>
+      <small>Drag the 3D sphere anywhere. Click to toggle. Use − to minimize.</small>
+    </div>
+    <button class="widget-minimize" id="minimizeWidget" aria-label="Minimize Nemo" title="Minimize Nemo">−</button>
+  <!-- DEDICATED FOUNDER TRIBUTE MODAL (J.SANJAY) -->
+  <div class="founder-modal-backdrop" id="founderModal" role="dialog" aria-modal="true" aria-labelledby="founderModalTitle" hidden>
+    <div class="founder-modal-card">
+      <button class="founder-modal-close" id="closeFounderModal" aria-label="Close founder tribute">&times;</button>
+      <div class="founder-decorations" aria-hidden="true">
+        <span class="founder-sparkle s1">✦</span>
+        <span class="founder-sparkle s2">★</span>
+        <span class="founder-sparkle s3">✦</span>
+        <span class="founder-sparkle s4">★</span>
+      </div>
+
+      <div class="founder-modal-header">
+        <div class="founder-avatar-wrap">
+          <div class="founder-avatar-hologram">
+            <span class="founder-monogram">JS</span>
+          </div>
+          <div class="founder-ring-pulse"></div>
+        </div>
+        <div class="founder-identity">
+          <span class="founder-eyebrow">CREATOR &amp; LEAD SOFTWARE ARCHITECT</span>
+          <h2 id="founderModalTitle">J.Sanjay</h2>
+          <p class="founder-tagline">Architect &amp; Visionary of Nemo AI Chemistry Tutor</p>
+          <div class="founder-badges-row">
+            <span class="founder-mini-badge gold">✦ Founder</span>
+            <span class="founder-mini-badge cyan">⚡ Core Engineer</span>
+            <span class="founder-mini-badge emerald">⚛ Chemistry Pioneer</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="founder-tribute-body">
+        <blockquote class="founder-quote">
+          “True chemical mastery begins when complex quantum orbitals, thermodynamic balances, and stereochemical pathways become crystal-clear, tangible, and accessible to every student.”
+        </blockquote>
+
+        <div class="founder-narrative">
+          <p>
+            <strong>J.Sanjay</strong> conceptualized, engineered, and brought to life <strong>Nemo Chemistry Tutor</strong> as a transformative educational system designed specifically for students mastering <strong>CBSE Class 12</strong>, <strong>JEE Main</strong>, and <strong>JEE Advanced</strong>.
+          </p>
+        </div>
+
+        <div class="founder-pillars-grid">
+          <div class="pillar-card">
+            <div class="pillar-icon">⚡</div>
+            <h4>Zero-Dependency Engine</h4>
+            <p>Engineered a pristine, bloat-free architecture capable of running 100% offline with zero server lock-in.</p>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-icon">⚛</div>
+            <h4>Rotatable 3D Molecular Simulation</h4>
+            <p>Built real-time interactive ball-and-stick, stick, and space-filling molecular engines with orbital lone pairs and crystal lattice unit cells.</p>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-icon">∑</div>
+            <h4>418+ KaTeX Equation Bank</h4>
+            <p>Implemented mathematical LaTeX derivations with fluid horizontal kinetic scrolling, symbol glossaries, and worked numericals.</p>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-icon">⌗</div>
+            <h4>10-Year Multi-Shift PYQ Intelligence</h4>
+            <p>Curated 113+ verified questions spanning 2016–2026 across Physical, Organic, and Inorganic Chemistry with interactive metrics.</p>
+          </div>
+          <div class="pillar-card full-width">
+            <div class="pillar-icon">🧠</div>
+            <h4>Deep-Reasoning Gemini Flash Intelligence</h4>
+            <p>Integrated cutting-edge multi-step chemical reasoning, orbital symmetry, reaction mechanism branching, and exception analysis.</p>
+          </div>
+        </div>
+
+        <div class="founder-action-bar">
+          <button class="founder-celebrate-btn" id="celebrateFounderBtn" type="button">
+            <span class="celebrate-star">★</span>
+            <span class="celebrate-text">Celebrate J.Sanjay</span>
+            <span class="celebrate-counter" id="celebrateCount">142</span>
+          </button>
+          <button class="founder-ask-nemo-btn" id="askNemoAboutFounderBtn" type="button">
+            Ask Nemo About J.Sanjay ↗
+          </button>
+        </div>
+        <p class="founder-footnote">Crafted with passion &amp; engineering rigor for chemistry aspirants worldwide.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
