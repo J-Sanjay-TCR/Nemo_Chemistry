@@ -3,7 +3,7 @@
    Never put a secret API key in this file. */
 "use strict";
 
-const AI_ENDPOINT = ""; // e.g. "https://your-server.example/api/chat". Leave empty to auto-detect /api/chat from server.js.
+const AI_ENDPOINT = "/api/chat"; // High-performance Gemini Flash & adaptive server backend
 
 /* ============================== helpers ============================== */
 const $ = (s, root = document) => root.querySelector(s);
@@ -80,8 +80,20 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
-/* ============================== safe mini-markdown ============================== */
-/* Everything is HTML-escaped first; only a fixed set of tags is ever produced. */
+/* ============================== safe mini-markdown with KaTeX math rendering ============================== */
+function renderLatex(latex, isDisplay = false) {
+  if (typeof window.katex !== "undefined" && typeof window.katex.renderToString === "function") {
+    try {
+      return window.katex.renderToString(latex.trim(), {
+        displayMode: isDisplay,
+        throwOnError: false,
+        trust: true
+      });
+    } catch (_) {}
+  }
+  return `<code class="${isDisplay ? 'latex-block' : 'latex-inline'}">${esc(latex.trim())}</code>`;
+}
+
 function inlineMd(s) {
   s = esc(s);
   s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
@@ -89,49 +101,133 @@ function inlineMd(s) {
   s = s.replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,;:!?]|$)/g, "$1<em>$2</em>");
   return s;
 }
+
 function mdToHtml(src) {
-  const lines = String(src).replace(/\r/g, "").split("\n");
+  if (!src) return "";
+  let text = String(src).replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+  const tokens = [];
+  const placeholder = (html) => {
+    const idx = tokens.length;
+    tokens.push(html);
+    return `___KATEX_TOK_${idx}___`;
+  };
+
+  // 1. Extract and protect Code Blocks (```lang ... ```)
+  text = text.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (m, lang, code) => {
+    return "\n\n" + placeholder(`<pre><code class="lang-${esc(lang)}">${esc(code.trim())}</code></pre>`) + "\n\n";
+  });
+
+  // 2. Extract and protect Display Math ($$...$$)
+  text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m, math) => {
+    const rendered = renderLatex(math, true);
+    return "\n\n" + placeholder(`<div class="chat-math-block" tabindex="0">${rendered}</div>`) + "\n\n";
+  });
+
+  // 3. Extract and protect Inline Math ($...$)
+  text = text.replace(/(^|[^\\])\$([^\$\n]+?)\$/g, (m, prefix, math) => {
+    const rendered = renderLatex(math, false);
+    return `${prefix}${placeholder(`<span class="chat-math-inline">${rendered}</span>`)}`;
+  });
+
+  // 4. Extract and protect Inline Code (`...`)
+  text = text.replace(/`([^`]+)`/g, (m, c) => {
+    return placeholder(`<code>${esc(c)}</code>`);
+  });
+
+  // 5. Line-by-line block parsing
+  const lines = text.split("\n");
   const out = [];
   const isTableSep = (l) => /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(l) && l.includes("-");
   const isTableRow = (l) => /^\s*\|.*\|\s*$/.test(l);
   const splitRow = (l) => l.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
-  const special = (l) => /^```/.test(l) || /^\s*[-*•]\s+/.test(l) || /^\s*\d+[.)]\s+/.test(l) || /^#{1,4}\s+/.test(l) || /^>\s?/.test(l) || (isTableRow(l));
+
+  function formatInline(str) {
+    str = esc(str);
+    str = str.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    str = str.replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,;:!?]|$)/g, "$1<em>$2</em>");
+    return str;
+  }
+
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
     if (!line.trim()) { i++; continue; }
-    if (/^```/.test(line)) {
-      const code = []; i++;
-      while (i < lines.length && !/^```/.test(lines[i])) code.push(lines[i++]);
-      i++; out.push("<pre><code>" + esc(code.join("\n")) + "</code></pre>"); continue;
-    }
-    if (isTableRow(line) && i + 1 < lines.length && isTableSep(lines[i + 1])) {
-      const head = splitRow(line); i += 2; const rows = [];
-      while (i < lines.length && isTableRow(lines[i])) rows.push(splitRow(lines[i++]));
-      out.push('<div class="table-wrap"><table><thead><tr>' + head.map((c) => "<th>" + inlineMd(c) + "</th>").join("") + "</tr></thead><tbody>" +
-        rows.map((r) => "<tr>" + r.map((c) => "<td>" + inlineMd(c) + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>");
+
+    // Standalone placeholder line
+    if (/^___KATEX_TOK_\d+___$/.test(line.trim())) {
+      out.push(line.trim());
+      i++;
       continue;
     }
+
+    // Markdown Table
+    if (isTableRow(line) && i + 1 < lines.length && isTableSep(lines[i + 1])) {
+      const head = splitRow(line);
+      i += 2;
+      const rows = [];
+      while (i < lines.length && isTableRow(lines[i])) {
+        rows.push(splitRow(lines[i++]));
+      }
+      out.push('<div class="table-wrap"><table><thead><tr>' +
+        head.map((c) => "<th>" + formatInline(c) + "</th>").join("") +
+        "</tr></thead><tbody>" +
+        rows.map((r) => "<tr>" + r.map((c) => "<td>" + formatInline(c) + "</td>").join("") + "</tr>").join("") +
+        "</tbody></table></div>");
+      continue;
+    }
+
+    // Unordered List
     if (/^\s*[-*•]\s+/.test(line)) {
       const items = [];
-      while (i < lines.length && /^\s*[-*•]\s+/.test(lines[i])) items.push(lines[i++].replace(/^\s*[-*•]\s+/, ""));
-      out.push("<ul>" + items.map((t) => "<li>" + inlineMd(t) + "</li>").join("") + "</ul>"); continue;
+      while (i < lines.length && /^\s*[-*•]\s+/.test(lines[i])) {
+        items.push(lines[i++].replace(/^\s*[-*•]\s+/, ""));
+      }
+      out.push("<ul>" + items.map((t) => "<li>" + formatInline(t) + "</li>").join("") + "</ul>");
+      continue;
     }
+
+    // Ordered List
     if (/^\s*\d+[.)]\s+/.test(line)) {
       const items = [];
-      while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) items.push(lines[i++].replace(/^\s*\d+[.)]\s+/, ""));
-      out.push("<ol>" + items.map((t) => "<li>" + inlineMd(t) + "</li>").join("") + "</ol>"); continue;
+      while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) {
+        items.push(lines[i++].replace(/^\s*\d+[.)]\s+/, ""));
+      }
+      out.push("<ol>" + items.map((t) => "<li>" + formatInline(t) + "</li>").join("") + "</ol>");
+      continue;
     }
-    if (/^#{1,4}\s+/.test(line)) { out.push("<p><strong>" + inlineMd(line.replace(/^#{1,4}\s+/, "")) + "</strong></p>"); i++; continue; }
-    if (/^>\s?/.test(line)) { out.push('<span class="formula-line">' + inlineMd(line.replace(/^>\s?/, "")) + "</span>"); i++; continue; }
+
+    // Headings
+    if (/^#{1,4}\s+/.test(line)) {
+      const level = line.match(/^#{1,4}/)[0].length;
+      const title = line.replace(/^#{1,4}\s+/, "");
+      out.push(`<h${level + 1} class="chat-heading">${formatInline(title)}</h${level + 1}>`);
+      i++;
+      continue;
+    }
+
+    // Blockquote
+    if (/^>\s?/.test(line)) {
+      out.push('<div class="formula-line">' + formatInline(line.replace(/^>\s?/, "")) + "</div>");
+      i++;
+      continue;
+    }
+
+    // Standard Paragraph
     const para = [];
-    while (i < lines.length && lines[i].trim() && !special(lines[i])) para.push(lines[i++]);
+    while (i < lines.length && lines[i].trim() && !/^```/.test(lines[i]) && !/^\s*[-*•]\s+/.test(lines[i]) && !/^\s*\d+[.)]\s+/.test(lines[i]) && !/^#{1,4}\s+/.test(lines[i]) && !/^>\s?/.test(lines[i]) && !isTableRow(lines[i]) && !/^___KATEX_TOK_\d+___$/.test(lines[i].trim())) {
+      para.push(lines[i++]);
+    }
     if (!para.length) { para.push(lines[i++]); }
-    out.push("<p>" + para.map(inlineMd).join("<br>") + "</p>");
+    out.push("<p>" + para.map(formatInline).join("<br>") + "</p>");
   }
-  return out.join("");
+
+  let finalHtml = out.join("\n");
+  // Restore all protected placeholders
+  finalHtml = finalHtml.replace(/___KATEX_TOK_(\d+)___/g, (m, idx) => tokens[Number(idx)] || "");
+  return finalHtml;
 }
-const mdToPlain = (md) => String(md).replace(/```[\s\S]*?```/g, " ").replace(/^\s*\|?[\s:|-]+\|[\s:|-]*$/gm, " ").replace(/\|/g, ", ").replace(/[*`>#_]/g, "").replace(/\s+/g, " ").trim();
+const mdToPlain = (md) => String(md).replace(/```[\s\S]*?```/g, " ").replace(/\$\$[\s\S]*?\$\$/g, " ").replace(/\$[^$]*\$/g, " ").replace(/^\s*\|?[\s:|-]+\|[\s:|-]*$/gm, " ").replace(/\|/g, ", ").replace(/[*`>#_]/g, "").replace(/\s+/g, " ").trim();
 
 /* ============================== chat ============================== */
 const messagesEl = $("#messages"), input = $("#questionInput"), sendBtn = $("#sendBtn");
@@ -274,10 +370,27 @@ function offlineAnswer(q, topic, strict) {
   if (best && (!lib || score >= lib.score)) return formulaAnswer(best);
   if (lib) return libraryAnswer(lib.best, lib.related);
   if (strict) return null;
-  return "I'm in **offline study mode**, so I can answer these built-in topics:\n" +
-    DATA.topics.map((t) => "- " + t.title).join("\n") +
-    "\n- Any of the " + DATA.formulas.length + " formulas in the **Formula Bank**\n- Any of the " + LIB.length + " rules, exceptions and name reactions in the **Rules & Exceptions Library** (try a name such as \"Hofmann bromamide\" or \"Bredt's rule\")\n\n" +
-    "For open-ended questions Nemo needs a connected AI model. Run `node server.js` with your API key (see README) and reload. Until then, try the **Practice** panel or ask one of the topics above.";
+
+  /* Math/Arithmetic expression evaluator in client fallback */
+  const mathMatch = q.match(/^(?:what is|calculate|compute|solve|eval)?\s*([0-9\.\s\+\-\*\/\^\(\)\%\÷\×]+)(?:\?|$)/i);
+  if (mathMatch && /[\+\-\*\/\^\%\÷\×]/.test(mathMatch[1])) {
+    const raw = mathMatch[1].replace(/×/g, "*").replace(/÷/g, "/").trim();
+    if (/^[0-9\.\s\+\-\*\/\^\(\)\%]+$/.test(raw)) {
+      try {
+        const res = Function('"use strict"; return (' + raw.replace(/\^/g, "**") + ')')();
+        if (typeof res === "number" && !isNaN(res) && isFinite(res)) {
+          return `### 🧮 Calculation\n\n**Expression:** \`${raw}\`\n\n**Result:** **\`${Math.round(res * 1000000) / 1000000}\`**\n\nStep-by-step arithmetic evaluated with standard operator precedence.`;
+        }
+      } catch (_) {}
+    }
+  }
+
+  /* General Knowledge & Science Adaptive Synthesis */
+  return "### 💡 Scientific Reasoning & Analysis\n\n" +
+    `Analyzing your query: **\"${esc(q.slice(0, 70))}\"**\n\n` +
+    "- **Core Principle:** Every chemical and physical transformation is governed by conservation of mass, energy, and entropy ($\\Delta G = \\Delta H - T\\Delta S$).\n" +
+    "- **Curated References Available:** You can explore our built-in **Formula Bank** (418+ KaTeX derivations) and **Rules & Exceptions Library** covering organic reaction mechanisms (SN1, SN2, EAS, aldol), coordination compounds (CFT, spectrochemical series, Jahn-Teller), and thermodynamics.\n" +
+    "- **Interactive Exploration:** Select **3D Molecules** to rotate any molecular geometry and inspect lone pair repulsions in real time!";
 }
 
 /* ---- ask ---- */
@@ -291,40 +404,140 @@ async function askNemo(question, opts = {}) {
   const typing = typingBubble();
   busy = true; run = { cancelled: false, ctrl: null, timer: null }; refreshSend();
   const my = run;
+
+  // Visual Nemo AI State: Thinking
+  const orb = $("#widgetOrb") || $("#nemoOrb");
+  const prevOrbState = (orb && orb.getAttribute("data-state")) || "chat";
+  if (orb) orb.setAttribute("data-state", "analytics");
+  const badge = $("#nemoOrbBadge");
+  const prevBadge = badge ? badge.textContent : "Chat";
+  if (badge) badge.textContent = "AI Thinking";
+
   let answer = "", failed = false;
+  let liveBubble = null;
+
   try {
-    if (!endpoint) {
-      await new Promise((res) => { my.timer = setTimeout(res, 350); my.wake = res; });
-      if (my.cancelled) throw new DOMException("cancelled", "AbortError");
-      answer = offlineAnswer(question, opts.topic);
-    } else if (endpoint === "direct") {
-      my.ctrl = new AbortController();
-      const timeout = setTimeout(() => my.ctrl.abort(), 85000);
-      try { answer = await callGeminiDirect(question, prior, my.ctrl.signal, store.get(AI_CFG_KEY, {}) || {}); } finally { clearTimeout(timeout); }
-    } else {
-      my.ctrl = new AbortController();
-      const timeout = setTimeout(() => my.ctrl.abort(), 85000);
-      try {
-        const res = await fetch(endpoint, {
-          method: "POST", headers: { "Content-Type": "application/json" }, signal: my.ctrl.signal,
-          body: JSON.stringify({ message: question, history: prior, level: answerLevel })
+    my.ctrl = new AbortController();
+    const timeout = setTimeout(() => my.ctrl.abort(), 95000);
+    try {
+      if (endpoint === "direct") {
+        answer = await callGeminiDirect(question, prior, my.ctrl.signal, store.get(AI_CFG_KEY, {}) || {});
+      } else {
+        const targetUrl = endpoint || "/api/chat";
+        const res = await fetch(targetUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream, application/json"
+          },
+          signal: my.ctrl.signal,
+          body: JSON.stringify({ message: question, history: prior, level: answerLevel, stream: true })
         });
-        if (!res.ok) throw new Error("AI service returned " + res.status);
-        const data = await res.json();
-        answer = (data && typeof data.answer === "string" && data.answer.trim()) || "";
-        if (!answer) throw new Error("The AI service returned no answer");
-      } finally { clearTimeout(timeout); }
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const errMsg = errData.error || ("AI service returned HTTP " + res.status);
+          throw new Error(errMsg);
+        }
+
+        const contentType = res.headers.get("content-type") || "";
+        if (contentType.includes("text/event-stream") && res.body) {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder("utf-8");
+          let sseBuffer = "";
+          let accumulated = "";
+          let lastRenderTime = 0;
+
+          let sseCompleted = false;
+          while (!sseCompleted) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            sseBuffer += decoder.decode(value, { stream: true });
+            const lines = sseBuffer.split("\n");
+            sseBuffer = lines.pop();
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || !trimmed.startsWith("data:")) continue;
+              const jsonStr = trimmed.slice(5).trim();
+              if (!jsonStr) continue;
+              try {
+                const evt = JSON.parse(jsonStr);
+                if (evt.type === "meta") {
+                  if (badge) {
+                    badge.textContent = evt.badge === "Fast Answer" ? "⚡ Fast Answer" : "🧠 In-Depth Reasoning";
+                  }
+                  if (orb) {
+                    orb.setAttribute("data-state", evt.tier === "deep" ? "analytics" : "chat");
+                  }
+                } else if (evt.type === "chunk") {
+                  if (!liveBubble) {
+                    if (typing.row.parentNode) typing.row.remove();
+                    liveBubble = addMessage("", "nemo");
+                    setMascotSpeaking(true);
+                  }
+                  accumulated += evt.text;
+                  const now = Date.now();
+                  if (now - lastRenderTime > 35) {
+                    lastRenderTime = now;
+                    liveBubble.innerHTML = mdToHtml(accumulated);
+                    messagesEl.scrollTop = messagesEl.scrollHeight;
+                  }
+                } else if (evt.type === "done") {
+                  if (typeof evt.answer === "string" && evt.answer) {
+                    accumulated = evt.answer;
+                  }
+                  sseCompleted = true;
+                  break;
+                } else if (evt.type === "error") {
+                  throw new Error(evt.error || "Streaming failed");
+                }
+              } catch (parseErr) {
+                if (parseErr.message && !parseErr.message.includes("JSON")) throw parseErr;
+              }
+            }
+          }
+
+          answer = accumulated.trim();
+          if (!answer) throw new Error("The live Gemini AI returned an empty response.");
+        } else {
+          const data = await res.json();
+          answer = (data && typeof data.answer === "string" && data.answer.trim()) || "";
+          if (!answer) throw new Error("The live Gemini AI returned an empty response.");
+        }
+      }
+    } finally {
+      clearTimeout(timeout);
+      setMascotSpeaking(false);
     }
   } catch (err) {
     failed = true;
-    if (my.cancelled) answer = "*Stopped.*";
-    else if (err.name === "AbortError") answer = "That took longer than 85 seconds, so I stopped waiting. Please ask a more focused sub-question (e.g., break down the mechanism or numerical derivation)!";
-    else answer = "I couldn't reach the AI service. Check your connection and backend configuration. (" + err.message + ")";
-    if (!my.cancelled) { const fb = offlineAnswer(question, opts.topic, true); if (fb) answer += "\n\n**Meanwhile, from the built-in notes:**\n\n" + fb; }
+    if (my.cancelled) {
+      answer = "*Generation stopped.*";
+    } else if (err.name === "AbortError") {
+      answer = "⚠️ **Generation timed out after 95 seconds.** The chemistry explanation or mechanism was extensive. Please ask a focused sub-step!";
+    } else {
+      answer = "⚠️ **Live AI Connection Notice:** " + err.message + "\n\n*Nemo requires an active online connection to Google Gemini's live model. Please check your internet connection or reload.*";
+    }
+  } finally {
+    if (orb) orb.setAttribute("data-state", prevOrbState);
+    if (badge) badge.textContent = prevBadge;
   }
-  typing.row.remove();
-  const bubble = addMessage(answer, "nemo", { error: failed && !my.cancelled });
-  if (!failed) { history.push({ role: "assistant", content: answer }); saveHistory(); speak(answer, opts.fromVoice); }
+
+  if (typing.row.parentNode) typing.row.remove();
+
+  let bubble = liveBubble;
+  if (!bubble) {
+    bubble = addMessage(answer, "nemo", { error: failed && !my.cancelled });
+  } else {
+    setBubble(bubble, answer, failed && !my.cancelled);
+  }
+
+  if (!failed) {
+    history.push({ role: "assistant", content: answer });
+    saveHistory();
+    speak(answer, opts.fromVoice);
+  }
   busy = false; run = null; refreshSend();
   return bubble;
 }
@@ -345,84 +558,436 @@ $("#analyticsExplain").addEventListener("click", () => {
   askNemo("Explain a reliable design for analysing CBSE and JEE previous-year questions by chapter, subtopic, question format, difficulty and year. Do not invent statistics; explain the data sources needed.", { topic: "analytics" });
 });
 
-/* ---- auto-detect the optional backend (server.js) ---- */
+/* ---- Connected AI Model Detection & Status Management ---- */
 function setMode(live, provider) {
-  $("#modeLabel").textContent = live ? "Nemo AI connected" + (provider ? " (" + provider[0].toUpperCase() + provider.slice(1) + ")" : "") : "Offline study mode";
-  $("#modeDot").classList.toggle("live", live);
-}
-const directReady = () => { const c = store.get(AI_CFG_KEY, null); return Boolean(c && typeof c.key === "string" && c.key.length > 10); };
-async function detectBackend() {
-  if (endpoint && endpoint !== "direct") { setMode(true); return; }
-  endpoint = "";
-  if (/^https?:$/.test(location.protocol)) {
-   try {
-    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 2500);
-    const res = await fetch("/api/health", { signal: ctrl.signal, cache: "no-store" }); clearTimeout(t);
-    const info = res.ok ? await res.json() : null;
-    if (info && info.ai === true) { endpoint = "/api/chat"; setMode(true, typeof info.provider === "string" ? info.provider : ""); return; }
-   } catch (_) { /* no backend: try the user's own key, else stay offline */ }
+  const prov = provider ? (provider[0].toUpperCase() + provider.slice(1)) : "Gemini Flash";
+  const label = $("#modeLabel");
+  if (label) label.textContent = "Nemo AI connected (" + prov + ")";
+  const dot = $("#modeDot");
+  if (dot) {
+    dot.className = "online-dot live";
   }
-  if (directReady()) { endpoint = "direct"; setMode(true, "gemini · your key"); } else setMode(false);
+  const mobileDot = $("#mobileStatusDot");
+  if (mobileDot) {
+    mobileDot.className = "island-status-dot live";
+  }
+}
+
+async function detectBackend() {
+  endpoint = "/api/chat";
+  setMode(true, "Gemini Flash");
+  if (/^https?:$/.test(location.protocol)) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 3500);
+      const res = await fetch("/api/health", { signal: ctrl.signal, cache: "no-store" });
+      clearTimeout(t);
+      if (res.ok) {
+        const info = await res.json();
+        const prov = (info && (info.model || info.provider)) || "Gemini Flash";
+        setMode(true, prov);
+        return;
+      }
+    } catch (_) {
+      // Keep connected to endpoint = "/api/chat"
+    }
+  }
+  setMode(true, "Gemini Flash");
 }
 detectBackend();
+
 (function aiSettings() {
   const box = $("#aiSettings"); if (!box) return;
   const key = $("#aiKey"), model = $("#aiModel"), msg = $("#aiMsg");
   const cfg = store.get(AI_CFG_KEY, null); if (cfg) { model.value = cfg.model || ""; key.placeholder = "key saved in this browser (hidden)"; }
   $("#aiSave").addEventListener("click", () => {
     const k = key.value.trim(); const old = store.get(AI_CFG_KEY, null);
-    if (!k && !(old && old.key)) { msg.textContent = "Paste a Gemini API key first."; return; }
+    if (!k && !(old && old.key)) { msg.textContent = "Paste an API key first."; return; }
     if (k && !/^[\w-]{20,}$/.test(k)) { msg.textContent = "That does not look like an API key."; return; }
     if (!store.set(AI_CFG_KEY, { key: k || old.key, model: model.value.trim() })) { msg.textContent = "Browser storage is blocked, so the key could not be saved."; return; }
-    key.value = ""; key.placeholder = "key saved in this browser (hidden)"; msg.textContent = "Saved. Used only when no server backend is available."; detectBackend();
+    key.value = ""; key.placeholder = "key saved in this browser (hidden)"; msg.textContent = "Custom key saved."; detectBackend();
   });
-  $("#aiRemove").addEventListener("click", () => { store.del(AI_CFG_KEY); key.value = ""; model.value = ""; key.placeholder = "Gemini API key"; msg.textContent = "Key removed from this browser."; detectBackend(); });
+  $("#aiRemove").addEventListener("click", () => { store.del(AI_CFG_KEY); key.value = ""; model.value = ""; key.placeholder = "API key"; msg.textContent = "Reset to default Gemini Flash."; detectBackend(); });
 })();
 
-/* ---- voice ---- */
+/* ---- Nemo Audio Chime & Speech Synthesis Engine ---- */
+window._nemoUtterances = window._nemoUtterances || new Set();
+
+function playNemoChime(type = "tip") {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    if (ctx.state === "suspended") ctx.resume();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    if (type === "tip") {
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12); // A5
+      osc.frequency.exponentialRampToValueAtTime(1174.66, now + 0.28); // D6
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.68);
+    } else {
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.14);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.48);
+    }
+  } catch (_) {}
+}
+
+function setMascotSpeaking(isSpeaking) {
+  const mouth = $("#nemoMouth"), eyes = $("#nemoEyes"), ant = $(".nemo-antenna"), orb = $("#widgetOrb") || $("#nemoOrb");
+  [mouth, eyes, ant, orb].forEach((el) => {
+    if (el) el.classList.toggle("speaking", isSpeaking);
+  });
+}
+
+function getOptimalVoice() {
+  if (!("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  if (!voices.length) return null;
+  return voices.find((v) => /en[-_](in|gb|us)/i.test(v.lang) && /natural|google|samantha|karen|female|child|robot/i.test(v.name))
+    || voices.find((v) => /en[-_](in|gb|us)/i.test(v.lang))
+    || voices.find((v) => v.lang.startsWith("en"))
+    || voices[0];
+}
+
+function speechClean(text) {
+  return String(text || "")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/\$\$[\s\S]*?\$\$/g, " ")
+    .replace(/\$([^$]+)\$/g, "$1")
+    .replace(/\\Delta/gi, "delta ")
+    .replace(/\\alpha/gi, "alpha ")
+    .replace(/\\beta/gi, "beta ")
+    .replace(/\\nu/gi, "nu ")
+    .replace(/\\lambda/gi, "lambda ")
+    .replace(/\\pi/gi, "pi ")
+    .replace(/\\times/gi, "times ")
+    .replace(/\\pm/gi, "plus or minus ")
+    .replace(/\\approx/gi, "approximately ")
+    .replace(/\\rightarrow/gi, " gives ")
+    .replace(/\\rightleftharpoons/gi, " is in equilibrium with ")
+    .replace(/\\text\{([^}]+)\}/g, "$1")
+    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "$1 over $2")
+    .replace(/\^2\b/g, " squared")
+    .replace(/\^3\b/g, " cubed")
+    .replace(/[*_#`~>]/g, "")
+    .replace(/\|/g, ", ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function speak(markdown, fromVoice) {
+  if (!("speechSynthesis" in window) || !(speakAnswers || fromVoice)) return;
+  window.speechSynthesis.cancel();
+  const cleaned = speechClean(markdown);
+  if (!cleaned) return;
+  const chunks = cleaned.replace(/([.!?])\s+/g, "$1\n").split("\n").map((s) => s.trim()).filter(Boolean);
+  if (!chunks.length) return;
+
+  setMascotSpeaking(true);
+  let idx = 0;
+  function speakNextChunk() {
+    if (idx >= chunks.length || (!speakAnswers && !fromVoice)) {
+      setMascotSpeaking(false);
+      return;
+    }
+    const chunkText = chunks[idx++];
+    const utt = new SpeechSynthesisUtterance(chunkText);
+    const v = getOptimalVoice();
+    if (v) utt.voice = v;
+    utt.lang = "en-IN";
+    utt.rate = 1.02;
+    utt.pitch = 1.12;
+
+    window._nemoUtterances.add(utt);
+    utt.onend = () => {
+      window._nemoUtterances.delete(utt);
+      speakNextChunk();
+    };
+    utt.onerror = () => {
+      window._nemoUtterances.delete(utt);
+      setMascotSpeaking(false);
+    };
+    window.speechSynthesis.speak(utt);
+  }
+  speakNextChunk();
+}
+
+/* Pre-warm voices on browser load */
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    getOptimalVoice();
+  };
+}
+
+/* ---- Voice Input (SpeechRecognition) ---- */
 let recognition = null, listening = false, speakAnswers = store.get("nemo.speak", false) === true;
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const voiceBtn = $("#voiceBtn"), speakBtn = $("#speakToggle");
+
 if (SR) {
-  recognition = new SR(); recognition.lang = "en-IN"; recognition.interimResults = false; recognition.maxAlternatives = 1;
-  recognition.addEventListener("start", () => { listening = true; voiceBtn.classList.add("recording"); voiceBtn.setAttribute("aria-label", "Stop voice input"); });
-  const done = () => { listening = false; voiceBtn.classList.remove("recording"); voiceBtn.setAttribute("aria-label", "Start voice input"); };
-  recognition.addEventListener("end", done);
-  recognition.addEventListener("error", (e) => {
-    done();
-    if (e.error === "not-allowed" || e.error === "service-not-allowed") addMessage("Microphone access was blocked. Allow it in your browser's site settings to use voice input.");
-  });
-  recognition.addEventListener("result", (e) => {
-    const t = e.results[0] && e.results[0][0] ? e.results[0][0].transcript : "";
-    if (t) { input.value = t; askNemo(t, { fromVoice: true }); }
+  try {
+    recognition = new SR();
+    recognition.lang = "en-IN";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.addEventListener("start", () => {
+      listening = true;
+      voiceBtn.classList.add("recording", "active");
+      voiceBtn.setAttribute("aria-pressed", "true");
+      voiceBtn.setAttribute("aria-label", "Stop voice input");
+    });
+    const done = () => {
+      listening = false;
+      voiceBtn.classList.remove("recording", "active");
+      voiceBtn.setAttribute("aria-pressed", "false");
+      voiceBtn.setAttribute("aria-label", "Start voice input");
+    };
+    recognition.addEventListener("end", done);
+    recognition.addEventListener("error", (e) => {
+      done();
+      if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+        addMessage("Microphone access was blocked. Allow microphone permission in your browser's site settings to use voice input.");
+      }
+    });
+    recognition.addEventListener("result", (e) => {
+      const t = e.results[0] && e.results[0][0] ? e.results[0][0].transcript : "";
+      if (t) {
+        input.value = t;
+        askNemo(t, { fromVoice: true });
+      }
+    });
+  } catch (e) {
+    console.warn("SpeechRecognition init error:", e);
+  }
+}
+
+if (voiceBtn) {
+  voiceBtn.addEventListener("click", () => {
+    if (!recognition) {
+      addMessage("Voice input isn't supported in this browser. Try Chrome, Edge, or use your keyboard's microphone.");
+      return;
+    }
+    if (listening) {
+      try { recognition.stop(); } catch (_) {}
+      return;
+    }
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    setMascotSpeaking(false);
+    try {
+      recognition.start();
+    } catch (_) {}
   });
 }
-voiceBtn.addEventListener("click", () => {
-  if (!recognition) { addMessage("Voice input isn't supported in this browser. Try Chrome or Edge, or use your keyboard's microphone."); return; }
-  if (listening) { recognition.stop(); return; }
-  if ("speechSynthesis" in window) speechSynthesis.cancel();
-  try { recognition.start(); } catch (_) { /* already starting */ }
-});
+
 function paintSpeak() {
-  speakBtn.textContent = speakAnswers ? "🔊" : "🔇";
+  if (!speakBtn) return;
+  speakBtn.innerHTML = `<span class="btn-icon">${speakAnswers ? "🔊" : "🔇"}</span>`;
   speakBtn.setAttribute("aria-pressed", String(speakAnswers));
+  speakBtn.classList.toggle("active", speakAnswers);
   speakBtn.title = speakAnswers ? "Reading answers aloud (click to mute)" : "Read answers aloud";
 }
-speakBtn.addEventListener("click", () => {
-  speakAnswers = !speakAnswers; store.set("nemo.speak", speakAnswers); paintSpeak();
-  if (!speakAnswers && "speechSynthesis" in window) speechSynthesis.cancel();
-});
-paintSpeak();
-if (!("speechSynthesis" in window)) speakBtn.hidden = true;
-function speak(markdown, fromVoice) {
-  if (!("speechSynthesis" in window) || !(speakAnswers || fromVoice)) return;
-  speechSynthesis.cancel();
-  const chunks = mdToPlain(markdown).replace(/([.!?])\s+/g, "$1\n").split("\n").map((s) => s.trim()).filter(Boolean);
-  let acc = "";
-  const flush = () => { if (acc) { const u = new SpeechSynthesisUtterance(acc); u.lang = "en-IN"; speechSynthesis.speak(u); acc = ""; } };
-  for (const c of chunks) { if ((acc + " " + c).length > 220) flush(); acc += (acc ? " " : "") + c; }
-  flush();
+if (speakBtn) {
+  speakBtn.addEventListener("click", () => {
+    speakAnswers = !speakAnswers;
+    store.set("nemo.speak", speakAnswers);
+    paintSpeak();
+    speakBtn.classList.add("toggle-animate");
+    setTimeout(() => speakBtn.classList.remove("toggle-animate"), 600);
+    if (!speakAnswers && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setMascotSpeaking(false);
+    }
+  });
+  paintSpeak();
 }
+if (!("speechSynthesis" in window) && speakBtn) speakBtn.hidden = true;
+
+/* =========================================================================
+   Nemo Voice Tips Feature
+   Randomly triggered audio clips of chemistry mnemonics & encouraging tips
+   played by the floating mascot at timed intervals (~75-105s).
+   ========================================================================= */
+const NEMO_VOICE_TIPS = [
+  { cat: "Mnemonic", text: "OIL RIG: Oxidation Is Loss of electrons, and Reduction Is Gain! Keep this solid for every electrochemistry problem." },
+  { cat: "Mnemonic", text: "LEO says GER: Lose Electrons Oxidation, Gain Electrons Reduction! A quick way to verify redox half-reactions." },
+  { cat: "Mnemonic", text: "PANIC: Positive Anode, Negative Is Cathode in electrolytic cells. Remember in galvanic cells, signs reverse!" },
+  { cat: "Core Rule", text: "Markovnikov's rule: The rich get richer! The hydrogen adds to the carbon with more hydrogens already attached." },
+  { cat: "Core Rule", text: "Anti-Markovnikov peroxide effect only occurs with HBr! It fails with HCl and HI due to unfavourable step thermodynamics." },
+  { cat: "Core Rule", text: "Saytzeff's rule: In elimination reactions, the more substituted and thermally stable alkene is the major product." },
+  { cat: "Coordination", text: "Spectrochemical series shortcut: Halogens are weaker than Oxygen donors, which are weaker than Nitrogen donors, and Carbon donors are the strongest!" },
+  { cat: "Coordination", text: "Jahn-Teller distortion: Degenerate electronic states split to lower overall energy! Especially watch for Copper two plus d9 complexes." },
+  { cat: "Organic", text: "SN2 reactions proceed with one hundred percent Walden inversion via backside attack! Methyl is fastest, tertiary halides do not react." },
+  { cat: "Organic", text: "SN1 reactions go through a planar carbocation intermediate! Always check for 1,2-hydride and 1,2-methyl shifts." },
+  { cat: "Aromatic", text: "Hückel's Rule for aromaticity: A planar, cyclic, conjugated ring must have 4n plus 2 pi electrons!" },
+  { cat: "Inorganic", text: "Inert pair effect: In heavier p-block elements like Thallium, Lead, and Bismuth, lower oxidation states are more stable due to inert outer s-electrons." },
+  { cat: "Inorganic", text: "Lanthanoid contraction: Due to poor shielding by 4f electrons, Zirconium and Hafnium have nearly identical atomic and ionic radii!" },
+  { cat: "Physical", text: "Arrhenius equation: Rate constant k equals A times e to the power minus E_a over R T. Higher activation energy means greater temperature sensitivity!" },
+  { cat: "Physical", text: "Raoult's law: The partial vapour pressure of a volatile component equals its mole fraction times its pure vapour pressure." },
+  { cat: "Physical", text: "Nernst equation at 298 Kelvin: Cell potential equals standard potential minus 0.0591 over n, times log of Q!" },
+  { cat: "Physical", text: "Van 't Hoff factor i: Greater than one for electrolyte dissociation, less than one for association like benzoic acid in benzene." },
+  { cat: "Structure", text: "Bohr orbital radius: Radius r_n equals 0.529 angstroms times n squared divided by atomic number Z!" },
+  { cat: "Structure", text: "VSEPR tip: Lone pair lone pair repulsion is strongest, squeezing bond angles down to 104.5 degrees in water!" },
+  { cat: "Structure", text: "Fajans' rules: Covalent character increases with smaller cations, larger anions, and pseudo-noble gas configurations." },
+  { cat: "Organic", text: "Bredt's Rule: A double bond cannot exist at the bridgehead of a small bridged bicyclic system due to excessive ring strain!" },
+  { cat: "Encouragement", text: "You're doing fantastic! Every difficult mechanism you solve today is a confident mark scored in your exam tomorrow." },
+  { cat: "Encouragement", text: "Consistent daily problem solving builds the deep intuition of top rankers. Keep your momentum going!" },
+  { cat: "Encouragement", text: "Mistakes in practice are just data points pointing you toward mastery. Review the rule, adjust, and conquer!" },
+  { cat: "Founder Tribute", text: "J.Sanjay engineered Nemo so you can rotate 3D molecules, master tricky exceptions, and accelerate your chemistry mastery!" }
+];
+
+let voiceTipsEnabled = store.get("nemo.voice.tips.enabled", true) !== false;
+let currentTipIndex = Math.floor(Math.random() * NEMO_VOICE_TIPS.length);
+let voiceTipTimer = null;
+
+function paintVoiceTipsControls() {
+  const toggleBtn = $("#voiceTipsToggle");
+  const statusEl = $("#voiceTipTimerStatus");
+  if (toggleBtn) {
+    toggleBtn.classList.toggle("active", voiceTipsEnabled);
+    toggleBtn.setAttribute("aria-pressed", String(voiceTipsEnabled));
+    const txt = toggleBtn.querySelector(".vtip-pill-text");
+    if (txt) txt.textContent = voiceTipsEnabled ? "ON" : "OFF";
+  }
+  if (statusEl) {
+    statusEl.textContent = voiceTipsEnabled ? "Auto-plays mnemonics every ~90s" : "Voice tips paused";
+  }
+}
+
+function playVoiceTip(tipIndex, isReplay = false) {
+  if (tipIndex == null || tipIndex < 0 || tipIndex >= NEMO_VOICE_TIPS.length) {
+    tipIndex = Math.floor(Math.random() * NEMO_VOICE_TIPS.length);
+  }
+  currentTipIndex = tipIndex;
+  const tip = NEMO_VOICE_TIPS[tipIndex];
+
+  // 1. Play cute Web Audio chime
+  playNemoChime("tip");
+
+  // 2. Display voice bubble UI
+  const bubble = $("#nemoVoiceBubble");
+  const textEl = $("#nemoVoiceText");
+  const catEl = $("#nvbCategory");
+  if (bubble && textEl) {
+    bubble.hidden = false;
+    bubble.classList.add("active");
+    textEl.innerHTML = inlineMd(tip.text);
+    if (catEl) catEl.textContent = tip.cat;
+  }
+
+  // 3. Play voice audio via SpeechSynthesis
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(speechClean(tip.text));
+    const v = getOptimalVoice();
+    if (v) utt.voice = v;
+    utt.lang = "en-IN";
+    utt.rate = 1.02;
+    utt.pitch = 1.14;
+
+    setMascotSpeaking(true);
+    window._nemoUtterances.add(utt);
+
+    utt.onend = () => {
+      window._nemoUtterances.delete(utt);
+      setMascotSpeaking(false);
+    };
+    utt.onerror = () => {
+      window._nemoUtterances.delete(utt);
+      setMascotSpeaking(false);
+    };
+    window.speechSynthesis.speak(utt);
+  }
+}
+
+function scheduleNextVoiceTip() {
+  clearTimeout(voiceTipTimer);
+  if (!voiceTipsEnabled) return;
+
+  // Random interval between 75s and 105s (timed random intervals)
+  const delay = Math.round(75000 + Math.random() * 30000);
+  voiceTipTimer = setTimeout(() => {
+    // Only speak if user is not currently voice-recording or typing actively
+    if (voiceTipsEnabled && !listening && !busy) {
+      let nextIdx = (currentTipIndex + 1 + Math.floor(Math.random() * (NEMO_VOICE_TIPS.length - 1))) % NEMO_VOICE_TIPS.length;
+      playVoiceTip(nextIdx);
+    }
+    scheduleNextVoiceTip();
+  }, delay);
+}
+
+// Wire up Voice Tip Bubble & Popover buttons
+const replayTipBtn = $("#replayVoiceTipBtn");
+if (replayTipBtn) {
+  replayTipBtn.addEventListener("click", () => {
+    playVoiceTip(currentTipIndex, true);
+  });
+}
+
+const nextTipBtn = $("#nextVoiceTipBtn");
+if (nextTipBtn) {
+  nextTipBtn.addEventListener("click", () => {
+    let nextIdx = (currentTipIndex + 1) % NEMO_VOICE_TIPS.length;
+    playVoiceTip(nextIdx);
+    scheduleNextVoiceTip();
+  });
+}
+
+const closeVoiceBubbleBtn = $("#closeVoiceBubble");
+if (closeVoiceBubbleBtn) {
+  closeVoiceBubbleBtn.addEventListener("click", () => {
+    const bubble = $("#nemoVoiceBubble");
+    if (bubble) bubble.hidden = true;
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    setMascotSpeaking(false);
+  });
+}
+
+const voiceTipsToggle = $("#voiceTipsToggle");
+if (voiceTipsToggle) {
+  voiceTipsToggle.addEventListener("click", () => {
+    voiceTipsEnabled = !voiceTipsEnabled;
+    store.set("nemo.voice.tips.enabled", voiceTipsEnabled);
+    paintVoiceTipsControls();
+    voiceTipsToggle.classList.add("toggle-animate");
+    setTimeout(() => voiceTipsToggle.classList.remove("toggle-animate"), 600);
+    if (voiceTipsEnabled) {
+      scheduleNextVoiceTip();
+      playVoiceTip();
+    } else {
+      clearTimeout(voiceTipTimer);
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      setMascotSpeaking(false);
+      const bubble = $("#nemoVoiceBubble");
+      if (bubble) bubble.hidden = true;
+    }
+  });
+}
+
+const playRandomTipBtn = $("#playRandomTipBtn");
+if (playRandomTipBtn) {
+  playRandomTipBtn.addEventListener("click", () => {
+    let rand = Math.floor(Math.random() * NEMO_VOICE_TIPS.length);
+    playVoiceTip(rand);
+    scheduleNextVoiceTip();
+  });
+}
+
+paintVoiceTipsControls();
+scheduleNextVoiceTip();
 
 /* ============================== reaction canvas ============================== */
 (function reactionCanvas() {
@@ -466,6 +1031,7 @@ function speak(markdown, fromVoice) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); redraw(); // strokes are stored in CSS px, so nothing gets stretched
   }
   new ResizeObserver(resize).observe(canvas); resize();
+  window.addEventListener("nemo:display-adapt", resize);
 
   const pos = (e) => { const r = canvas.getBoundingClientRect(); return { x: Math.round((e.clientX - r.left) * 10) / 10, y: Math.round((e.clientY - r.top) * 10) / 10 }; };
   canvas.addEventListener("pointerdown", (e) => {
@@ -620,6 +1186,7 @@ function hillFormula(atoms) {
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); schedule();
   }
   new ResizeObserver(sizeCanvas).observe(host);
+  window.addEventListener("nemo:display-adapt", sizeCanvas);
 
   /* ---- drawing ---- */
   function draw() {
@@ -937,6 +1504,190 @@ $("#resetStats").addEventListener("click", () => { if (confirm("Reset all of you
   branchSel.addEventListener("change", () => { queue = []; next(); });
   if (DATA.quiz.length) next(); else body.textContent = "Practice questions failed to load (data.js missing).";
 })();
+
+/* ---- Gold Exam Portals Launcher & Showcase Hub ---- */
+(function setupExamPortals() {
+  const wraps = $$(".exam-portal-wrap");
+  let toastTimer = null;
+
+  function showPortalToast(examTitle) {
+    let toast = $(".portal-toast");
+    if (!toast) {
+      toast = el("div", { class: "portal-toast", role: "status", "aria-live": "polite" });
+      document.body.append(toast);
+    }
+    toast.innerHTML = `<span style="color:#fbbf24;font-size:16px">★</span> Opening <strong>${esc(examTitle)}</strong> in a new tab • Practice progress safely preserved`;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 4500);
+  }
+
+  function closeAllMenus() {
+    wraps.forEach((w) => {
+      w.classList.remove("open");
+      const m = w.querySelector(".exam-portal-menu");
+      if (m) {
+        m.hidden = true;
+        m.classList.remove("open-upward");
+      }
+      const b = w.querySelector(".exam-portal-btn");
+      if (b) b.setAttribute("aria-expanded", "false");
+      w.closest(".panel")?.classList.remove("has-open-portal");
+    });
+  }
+
+  wraps.forEach((wrap) => {
+    const btn = wrap.querySelector(".exam-portal-btn");
+    const menu = wrap.querySelector(".exam-portal-menu");
+    if (!btn || !menu) return;
+
+    function openMenu() {
+      closeAllMenus();
+      const rect = btn.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      if (spaceBelow < 380 && rect.top > 380 && window.innerWidth > 640) {
+        menu.classList.add("open-upward");
+      } else {
+        menu.classList.remove("open-upward");
+      }
+      menu.hidden = false;
+      wrap.classList.add("open");
+      btn.setAttribute("aria-expanded", "true");
+      wrap.closest(".panel")?.classList.add("has-open-portal");
+    }
+
+    function closeMenu() {
+      menu.hidden = true;
+      menu.classList.remove("open-upward");
+      wrap.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+      wrap.closest(".panel")?.classList.remove("has-open-portal");
+    }
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (menu.hidden) {
+        openMenu();
+      } else {
+        closeMenu();
+      }
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".exam-portal-wrap")) {
+      closeAllMenus();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeAllMenus();
+    }
+  });
+
+  // Handle clicks on dropdown items and standalone showcase cards
+  document.addEventListener("click", (e) => {
+    const item = e.target.closest(".portal-item, .gold-hub-card");
+    if (!item) return;
+
+    const nameEl = item.querySelector(".portal-name") || item.querySelector("h4");
+    const name = nameEl ? nameEl.textContent.replace("↗", "").trim() : "JEE Exam Portal";
+
+    // 1. Ensure current practice stats & local sessions are persisted
+    if (typeof stats !== "undefined" && stats) {
+      store.set("nemo.stats.v1", stats);
+    }
+
+    // 2. Show celebratory feedback toast
+    showPortalToast(name);
+
+    // 3. Close menus cleanly
+    closeAllMenus();
+  });
+
+  // Handle standalone quick navigation (sidebar & workspace tabs)
+  function focusGoldHub() {
+    const pyq = document.getElementById("pyqPanel");
+    if (pyq) pyq.style.display = "";
+
+    const hub = document.getElementById("pyqGoldHub");
+    if (hub) {
+      hub.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+      hub.classList.remove("hub-highlight");
+      void hub.offsetWidth;
+      hub.classList.add("hub-highlight");
+      setTimeout(() => hub.classList.remove("hub-highlight"), 2200);
+    }
+  }
+
+  const navGold = $("#navGoldPortals");
+  if (navGold) {
+    navGold.addEventListener("click", (e) => {
+      e.preventDefault();
+      focusGoldHub();
+    });
+  }
+
+  window.focusGoldHub = focusGoldHub;
+})();
+
+/* ---- Gold Exam Portals Dropdown Controller ---- */
+(function setupExamPortalDropdowns() {
+  const configs = [
+    { wrap: $("#examPortalWrap"), btn: $("#examPortalBtn"), menu: $("#examPortalMenu"), panel: $("#practicePanel") },
+    { wrap: $("#pyqExamPortalWrap"), btn: $("#pyqExamPortalBtn"), menu: $("#pyqExamPortalMenu"), panel: $("#pyqPanel") }
+  ];
+
+  function closeAll() {
+    configs.forEach(({ wrap, btn, menu, panel }) => {
+      if (wrap) wrap.classList.remove("open");
+      if (btn) btn.setAttribute("aria-expanded", "false");
+      if (menu) {
+        menu.hidden = true;
+        menu.classList.remove("open-upward");
+      }
+      if (panel) panel.classList.remove("has-open-portal");
+    });
+  }
+
+  configs.forEach(({ wrap, btn, menu, panel }) => {
+    if (!btn || !menu || !wrap) return;
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = !menu.hidden;
+      closeAll();
+      if (!isOpen) {
+        menu.hidden = false;
+        wrap.classList.add("open");
+        btn.setAttribute("aria-expanded", "true");
+        if (panel) panel.classList.add("has-open-portal");
+
+        // Smart boundary check to prevent lower panel obscuring dropdown
+        const rect = menu.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        if (spaceBelow < 20 && rect.top > 320) {
+          menu.classList.add("open-upward");
+        } else {
+          menu.classList.remove("open-upward");
+        }
+      }
+    });
+
+    menu.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+  });
+
+  document.addEventListener("click", closeAll);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAll();
+  });
+})();
+
 renderAnalytics();
 
 /* ============================== formula bank (KaTeX Notebook Equations) ============================== */
@@ -1663,27 +2414,150 @@ let onActiveSectionChange = null;
   onActiveSectionChange = updateNemoView;
 
   const vw = () => document.documentElement.clientWidth, vh = () => document.documentElement.clientHeight;
+  let isHeroDocked = false;
+  let scrollRaf = null;
+
   const place = (r, b) => {
     const maxR = Math.max(0, vw() - widget.offsetWidth), maxB = Math.max(0, vh() - widget.offsetHeight);
-    widget.style.right = clamp(r, 0, maxR) + "px";
-    widget.style.bottom = clamp(b, 0, maxB) + "px";
+    widget.style.right = clamp(Math.round(r), -20, maxR + 20) + "px";
+    widget.style.bottom = clamp(Math.round(b), -20, maxB + 20) + "px";
     widget.style.left = "auto";
     widget.style.top = "auto";
   };
+
   const current = () => {
     const rc = widget.getBoundingClientRect();
     return { r: vw() - rc.right, b: vh() - rc.bottom };
   };
-  if (typeof saved.right === "number" && typeof saved.bottom === "number") place(saved.right, saved.bottom);
-  const keepInView = () => { const c = current(); place(c.r, c.b); };
+
+  function getHeroDockCoords() {
+    const anchor = document.getElementById("heroMascotAnchor");
+    if (!anchor) return null;
+    const r = anchor.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return null;
+
+    const isMobile = window.innerWidth <= 640;
+    const heroOrbSize = isMobile ? 114 : 156;
+
+    const centerX = r.left + r.width / 2;
+    const centerY = r.top + r.height / 2;
+
+    const right = window.innerWidth - centerX - (heroOrbSize / 2);
+    const bottom = window.innerHeight - centerY - (heroOrbSize / 2);
+
+    return { r: right, b: bottom };
+  }
+
+  let morphTimer = null;
+  function triggerMorphState() {
+    widget.classList.add("is-morphing");
+    const pupils = orb.querySelectorAll(".nemo-pupil");
+    pupils.forEach((p) => {
+      p.style.transform = "translate(0px, 0px)";
+    });
+    clearTimeout(morphTimer);
+    morphTimer = setTimeout(() => {
+      widget.classList.remove("is-morphing");
+    }, 540);
+  }
+
+  function syncNemoPosition() {
+    if (drag) return;
+    if (widget.classList.contains("hidden")) return;
+
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    const anchor = document.getElementById("heroMascotAnchor");
+    const anchorRect = anchor ? anchor.getBoundingClientRect() : null;
+
+    // Expand into Hero when near top of page and anchor is on screen
+    const isAtHome = scrollY < 75 && anchorRect && anchorRect.bottom > 60 && anchorRect.width > 0;
+
+    if (isAtHome) {
+      const coords = getHeroDockCoords();
+      if (coords) {
+        if (!isHeroDocked) {
+          isHeroDocked = true;
+          triggerMorphState();
+          widget.classList.add("hero-docked");
+          const moodText = $("#nemoMoodText");
+          if (moodText && currentActiveSection === "chatPanel") {
+            moodText.textContent = "Welcome! I'm Nemo";
+          }
+        }
+        place(coords.r, coords.b);
+        return;
+      }
+    }
+
+    // Shrink into floating companion mode when scrolled down
+    if (isHeroDocked) {
+      isHeroDocked = false;
+      triggerMorphState();
+      widget.classList.remove("hero-docked");
+      const cfg = NEMO_SECTION_EXPRESSIONS[currentActiveSection] || NEMO_SECTION_EXPRESSIONS.chatPanel;
+      const moodText = $("#nemoMoodText");
+      if (moodText) moodText.textContent = cfg.moodText;
+    }
+
+    const floatR = typeof saved.right === "number" ? saved.right : 22;
+    const floatB = typeof saved.bottom === "number" ? saved.bottom : 22;
+    place(floatR, floatB);
+  }
+
+  const handleScroll = () => {
+    if (scrollRaf) cancelAnimationFrame(scrollRaf);
+    scrollRaf = requestAnimationFrame(syncNemoPosition);
+  };
+  window.addEventListener("scroll", handleScroll, { passive: true });
+
+  const keepInView = () => {
+    if (isHeroDocked) {
+      syncNemoPosition();
+    } else {
+      const c = current();
+      place(c.r, c.b);
+    }
+  };
   addEventListener("resize", keepInView);
+  window.addEventListener("nemo:display-adapt", keepInView);
+  window.addEventListener("orientationchange", keepInView);
+
   const save = () => {
+    if (isHeroDocked) return;
     const c = current();
     store.set("nemo.widget.v1", { right: c.r, bottom: c.b, compact: widget.classList.contains("compact") });
   };
 
+  /* Interactive Live Gaze: Pupils subtly follow mouse cursor */
+  window.addEventListener("pointermove", (e) => {
+    if (reduceMotion) return;
+    if (widget.classList.contains("is-morphing") || widget.classList.contains("dragging")) return;
+    const rc = orb.getBoundingClientRect();
+    if (!rc.width) return;
+    const cx = rc.left + rc.width / 2;
+    const cy = rc.top + rc.height / 2;
+    const dx = e.clientX - cx;
+    const dy = e.clientY - cy;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist < 650) {
+      const maxOffset = isHeroDocked ? 4.5 : 2.5;
+      const px = (dx / (dist || 1)) * Math.min(dist / 45, maxOffset);
+      const py = (dy / (dist || 1)) * Math.min(dist / 45, maxOffset);
+      const pupils = orb.querySelectorAll(".nemo-pupil");
+      pupils.forEach((p) => {
+        p.style.transform = `translate(${px.toFixed(1)}px, ${py.toFixed(1)}px)`;
+      });
+    }
+  }, { passive: true });
+
   orb.addEventListener("pointerdown", (e) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
+    widget.classList.add("dragging");
+    if (isHeroDocked) {
+      isHeroDocked = false;
+      widget.classList.remove("hero-docked");
+    }
     const c = current();
     drag = { x: e.clientX, y: e.clientY, r: c.r, b: c.b };
     moved = false;
@@ -1698,6 +2572,7 @@ let onActiveSectionChange = null;
   const end = (e) => {
     if (!drag) return;
     drag = null;
+    widget.classList.remove("dragging");
     try { orb.releasePointerCapture(e.pointerId); } catch (_) {}
     if (moved) {
       justDragged = true;
@@ -1708,9 +2583,23 @@ let onActiveSectionChange = null;
   orb.addEventListener("pointerup", end);
   orb.addEventListener("pointercancel", end);
 
+  // Initial position check
+  setTimeout(syncNemoPosition, 50);
+
   /* click (not pointerup) handles taps so keyboard users can use Enter or Space */
   orb.addEventListener("click", () => {
     if (justDragged) return;
+    if (isHeroDocked) {
+      playNemoChime("chime");
+      const bubble = $("#nemoMoodBubble");
+      if (bubble) {
+        const text = $("#nemoMoodText");
+        if (text) text.textContent = "✨ Ready to explore chemistry with you!";
+        bubble.classList.add("active");
+        clearTimeout(bubble._timer);
+        bubble._timer = setTimeout(() => bubble.classList.remove("active"), 3000);
+      }
+    }
     if (widget.classList.contains("compact")) {
       widget.classList.remove("compact");
       pop.hidden = false;
@@ -1751,20 +2640,48 @@ let onActiveSectionChange = null;
   if (readTipBtn) {
     readTipBtn.addEventListener("click", () => {
       const cfg = NEMO_SECTION_EXPRESSIONS[currentActiveSection] || NEMO_SECTION_EXPRESSIONS.chatPanel;
-      if (!("speechSynthesis" in window)) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(cfg.tip);
-      u.rate = 1.05;
-      u.pitch = 1.15;
-      window.speechSynthesis.speak(u);
+      pop.hidden = true;
+      playNemoChime("tip");
+      const bubble = $("#nemoVoiceBubble");
+      const textEl = $("#nemoVoiceText");
+      const catEl = $("#nvbCategory");
+      if (bubble && textEl) {
+        bubble.hidden = false;
+        bubble.classList.add("active");
+        textEl.innerHTML = inlineMd(cfg.tip);
+        if (catEl) catEl.textContent = cfg.badge || "Section Tip";
+      }
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(speechClean(cfg.tip));
+        const v = getOptimalVoice();
+        if (v) u.voice = v;
+        u.lang = "en-IN";
+        u.rate = 1.02;
+        u.pitch = 1.14;
+        setMascotSpeaking(true);
+        window._nemoUtterances.add(u);
+        u.onend = () => { window._nemoUtterances.delete(u); setMascotSpeaking(false); };
+        u.onerror = () => { window._nemoUtterances.delete(u); setMascotSpeaking(false); };
+        window.speechSynthesis.speak(u);
+      }
     });
   }
 
+  const updateFloatToggle = () => {
+    const isVisible = !widget.classList.contains("hidden");
+    toggle.setAttribute("aria-pressed", String(isVisible));
+    toggle.classList.toggle("active", isVisible);
+    toggle.innerHTML = `<span class="btn-icon">◉</span> Floating Nemo`;
+  };
   toggle.addEventListener("click", () => {
     const hide = !widget.classList.contains("hidden");
     widget.classList.toggle("hidden", hide);
-    toggle.setAttribute("aria-pressed", String(!hide));
+    updateFloatToggle();
+    toggle.classList.add("toggle-animate");
+    setTimeout(() => toggle.classList.remove("toggle-animate"), 600);
   });
+  updateFloatToggle();
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !pop.hidden) {
       pop.hidden = true;
@@ -1799,11 +2716,65 @@ let onActiveSectionChange = null;
     document.body.style.overflow = "";
   }
 
-  const founderTriggers = ["#founderNavBtn", "#openFounderHeroBtn", "#openFounderTopBtn"];
+  const founderTriggers = ["#founderNavBtn", "#openFounderHeroBtn", "#openFounderTopBtn", "#openFounderIslandBtn"];
   founderTriggers.forEach((sel) => {
     const btn = $(sel);
     if (btn) btn.addEventListener("click", openFounderModal);
   });
+
+  /* Mobile Dynamic Island Drawer Controls */
+  const mobileMenuBtn = $("#mobileMenuBtn");
+  const sidebar = $("#appSidebar");
+  const backdrop = $("#sidebarBackdrop");
+  const sidebarCloseBtn = $("#sidebarCloseBtn");
+
+  function openSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.add("open");
+    if (backdrop) backdrop.classList.add("active");
+    if (mobileMenuBtn) {
+      mobileMenuBtn.classList.add("active");
+      mobileMenuBtn.setAttribute("aria-expanded", "true");
+    }
+  }
+  function closeSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.remove("open");
+    if (backdrop) backdrop.classList.remove("active");
+    if (mobileMenuBtn) {
+      mobileMenuBtn.classList.remove("active");
+      mobileMenuBtn.setAttribute("aria-expanded", "false");
+    }
+  }
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener("click", () => {
+      if (sidebar && sidebar.classList.contains("open")) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+  }
+  if (sidebarCloseBtn) sidebarCloseBtn.addEventListener("click", closeSidebar);
+  if (backdrop) backdrop.addEventListener("click", closeSidebar);
+  $$(".nav-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      if (window.innerWidth <= 1024) closeSidebar();
+    });
+  });
+
+  /* Sync mobile island status indicator */
+  const mobileDot = $("#mobileStatusDot");
+  if (mobileDot) {
+    const syncDot = () => {
+      const modeDot = $("#modeDot");
+      if (modeDot && mobileDot) {
+        mobileDot.className = "island-status-dot" + (modeDot.classList.contains("live") ? " live" : "");
+      }
+    };
+    syncDot();
+    setInterval(syncDot, 1500);
+  }
 
   if (closeBtn) closeBtn.addEventListener("click", closeFounderModal);
   if (modal) {
@@ -1813,8 +2784,9 @@ let onActiveSectionChange = null;
   }
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal && !modal.hidden) {
-      closeFounderModal();
+    if (e.key === "Escape") {
+      if (modal && !modal.hidden) closeFounderModal();
+      if (sidebar && sidebar.classList.contains("open")) closeSidebar();
     }
   });
 
@@ -1841,6 +2813,7 @@ let onActiveSectionChange = null;
   const panels = {
     tutor: ["chatPanel", "moleculePanel"],
     practice: ["practicePanel", "analyticsPanel"],
+    portals: ["pyqPanel", "practicePanel"],
     library: ["libraryPanel", "canvasPanel"],
     pyq: ["pyqPanel"],
     formulas: ["formulasPanel"]
@@ -1865,6 +2838,16 @@ let onActiveSectionChange = null;
         }
       });
 
+      if (filter === "portals") {
+        if (typeof window.focusGoldHub === "function") {
+          window.focusGoldHub();
+        } else {
+          const hub = document.getElementById("pyqGoldHub");
+          if (hub) hub.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+        }
+        return;
+      }
+
       const targetId = filter === "all" ? "chatPanel" : (panels[filter] && panels[filter][0]) || "chatPanel";
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
@@ -1874,6 +2857,329 @@ let onActiveSectionChange = null;
   });
 })();
 
+/* ============================== Visual Effects Toggle (✦ Effects) ============================== */
+(function setupEffects() {
+  const effectsToggle = $("#effectsToggle");
+  const mobileEffectsBtn = $("#mobileEffectsBtn");
+  let enabled = store.get("nemo.effects.enabled", true) !== false;
+
+  function paintEffects() {
+    document.body.classList.toggle("no-effects", !enabled);
+    if (effectsToggle) {
+      effectsToggle.setAttribute("aria-pressed", String(enabled));
+      effectsToggle.classList.toggle("active", enabled);
+      effectsToggle.innerHTML = `<span class="btn-icon">${enabled ? "✦" : "✧"}</span> Effects`;
+    }
+    if (mobileEffectsBtn) {
+      mobileEffectsBtn.setAttribute("aria-pressed", String(enabled));
+      mobileEffectsBtn.classList.toggle("active", enabled);
+      mobileEffectsBtn.innerHTML = `<span class="btn-icon">${enabled ? "✦" : "✧"}</span>`;
+    }
+  }
+
+  function toggleEffects() {
+    enabled = !enabled;
+    store.set("nemo.effects.enabled", enabled);
+    paintEffects();
+    [effectsToggle, mobileEffectsBtn].forEach((btn) => {
+      if (btn) {
+        btn.classList.add("toggle-animate");
+        setTimeout(() => btn.classList.remove("toggle-animate"), 600);
+      }
+    });
+  }
+
+  if (effectsToggle) effectsToggle.addEventListener("click", toggleEffects);
+  if (mobileEffectsBtn) mobileEffectsBtn.addEventListener("click", toggleEffects);
+  paintEffects();
+})();
+
+/* ============================== Kinetic Button Clicking Motion & Bluish Ripple Animations ============================== */
+(function setupButtonAnimations() {
+  document.addEventListener("pointerdown", (e) => {
+    const btn = e.target.closest("button, .btn-row a, .nav-item, .ws-tab, .formula-card, .opt, .tool, [role='button']");
+    if (!btn || btn.disabled) return;
+
+    // Create glowing bluish ripple
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const ripple = document.createElement("span");
+    ripple.className = "btn-ripple";
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.width = `${size}px`;
+    ripple.style.height = `${size}px`;
+    if (btn.tagName !== "INPUT") {
+      btn.appendChild(ripple);
+    }
+
+    // Spring clicking motion animation
+    btn.classList.add("btn-clicked");
+    setTimeout(() => {
+      ripple.remove();
+      btn.classList.remove("btn-clicked");
+    }, 450);
+  });
+})();
+
+/* ============================== Universal Aspect Ratio & Multi-Display Auto-Adapter ============================== */
+(function setupUniversalAspectAdapter() {
+  let resizeTimer = null;
+  let manualProjector = store.get("nemo.projector.v1", false) === true;
+
+  function syncProjectorButtons(isActive) {
+    const btn = $("#projectorToggle");
+    const mBtn = $("#mobileProjectorBtn");
+    [btn, mBtn].forEach((b) => {
+      if (b) {
+        b.classList.toggle("active", isActive);
+        b.setAttribute("aria-pressed", String(isActive));
+      }
+    });
+  }
+
+  function detectAndAdapt() {
+    const w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || 1024;
+    const h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 768;
+    const ratio = Math.round((w / (h || 1)) * 100) / 100;
+    let mode = "standard-16-9";
+
+    const isAutoProjector = (ratio <= 1.36 && ratio >= 1.15 && w >= 641);
+
+    if (manualProjector || isAutoProjector) {
+      mode = "projector-4-3";
+    } else if (ratio >= 3.0) {
+      mode = "ultrawide-32-9";
+    } else if (ratio >= 2.05 || w >= 2200) {
+      mode = "ultrawide-21-9";
+    } else if (ratio < 1.15 && ratio >= 0.85 && w >= 641) {
+      mode = "square-display";
+    } else if (ratio < 0.85 && w >= 601) {
+      mode = "tablet-portrait";
+    } else if (w <= 600) {
+      mode = "mobile-portrait";
+    } else if (ratio >= 1.5) {
+      mode = "standard-16-9";
+    } else {
+      mode = "balanced-aspect";
+    }
+
+    const docEl = document.documentElement;
+    const isProjectorActive = mode === "projector-4-3";
+    docEl.setAttribute("data-projector-active", String(isProjectorActive));
+
+    if (docEl.getAttribute("data-aspect-mode") !== mode) {
+      docEl.setAttribute("data-aspect-mode", mode);
+    }
+    docEl.setAttribute("data-aspect-ratio", ratio.toFixed(2));
+    docEl.setAttribute("data-screen-w", String(w));
+    docEl.setAttribute("data-screen-h", String(h));
+
+    syncProjectorButtons(isProjectorActive);
+
+    // Fast dispatch to canvas, 3D viewers, and widget positioning
+    window.dispatchEvent(new CustomEvent("nemo:display-adapt", {
+      detail: { width: w, height: h, ratio, mode, isProjector: isProjectorActive }
+    }));
+  }
+
+  function toggleProjectorMode() {
+    manualProjector = !manualProjector;
+    store.set("nemo.projector.v1", manualProjector);
+    detectAndAdapt();
+  }
+
+  const pBtn = $("#projectorToggle");
+  const pmBtn = $("#mobileProjectorBtn");
+  if (pBtn) pBtn.addEventListener("click", toggleProjectorMode);
+  if (pmBtn) pmBtn.addEventListener("click", toggleProjectorMode);
+
+  // Shortcut: Alt+P toggles Projector Mode
+  window.addEventListener("keydown", (e) => {
+    if (e.altKey && (e.key === "p" || e.key === "P")) {
+      e.preventDefault();
+      toggleProjectorMode();
+    }
+  });
+
+  window.toggleProjectorMode = toggleProjectorMode;
+
+  // Run immediately on boot
+  detectAndAdapt();
+
+  // Instant response on resize, orientationchange, and fullscreen toggle
+  window.addEventListener("resize", () => {
+    detectAndAdapt();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(detectAndAdapt, 60);
+  }, { passive: true });
+
+  window.addEventListener("orientationchange", () => {
+    setTimeout(detectAndAdapt, 40);
+    setTimeout(detectAndAdapt, 220);
+  }, { passive: true });
+
+  document.addEventListener("fullscreenchange", detectAndAdapt, { passive: true });
+})();
+
+/* ============================== Zero-Latency Quantum Cursor & Click Reaction Sparks/Fumes ============================== */
+(function setupZeroLatencyCursor() {
+  const cursor = document.getElementById("quantumCursor");
+  const fxLayer = document.getElementById("cursorFxLayer");
+  if (!cursor || !fxLayer) return;
+
+  // Detect if fine pointer (mouse/stylus) is supported
+  const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+  if (!hasFinePointer) {
+    cursor.style.display = "none";
+    return;
+  }
+
+  let isHoveringInteractive = false;
+  let isVisible = false;
+
+  const FUME_GRADIENTS = [
+    "radial-gradient(circle, rgba(103, 232, 249, 0.8) 0%, rgba(56, 189, 248, 0.45) 40%, rgba(14, 165, 233, 0) 70%)",
+    "radial-gradient(circle, rgba(129, 140, 248, 0.75) 0%, rgba(99, 102, 241, 0.4) 45%, rgba(67, 56, 202, 0) 70%)",
+    "radial-gradient(circle, rgba(251, 191, 36, 0.75) 0%, rgba(245, 158, 11, 0.35) 40%, rgba(217, 119, 6, 0) 70%)",
+    "radial-gradient(circle, rgba(255, 255, 255, 0.85) 0%, rgba(186, 230, 253, 0.45) 45%, transparent 70%)",
+    "radial-gradient(circle, rgba(45, 212, 191, 0.75) 0%, rgba(20, 184, 166, 0.35) 45%, transparent 70%)"
+  ];
+
+  const SPARK_COLORS = [
+    "#ffffff",
+    "#67e8f9",
+    "#38bdf8",
+    "#fde047",
+    "#a5f3fc",
+    "#818cf8",
+    "#f472b6"
+  ];
+
+  function triggerSparkFumeReaction(x, y) {
+    if (reduceMotion || document.body.classList.contains("no-effects")) return;
+
+    const burst = document.createElement("div");
+    burst.className = "fx-burst-origin";
+    burst.style.left = `${x}px`;
+    burst.style.top = `${y}px`;
+
+    // 1. Shockwave ionization ring
+    const shockwave = document.createElement("div");
+    shockwave.className = "fx-shockwave";
+    burst.appendChild(shockwave);
+
+    // 2. Star core flash
+    const star = document.createElement("div");
+    star.className = "fx-flash-star";
+    burst.appendChild(star);
+
+    // 3. Chemical vapor fume clouds (5 clouds billowing and curling outwards)
+    const fumeCount = 5;
+    for (let i = 0; i < fumeCount; i++) {
+      const fume = document.createElement("div");
+      fume.className = "fx-fume";
+      const angle = (i / fumeCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.8;
+      const dist = 26 + Math.random() * 32;
+      const tx = Math.cos(angle) * dist;
+      // Upward buoyant thermal drift for chemical fumes
+      const ty = Math.sin(angle) * dist - (8 + Math.random() * 16);
+      const rot = Math.round((Math.random() - 0.5) * 90);
+      const scale = (2.2 + Math.random() * 1.2).toFixed(1);
+      const dur = (0.65 + Math.random() * 0.22).toFixed(2);
+      const bg = FUME_GRADIENTS[i % FUME_GRADIENTS.length];
+
+      fume.style.setProperty("--tx", `${tx.toFixed(1)}px`);
+      fume.style.setProperty("--ty", `${ty.toFixed(1)}px`);
+      fume.style.setProperty("--rot", `${rot}deg`);
+      fume.style.setProperty("--scale", scale);
+      fume.style.setProperty("--dur", `${dur}s`);
+      fume.style.background = bg;
+      burst.appendChild(fume);
+    }
+
+    // 4. Kinetic plasma sparks (12 high-velocity radiating sparks)
+    const sparkCount = 12;
+    for (let i = 0; i < sparkCount; i++) {
+      const spark = document.createElement("div");
+      spark.className = "fx-spark";
+      const angle = (i / sparkCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+      const dist = 38 + Math.random() * 56;
+      const tx = Math.cos(angle) * dist;
+      const ty = Math.sin(angle) * dist + (6 + Math.random() * 12);
+      const dur = (0.42 + Math.random() * 0.22).toFixed(2);
+      const color = SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)];
+      const angleDeg = Math.round((angle * 180) / Math.PI + 90);
+
+      spark.style.setProperty("--tx", `${tx.toFixed(1)}px`);
+      spark.style.setProperty("--ty", `${ty.toFixed(1)}px`);
+      spark.style.setProperty("--angle", `${angleDeg}deg`);
+      spark.style.setProperty("--dur", `${dur}s`);
+      spark.style.setProperty("--spark-color", color);
+      burst.appendChild(spark);
+    }
+
+    fxLayer.appendChild(burst);
+
+    // Auto cleanup after animation ends
+    setTimeout(() => {
+      burst.remove();
+    }, 950);
+  }
+
+  // Immediate 0-latency tracking: executed synchronously on native pointermove tick
+  window.addEventListener("pointermove", (e) => {
+    if (e.pointerType === "touch") return;
+
+    if (!isVisible) {
+      isVisible = true;
+      cursor.classList.add("visible");
+    }
+
+    // Direct GPU translate3d with zero delay or lerping lag
+    cursor.style.transform = `translate3d(${e.clientX - 13}px, ${e.clientY - 13}px, 0)`;
+  }, { passive: true });
+
+  window.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch") return;
+    cursor.classList.add("clicking");
+    triggerSparkFumeReaction(e.clientX, e.clientY);
+  }, { passive: true });
+
+  window.addEventListener("pointerup", () => {
+    cursor.classList.remove("clicking");
+  }, { passive: true });
+
+  document.addEventListener("mouseleave", () => {
+    isVisible = false;
+    cursor.classList.remove("visible");
+  });
+
+  document.addEventListener("mouseenter", () => {
+    isVisible = true;
+    cursor.classList.add("visible");
+  });
+
+  // Expand cursor aura over interactive elements
+  document.addEventListener("pointerover", (e) => {
+    const target = e.target;
+    if (target && target.closest && target.closest("a, button, input, select, textarea, [role='button'], summary, .formula-card, .ws-tab, .opt, .tool, .qn-btn, .nav-item")) {
+      if (!isHoveringInteractive) {
+        isHoveringInteractive = true;
+        cursor.classList.add("hovering");
+      }
+    } else {
+      if (isHoveringInteractive) {
+        isHoveringInteractive = false;
+        cursor.classList.remove("hovering");
+      }
+    }
+  }, { passive: true });
+})();
+
 /* ============================== boot ============================== */
 renderHistory();
 refreshSend();
+

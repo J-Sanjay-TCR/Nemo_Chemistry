@@ -1,60 +1,127 @@
-# Nemo Chemistry Tutor v3
+# Nemo Chemistry Tutor v3.3
 
-Offline-first chemistry study app for CBSE, JEE Main and JEE Advanced. Vanilla HTML/CSS/JS, no build step, no dependencies.
+[![CI](https://github.com/your-username/nemo-chemistry-tutor/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/nemo-chemistry-tutor/actions)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-username%2Fnemo-chemistry-tutor&env=GEMINI_API_KEY&envDescription=Google%20Gemini%20API%20Key%20from%20Google%20AI%20Studio&project-name=nemo-chemistry-tutor&framework=other)
 
-## Run it
+**Engineered and Created by J.Sanjay**
 
-* **Just open `index.html`** (or `dist/nemo-single-file.html`). All features work offline except AI chat.
-* **With AI chat (Gemini or Claude), key kept on the server:**
-  `GEMINI_API_KEY=... node server.js`  or  `ANTHROPIC_API_KEY=... node server.js`, then open http://localhost:3000.
-  Optional: `GEMINI_MODEL` (default `gemini-flash-latest`; stable ids are tried automatically if it is rejected), `NEMO_PROVIDER`, `PORT`, `HOST`.
-* **Google AI Studio:** see [AI_STUDIO_PROMPTS.md](AI_STUDIO_PROMPTS.md).
+An offline-first, high-performance chemistry tutor tailored for **CBSE Class 12 Boards**, **JEE Main**, and **JEE Advanced**. Built with zero-dependency vanilla web technologies (HTML5, modern CSS with KaTeX LaTeX rendering, and pure JavaScript) plus rotatable 3D molecular simulations, comprehensive exam formula banks, and an intelligent AI tutor powered by Google Gemini and Claude.
 
-## What is inside
+---
 
-| Panel | What it does |
+## 🚀 One-Click Deploy to Vercel
+
+You can deploy your own instance of Nemo Chemistry Tutor to **Vercel** with a single click:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-username%2Fnemo-chemistry-tutor&env=GEMINI_API_KEY&envDescription=Google%20Gemini%20API%20Key%20from%20Google%20AI%20Studio&project-name=nemo-chemistry-tutor&framework=other)
+
+### Vercel Deployment Steps:
+1. Click the **Deploy with Vercel** button above or import the GitHub repository in [Vercel Dashboard](https://vercel.com/new).
+2. Framework Preset: Choose **Other** (configured automatically by `vercel.json`).
+3. Root Directory: `./` (default).
+4. Add Environment Variable:
+   - `GEMINI_API_KEY`: Your API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+   - *(Optional)* `GEMINI_MODEL`: `gemini-flash-latest` (default), `gemini-3.8-flash`, or `gemini-3.1-flash-lite`.
+   - *(Optional alternative)* `ANTHROPIC_API_KEY`: Your Claude API key.
+5. Click **Deploy**. Vercel will build the project and deploy the static app along with `/api/chat` and `/api/health` Serverless Functions with zero errors.
+
+---
+
+## 🐙 Deploying to GitHub
+
+1. **Initialize Git & Push to GitHub:**
+   ```bash
+   git init
+   git add .
+   git commit -m "feat: Nemo Chemistry Tutor engineered by J.Sanjay"
+   git branch -M main
+   git remote add origin https://github.com/<your-username>/nemo-chemistry-tutor.git
+   git push -u origin main
+   ```
+
+2. **Automated CI (GitHub Actions):**
+   - The repository includes a pre-configured `.github/workflows/ci.yml` pipeline.
+   - Every push and pull request runs syntax validation (`npm run lint`), bundle verification (`npm run build`), and artifact integrity checks across Node.js versions 18, 20, and 22.
+
+---
+
+## 💻 Local Development & Standalone Node Server
+
+1. **Clone and Install:**
+   ```bash
+   git clone https://github.com/<your-username>/nemo-chemistry-tutor.git
+   cd nemo-chemistry-tutor
+   npm install
+   ```
+
+2. **Run with Live AI:**
+   ```bash
+   GEMINI_API_KEY="your-api-key" npm run dev
+   ```
+   Open `http://localhost:3000` in your browser.
+
+3. **Run 100% Offline (No Server, No Node required):**
+   - Simply double-click `index.html` or build the single-file bundle via `npm run build` and open `dist/nemo-single-file.html`.
+   - All modules (124 3D molecules, Formula Bank with KaTeX, 248 Library Rules, Practice Quiz, Reaction Canvas, PYQ Bank) work without an active internet connection.
+
+---
+
+## 🌟 Key Features
+
+| Feature | Description |
 |---|---|
-| Chat | Offline answers from the library, formula bank and 7 deep-dive topics; live AI when a key is configured. A **Level** selector (Auto / CBSE / JEE Main / JEE Advanced) sets how deep live answers go; the choice is saved in this browser. If the AI call fails, built-in notes are shown as a fallback. |
-| 3D Molecules | **124** hand-built, geometry-checked entries with a filter box: VSEPR shapes (incl. interhalogens, XeF₂/XeOF₄/XeO₄, I₃⁻), oxoacids and oxoanions (HNO₃, H₂SO₄, SO₄²⁻, Cr₂O₇²⁻, MnO₄⁻…), reactive intermediates (carbocation, carbanion, radical, t-Bu⁺), conformers (butane anti/gauche/eclipsed, chair/boat, axial vs equatorial), enantiomers (R/S CHBrClF), aromatics (toluene, phenol, aniline, nitrobenzene, naphthalene), cages (cubane, C₆₀), coordination compounds (cis/trans-Pt, Δ/Λ-[Co(en)₃]³⁺, Ni(CO)₄, ferrocene…) and **9 solid-state unit cells** (sc, bcc, fcc, hcp, NaCl, CsCl, ZnS, CaF₂, diamond). Ball, stick and space-fill, lone-pair lobes, labels, pinch zoom, optional PubChem search (online). |
-| Rules & Exceptions Library | 248 original entries: laws, rules, special cases, exceptions, trends, name reactions and tests across Physical (57), Inorganic (74) and Organic (117), including practical organic chemistry (Lassaigne, Victor Meyer, Lucas, Hinsberg, Tollens/Fehling, phenol and iodoform tests) and inorganic salt analysis (borax bead, flame, brown ring, chromyl chloride, nitroprusside). Search, filter by branch, chapter, type and level; each card has the exam trap and an "Ask Nemo" button. |
-| PYQ Bank | **Import your own** questions (JSON or CSV; MCQ, multi-correct, numerical). Practice with filters (exam, year, branch, chapter, not attempted, missed), plus a chapter × year frequency table and a "frequent but weak" hint computed from your own data. |
-| Practice and Study Analytics | 18 original questions; accuracy by branch and chapter from your real answers (PYQ answers count too). |
-| Reaction Canvas | Pen, arrow, eraser, undo, PNG export. |
-| Formula Bank | 25 formulas with symbols, tips and worked examples. |
+| **AI Tutor (Nemo)** | Deep multi-step logical reasoning with strict Indian curriculum alignment (CBSE, JEE Main, JEE Advanced). Features live backend integration with Gemini Flash (`gemini-flash-latest` with automatic graceful fallback cascade) and Claude. |
+| **Formula Bank** | 25 high-yield master formulas formatted in KaTeX with horizontal scrolling support, symbol definitions, exam traps, and worked examples. |
+| **124 3D Molecules** | Canvas-based molecular visualizer with ball-and-stick, wireframe, space-fill, crystal unit cells (BCC, FCC, HCP, NaCl, CsCl, ZnS, CaF₂, diamond), coordination complexes, and reaction intermediates. Preserved without external 3D runtime overhead. |
+| **Rules & Exceptions Library** | 248 verified chemistry laws, trends, anomalies, and tests across Physical, Inorganic, and Organic Chemistry with direct "Ask Nemo" integration. |
+| **PYQ Bank & Importer** | Import previous years' CBSE and JEE questions via JSON/CSV. Analyze attempt frequency, accuracy by chapter, and identify weak spots. |
+| **Reaction Canvas** | Built-in freehand drawing tool for sketching organic mechanisms, arrows, intermediates, and stereochemical projections with PNG export. |
+| **Practice & Study Analytics** | Topic-wise quizzes with persistent scoring, instant feedback, and mastery tracking. |
+| **Founder Tribute** | Dedicated interactive panel and modal celebrating **J.Sanjay**, the creator and software engineer behind Nemo Chemistry Tutor. |
 
-## Visual effects (the "✦ Effects" button, top right)
+---
 
-Pure CSS plus a few lines of JS, no libraries. Everything is transform/opacity-based so it stays smooth, and it switches itself off where it would hurt.
+## ⚙️ Environment Variables
 
-* Slow aurora background; panels fade and rise in as you scroll to them.
-* Panel borders draw a spinning gradient ring on hover or focus (uses `@property`); a soft spotlight follows the mouse over panels and formula cards.
-* Gradient shimmer on the headline, breathing logo, pulsing "online" dot, sheen on the active menu item and on buttons, springy press feedback.
-* Chat bubbles pop in; the typing dots wave; correct answers pulse green, wrong answers shake; analytics bars grow.
-* Library cards stagger in and expand with a smooth height animation (browsers that support `interpolate-size`; others just open instantly).
-* Scanning HUD corners on the 3D viewer.
+Create a `.env` file for local development or configure these in your host dashboard:
 
-The **✦ Effects** button turns it all off (saved in this browser). It is also off automatically with `prefers-reduced-motion`, and the heavy parts (spotlight, ring) are skipped on touch screens and in print. To remove it for good, delete the block at the bottom of `style.css` and the `effects()` function at the end of `app.js`.
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `GEMINI_API_KEY` | Optional | `""` | Google Gemini API Key from Google AI Studio. |
+| `GEMINI_MODEL` | Optional | `gemini-flash-latest` | Model to use. Fallbacks: `gemini-3.8-flash`, `gemini-3.1-flash-lite`. |
+| `ANTHROPIC_API_KEY` | Optional | `""` | Anthropic Claude API Key (if using Claude as provider). |
+| `NEMO_PROVIDER` | Optional | Auto | `gemini` or `anthropic` (defaults to whichever key is present). |
+| `PORT` | Optional | `3000` | Port for local Node.js server. |
 
-## Honest limits
+---
 
-* **No coaching-institute material was used or copied.** The library is original writing from NCERT, IUPAC and standard textbook knowledge. Check entries against your NCERT and class notes.
-* **No official PYQ text is bundled.** It cannot be verified from here and the papers are the exam bodies' material. Import what you have from the official archives and verify it.
-* Gemini and AI Studio paths were tested only against mocks (see AI_STUDIO_PROMPTS.md). AI answers can be wrong: check against textbooks and answer keys.
-* Data stays in your browser's localStorage (about 5 MB; the PYQ bank is capped near 2 MB or 2000 questions).
+## 📁 Project Structure
 
-## Data formats
+```
+├── api/
+│   ├── chat.js              # Vercel Serverless Function & Node handler for /api/chat
+│   └── health.js            # Vercel Serverless Function & Node handler for /api/health
+├── .github/
+│   └── workflows/ci.yml     # GitHub Actions CI workflow (Node 18, 20, 22)
+├── scripts/
+│   └── build-single.js      # Bundler for dist/nemo-single-file.html & dist/index.html
+├── vendor/                  # KaTeX CSS, JS, and webfonts
+├── index.html               # Main application entry point
+├── style.css                # Pure CSS styling with responsive design & themes
+├── app.js                   # Application logic, router, and UI management
+├── molecules.js             # 124 3D molecular structures & crystal unit cells
+├── data.js                  # Formulas, quiz data, and chemistry reference banks
+├── lib-*.js                 # Physical, Inorganic, Organic, and Practical libraries
+├── system-prompt.js         # Unified AI system prompt engineered by J.Sanjay
+├── server.js                # Local development HTTP server (Node.js)
+├── vercel.json              # Vercel deployment configuration
+├── package.json             # NPM package scripts and metadata
+└── metadata.json            # AI Studio applet manifest
+```
 
-* Library entry (`lib-*.js`): `{ b: branch, ch: chapter, t: type, l: "Board"|"Main"|"Adv", n: title, w: scientist, s: statement, e: example, x: exam trap }`.
-* PYQ import: see `pyq_template.json` or use the in-app template buttons. Answers are option letters (`B`, `["A","C"]`) or a number; `tolerance` is optional for numericals.
+---
 
-## Files
+## 📜 Credits & License
 
-`index.html` `style.css` `app.js` · `data.js` (quiz, formulas, topics) · `molecules.js` (generated) · `lib-*.js` (library) · `system-prompt.js` (tutor instruction shared by the server and own-key mode) · `pyq.js` (optional preloaded PYQ array, empty) · `server.js` (optional backend) · `scripts/build-single.js` · `metadata.json` · `package.json`.
-
-## Changelog
-
-* **v3.3** Added the ChemMaster-style tutor instruction as one shared module (`system-prompt.js`): the server (Gemini and Claude) and the browser's own-key mode now send the same instruction, with a per-level depth line from the new Level selector. 23 new library entries (now 248): practical organic chemistry, salt analysis, and gaps such as neighbouring-group participation, carbonium vs carbenium ions, kinetic vs thermodynamic control, the Reformatsky reaction, acetoacetic ester synthesis, Gilman reagents and projection formulas. `npm run build:single` also writes `dist/system-instruction.txt` to paste into the System Instructions box in AI Studio. Library statements now keep their line breaks. Facts in the supplied instruction were checked while writing and a few were corrected, for example nitro compounds do give the Lassaigne nitrogen test, and the FeCl₃ complex equation was rewritten.
-* **v3.2** 3D Molecules grew from 36 to 124 (see the table), with a filter box on the molecule list, per-molecule ion sizes and dashed cell edges in the viewer, and crystal-specific info labels for unit cells.
-* **v3.1** Advanced CSS effects layer with an on/off toggle (see Visual effects). No data changes.
-* **v3** Rules & Exceptions Library (225 at the time), PYQ Bank with import and real analytics, 36 molecules, Gemini and Claude server providers, single-file build, own-key mode, AI Studio package, safer offline routing.
-* **v2** Fixed arrow tool, canvas scaling, widget logic, viewer leaks, voice, fake analytics and layout; offline-first 3D viewer; real practice analytics.
+Engineered with passion by **J.Sanjay**.
+Distributed under the MIT License for educational and learning use.

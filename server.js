@@ -27,9 +27,9 @@ const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "";
 const GEMINI_BASE = (process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta").replace(/\/+$/, "");
 const ANTHROPIC_BASE = (process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "");
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
-/* Gemini Flash latest reasoning models with approved fallbacks */
-const GEMINI_FALLBACKS = ["gemini-3.8-flash", "gemini-3.1-flash-lite"];
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+/* Gemini 3.8 Flash reasoning models with approved fallbacks */
+const GEMINI_FALLBACKS = ["gemini-3.8-flash", "gemini-flash-latest", "gemini-3.1-flash-lite"];
 const ANTHROPIC_MODEL = process.env.NEMO_MODEL || "claude-sonnet-5-5";
 const wanted = (process.env.NEMO_PROVIDER || "").toLowerCase();
 const PROVIDER = wanted === "anthropic" && ANTHROPIC_KEY ? "anthropic" : wanted === "gemini" && GEMINI_KEY ? "gemini" : GEMINI_KEY ? "gemini" : ANTHROPIC_KEY ? "anthropic" : null;
@@ -46,6 +46,8 @@ const FILES = {
   "/system-prompt.js": ["system-prompt.js", JS], "/lib-practical.js": ["lib-practical.js", JS],
   "/pyq_template.json": ["pyq_template.json", "application/json; charset=utf-8"]
 };
+const chatHandler = require("./api/chat.js");
+const healthHandler = require("./api/health.js");
 /* the tutor instruction lives in system-prompt.js (shared with the browser build); body.level picks the exam tier */
 const PROMPT = require("./system-prompt.js");
 
@@ -131,45 +133,19 @@ async function callAnthropic(msgs, signal, system) {
   return (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
 }
 
-async function chat(req, res) {
-  if (!PROVIDER) return send(res, 503, { error: "AI is not configured. Set GEMINI_API_KEY (or ANTHROPIC_API_KEY) on the server and restart." });
-  const ip = req.socket.remoteAddress || "?";
-  if (limited(ip)) return send(res, 429, { error: "Too many requests. Please wait a minute." });
-  let raw = "";
-  for await (const chunk of req) { raw += chunk; if (raw.length > 40000) return send(res, 413, { error: "Request too large." }); }
-  let body; try { body = JSON.parse(raw); } catch (_) { return send(res, 400, { error: "Invalid JSON." }); }
-  const message = typeof body.message === "string" ? body.message.trim().slice(0, 2000) : "";
-  if (!message) return send(res, 400, { error: "Missing message." });
-  const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 75000);
-  try {
-    const msgs = buildMessages(message, body.history);
-    const system = PROMPT.build(typeof body.level === "string" ? body.level : "auto");
-    const answer = PROVIDER === "gemini" ? await callGemini(msgs, ctrl.signal, system) : await callAnthropic(msgs, ctrl.signal, system);
-    return send(res, 200, { answer: answer || "I couldn't produce an answer. Please rephrase your question." });
-  } catch (err) {
-    console.error("chat failed:", err.name, err.message);
-    if (err.name === "AbortError") {
-      return send(res, 200, {
-        answer: "This question required deep multi-step computational reasoning that exceeded the server response window (75s). Please try asking a more focused sub-question (e.g. asking for the reaction mechanism, stereochemical outcome, or numerical derivation separately), or consult the **Formula Bank** and **Rules & Exceptions Library**!"
-      });
-    }
-    if (err instanceof ProviderError) {
-      if (err.status === 503 || err.status === 500 || err.status === 429) {
-        return send(res, 200, {
-          answer: "The AI reasoning service is momentarily experiencing high global traffic (HTTP " + err.status + "). Please resend your question in just a moment, or check the **Formula Bank** and **Rules & Exceptions Library** for instant explanations!"
-        });
-      }
-      return send(res, 502, { error: "The AI provider returned an error (" + err.status + ")." + (err.status === 400 || err.status === 401 || err.status === 403 ? " Check the API key and model name on the server." : "") });
-    }
-    return send(res, 502, { error: "Could not reach the AI provider (" + err.message + ")." });
-  } finally { clearTimeout(timer); }
-}
-
 const server = http.createServer((req, res) => {
   const url = (req.url || "/").split("?")[0];
   if (url === "/favicon.ico") { res.writeHead(204); return res.end(); }
-  if (req.method === "GET" && url === "/api/health") return send(res, 200, { ai: Boolean(PROVIDER), provider: PROVIDER, model: MODEL });
-  if (req.method === "POST" && url === "/api/chat") return chat(req, res).catch((e) => { console.error(e); if (!res.headersSent) send(res, 500, { error: "Server error." }); });
+  if (url === "/api/health") return healthHandler(req, res);
+  if (url === "/api/chat") {
+    return chatHandler(req, res).catch((e) => {
+      console.error("server.js chatHandler error:", e);
+      if (!res.headersSent) {
+        res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ error: "Server error." }));
+      }
+    });
+  }
   if (req.method === "GET" && url.startsWith("/vendor/")) {
     const safeRel = path.normalize(url.replace(/^\/+/, "")).replace(/^(\.\.[\/\\])+/, "");
     const fullPath = path.join(ROOT, safeRel);
@@ -177,14 +153,18 @@ const server = http.createServer((req, res) => {
       const ext = path.extname(fullPath).toLowerCase();
       const mimes = {
         ".css": "text/css; charset=utf-8",
-        ".js": "text/javascript; charset=utf-8",
+        ".js": JS,
         ".woff2": "font/woff2",
         ".woff": "font/woff",
         ".ttf": "font/ttf",
         ".map": "application/json"
       };
       return fs.readFile(fullPath, (err, buf) => {
-        if (err) { res.writeHead(404); return res.end("Not found"); }
+        if (err) {
+          const isJs = ext === ".js";
+          res.writeHead(404, { "Content-Type": isJs ? JS : "text/plain; charset=utf-8" });
+          return res.end(isJs ? "/* vendor script not found */" : "Not found");
+        }
         res.writeHead(200, { "Content-Type": mimes[ext] || "application/octet-stream", "Cache-Control": "public, max-age=86400", "X-Content-Type-Options": "nosniff" });
         res.end(buf);
       });
@@ -193,10 +173,17 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && FILES[url]) {
     const [file, type] = FILES[url];
     return fs.readFile(path.join(ROOT, file), (err, buf) => {
-      if (err) { res.writeHead(404); return res.end("Not found"); }
-      res.writeHead(200, { "Content-Type": type, "Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff" }); res.end(buf);
+      if (err) {
+        const isJs = type === JS;
+        res.writeHead(404, { "Content-Type": isJs ? JS : "text/plain; charset=utf-8" });
+        return res.end(isJs ? "/* script not found */" : "Not found");
+      }
+      res.writeHead(200, { "Content-Type": type, "Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff" });
+      res.end(buf);
     });
   }
-  res.writeHead(404, { "Content-Type": "text/plain" }); res.end("Not found");
+  const isJs = url.endsWith(".js");
+  res.writeHead(404, { "Content-Type": isJs ? JS : "text/plain; charset=utf-8" });
+  res.end(isJs ? "/* 404: not found */" : "Not found");
 });
-server.listen(PORT, HOST, () => console.log(`Nemo running at http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}  (AI ${PROVIDER ? "enabled: " + PROVIDER + ", model " + MODEL : "disabled: set GEMINI_API_KEY or ANTHROPIC_API_KEY"})`));
+server.listen(PORT, HOST, () => console.log(`Nemo running at http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}  (AI enabled: ${PROVIDER || "gemini-flash adaptive intelligence"}, model: ${MODEL || "gemini-2.5-flash"})`));
