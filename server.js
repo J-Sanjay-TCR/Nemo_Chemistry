@@ -146,7 +146,8 @@ const server = http.createServer((req, res) => {
       }
     });
   }
-  if (req.method === "GET" && url.startsWith("/vendor/")) {
+  const isGetOrHead = req.method === "GET" || req.method === "HEAD";
+  if (isGetOrHead && url.startsWith("/vendor/")) {
     const safeRel = path.normalize(url.replace(/^\/+/, "")).replace(/^(\.\.[\/\\])+/, "");
     const fullPath = path.join(ROOT, safeRel);
     if (fullPath.startsWith(path.join(ROOT, "vendor"))) {
@@ -163,22 +164,24 @@ const server = http.createServer((req, res) => {
         if (err) {
           const isJs = ext === ".js";
           res.writeHead(404, { "Content-Type": isJs ? JS : "text/plain; charset=utf-8" });
-          return res.end(isJs ? "/* vendor script not found */" : "Not found");
+          return res.end(req.method === "HEAD" ? undefined : (isJs ? "/* vendor script not found */" : "Not found"));
         }
         res.writeHead(200, { "Content-Type": mimes[ext] || "application/octet-stream", "Cache-Control": "public, max-age=86400", "X-Content-Type-Options": "nosniff" });
+        if (req.method === "HEAD") return res.end();
         res.end(buf);
       });
     }
   }
-  if (req.method === "GET" && FILES[url]) {
+  if (isGetOrHead && FILES[url]) {
     const [file, type] = FILES[url];
     return fs.readFile(path.join(ROOT, file), (err, buf) => {
       if (err) {
         const isJs = type === JS;
         res.writeHead(404, { "Content-Type": isJs ? JS : "text/plain; charset=utf-8" });
-        return res.end(isJs ? "/* script not found */" : "Not found");
+        return res.end(req.method === "HEAD" ? undefined : (isJs ? "/* script not found */" : "Not found"));
       }
       res.writeHead(200, { "Content-Type": type, "Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff" });
+      if (req.method === "HEAD") return res.end();
       res.end(buf);
     });
   }

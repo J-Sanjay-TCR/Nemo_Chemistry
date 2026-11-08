@@ -190,6 +190,11 @@
             </span>
             <span class="nav-text">Rules &amp; Exceptions</span>
           </a>
+          <button class="nav-item nav-tour-btn" id="sidebarTourBtn" type="button" aria-label="Start Interactive Spotlight App Tour">
+            <span class="nav-icon-box" aria-hidden="true">💡</span>
+            <span class="nav-text">Interactive App Tour</span>
+            <span class="nav-badge-pill gold">Guide</span>
+          </button>
         </nav>
       </div>
 
@@ -242,39 +247,49 @@
     <main class="main" id="top">
       <!-- Mobile Floating Dynamic Island Header (Prevents top notch/island cutoff) -->
       <header class="mobile-top-island" id="mobileTopIsland" aria-label="Mobile top island navigation">
-        <a class="island-brand" href="#top" aria-label="Nemo AI Chemistry Tutor home">
-          <div class="nemo-chem-logo small" aria-hidden="true">
-            <div class="chem-logo-halo"></div>
-            <svg class="chem-logo-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <polygon class="chem-hex-outer" points="32,6 54.5,19 54.5,45 32,58 9.5,45 9.5,19" stroke="url(#nemoHexGrad)" />
-              <circle class="chem-resonance-circle" cx="32" cy="32" r="15" />
-              <circle class="chem-hex-node" cx="32" cy="6" r="2.2" />
-              <circle class="chem-hex-node" cx="54.5" cy="19" r="2.2" />
-              <circle class="chem-hex-node" cx="54.5" cy="45" r="2.2" />
-              <circle class="chem-hex-node" cx="32" cy="58" r="2.2" />
-              <circle class="chem-hex-node" cx="9.5" cy="45" r="2.2" />
-              <circle class="chem-hex-node" cx="9.5" cy="19" r="2.2" />
-              <g class="chem-orbit-group orb-plane-1">
-                <ellipse class="chem-orbit-path" cx="32" cy="32" rx="21" ry="7" />
-                <circle class="chem-electron" cx="53" cy="32" r="1.8" />
-              </g>
-              <g class="chem-orbit-group orb-plane-2">
-                <ellipse class="chem-orbit-path" cx="32" cy="32" rx="21" ry="7" transform="rotate(60 32 32)" />
-                <circle class="chem-electron" cx="42.5" cy="50" r="1.8" />
-              </g>
-              <g class="chem-orbit-group orb-plane-3">
-                <ellipse class="chem-orbit-path" cx="32" cy="32" rx="21" ry="7" transform="rotate(-60 32 32)" />
-                <circle class="chem-electron" cx="21.5" cy="50" r="1.8" />
-              </g>
-              <circle class="chem-nuc-core" cx="32" cy="32" r="4.2" />
-              <path class="chem-core-glyph" d="M29.5 28.5V35.5M29.5 29.5L34.5 34.5M34.5 28.5V35.5" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </div>
-          <span class="island-brand-text">Nemo <small class="island-status-dot" id="mobileStatusDot" title="AI active"></small></span>
-        </a>
+        <div class="island-left-nav">
+          <button class="menu-toggle-btn" id="mobileMenuBtn" type="button" aria-label="Toggle navigation menu (left sidebar)" aria-expanded="false" title="Open Sidebar Menu (Left)">
+            <span class="bar bar-1"></span>
+            <span class="bar bar-2"></span>
+            <span class="bar bar-3"></span>
+          </button>
+          <a class="island-brand" href="#top" aria-label="Nemo AI Chemistry Tutor home">
+            <div class="nemo-chem-logo small" aria-hidden="true">
+              <div class="chem-logo-halo"></div>
+              <svg class="chem-logo-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon class="chem-hex-outer" points="32,6 54.5,19 54.5,45 32,58 9.5,45 9.5,19" stroke="url(#nemoHexGrad)" />
+                <circle class="chem-resonance-circle" cx="32" cy="32" r="15" />
+                <circle class="chem-hex-node" cx="32" cy="6" r="2.2" />
+                <circle class="chem-hex-node" cx="54.5" cy="19" r="2.2" />
+                <circle class="chem-hex-node" cx="54.5" cy="45" r="2.2" />
+                <circle class="chem-hex-node" cx="32" cy="58" r="2.2" />
+                <circle class="chem-hex-node" cx="9.5" cy="45" r="2.2" />
+                <circle class="chem-hex-node" cx="9.5" cy="19" r="2.2" />
+                <g class="chem-orbit-group orb-plane-1">
+                  <ellipse class="chem-orbit-path" cx="32" cy="32" rx="21" ry="7" />
+                  <circle class="chem-electron" cx="53" cy="32" r="1.8" />
+                </g>
+                <g class="chem-orbit-group orb-plane-2">
+                  <ellipse class="chem-orbit-path" cx="32" cy="32" rx="21" ry="7" transform="rotate(60 32 32)" />
+                  <circle class="chem-electron" cx="42.5" cy="50" r="1.8" />
+                </g>
+                <g class="chem-orbit-group orb-plane-3">
+                  <ellipse class="chem-orbit-path" cx="32" cy="32" rx="21" ry="7" transform="rotate(-60 32 32)" />
+                  <circle class="chem-electron" cx="21.5" cy="50" r="1.8" />
+                </g>
+                <circle class="chem-nuc-core" cx="32" cy="32" r="4.2" />
+                <path class="chem-core-glyph" d="M29.5 28.5V35.5M29.5 29.5L34.5 34.5M34.5 28.5V35.5" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <span class="island-brand-text">Nemo <small class="island-status-dot" id="mobileStatusDot" title="AI active"></small></span>
+          </a>
+        </div>
         <div class="island-actions">
           <button class="founder-island-btn" id="openFounderIslandBtn" type="button" aria-label="Founder J.Sanjay tribute">
             <span class="badge-star">★</span> J.Sanjay
+          </button>
+          <button class="icon-btn tour-btn" id="mobileTourBtn" type="button" title="Start Interactive App Spotlight Tour" aria-label="Start interactive feature tour">
+            <span class="btn-icon">💡</span>
           </button>
           <button class="icon-btn toggle-btn" id="mobileProjectorBtn" aria-pressed="false" title="Toggle 4:3 Projector Presentation Mode">
             <span class="btn-icon">📽️</span>
@@ -282,22 +297,25 @@
           <button class="icon-btn toggle-btn active" id="mobileEffectsBtn" aria-pressed="true" title="Toggle visual animations & effects">
             <span class="btn-icon">✦</span>
           </button>
-          <button class="menu-toggle-btn" id="mobileMenuBtn" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
-            <span class="bar bar-1"></span>
-            <span class="bar bar-2"></span>
-            <span class="bar bar-3"></span>
-          </button>
         </div>
       </header>
 
       <header class="topbar">
-        <div>
-          <span class="eyebrow">HIGH-PERFORMANCE CHEMISTRY INTELLIGENCE</span>
-          <h1>Master Chemistry with <span>Nemo</span></h1>
+        <div class="topbar-title-block">
+          <button class="sidebar-toggle-desktop-btn" id="desktopSidebarToggleBtn" type="button" title="Toggle left sidebar navigation" aria-label="Toggle left sidebar navigation" aria-expanded="true">
+            <svg class="sidebar-toggle-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+          </button>
+          <div>
+            <span class="eyebrow">HIGH-PERFORMANCE CHEMISTRY INTELLIGENCE</span>
+            <h1>Master Chemistry with <span>Nemo</span></h1>
+          </div>
         </div>
         <div class="top-actions">
           <button class="founder-top-btn" id="openFounderTopBtn" type="button" title="Meet the Creator &amp; Engineer J.Sanjay">
             <span class="badge-star">★</span> Founder: J.Sanjay
+          </button>
+          <button class="ghost-btn tour-top-btn" id="startTourBtn" type="button" title="Interactive Step-by-Step Spotlight Feature Tour">
+            <span class="btn-icon">💡</span> <span class="btn-text">Feature Tour</span>
           </button>
           <button class="ghost-btn toggle-btn" id="projectorToggle" aria-pressed="false" title="Toggle 4:3 Projector Presentation Mode (enhanced legibility, high contrast &amp; 4:3 projection ratio)">
             <span class="btn-icon">📽️</span> <span class="btn-text">Projector (4:3)</span>
@@ -479,7 +497,7 @@
               </select>
             </div>
           </div>
-          <div id="quizBody" aria-live="polite"></div>
+          <div id="quizBody" tabindex="0" aria-label="Practice quiz question and choices (use keys 1 to 4 or A to D to answer)" aria-live="polite"></div>
         </section>
 
         <!-- ANALYTICS -->
@@ -686,7 +704,7 @@
             <select id="pyqState" aria-label="Progress"><option value="All">All questions</option><option value="new">Not attempted</option><option value="missed">Missed last time</option></select>
             <button class="outline-btn" id="pyqStart">Start / restart</button>
           </div>
-          <div id="pyqBody" aria-live="polite"></div>
+          <div id="pyqBody" tabindex="0" aria-label="PYQ exam question and choices (use keys 1 to 4 or A to D to answer)" aria-live="polite"></div>
           <div class="pyq-analytics">
             <div class="panel-head"><div><strong>Chapter frequency by year</strong><small>Counts of questions in your imported set</small></div><select id="pyqTableExam" aria-label="Exam for the table"></select></div>
             <p class="pyq-msg warn" id="pyqCaution" hidden></p>
@@ -920,6 +938,69 @@
         </div>
         <p class="founder-footnote">Crafted with passion &amp; engineering rigor for chemistry aspirants worldwide.</p>
       </div>
+    </div>
+  </div>
+
+  <!-- Interactive Step-by-Step Spotlight Feature Tour -->
+  <div id="appSpotlightTour" class="spotlight-tour" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="tourStepTitle">
+    <div class="spotlight-backdrop" id="tourBackdrop"></div>
+
+    <!-- Spotlight Cutout with Animated Glow Border, Corners & Target Tag -->
+    <div class="spotlight-cutout" id="tourCutout" aria-hidden="true">
+      <div class="spotlight-corner top-left"></div>
+      <div class="spotlight-corner top-right"></div>
+      <div class="spotlight-corner bottom-left"></div>
+      <div class="spotlight-corner bottom-right"></div>
+      <div class="spotlight-badge" id="tourTargetTag">Feature Spotlight</div>
+    </div>
+
+    <!-- Interactive Explanatory Tooltip Popover -->
+    <div class="spotlight-card" id="tourCard" role="document">
+      <div class="tour-card-header">
+        <div class="tour-step-indicator">
+          <span class="tour-step-pill" id="tourStepBadge">Step 1 of 8</span>
+          <span class="tour-feature-cat" id="tourCategory">AI TUTOR</span>
+        </div>
+        <button class="tour-close-btn" id="tourCloseBtn" type="button" aria-label="Skip and exit tour" title="Skip tour (Esc)">✕</button>
+      </div>
+
+      <div class="tour-card-body">
+        <div class="tour-title-row">
+          <div class="tour-mascot-avatar" aria-hidden="true">
+            <span class="tour-mascot-orb">⬡</span>
+          </div>
+          <h3 id="tourStepTitle" class="tour-title">Feature Title</h3>
+        </div>
+        
+        <p class="tour-desc" id="tourStepDesc">Description of this feature and what it does.</p>
+
+        <div class="tour-action-tip">
+          <span class="tip-icon">💡</span>
+          <div class="tip-content" id="tourStepAction">How to use this feature...</div>
+        </div>
+
+        <div class="tour-keys-section">
+          <span class="keys-title">BUTTONS &amp; KEYS</span>
+          <div class="tour-keys-list" id="tourKeysList">
+            <!-- Dynamic Key Chips -->
+          </div>
+        </div>
+      </div>
+
+      <div class="tour-card-footer">
+        <div class="tour-dots-row" id="tourDotsList" role="tablist" aria-label="Tour step selector">
+          <!-- 8 step dots rendered here -->
+        </div>
+
+        <div class="tour-btn-row">
+          <button class="tour-skip-link" id="tourSkipBtn" type="button">Skip Tutorial</button>
+          <button class="tour-nav-btn prev" id="tourPrevBtn" type="button" aria-label="Previous step">← Back</button>
+          <button class="tour-nav-btn next" id="tourNextBtn" type="button" aria-label="Next step">Next Step →</button>
+        </div>
+      </div>
+
+      <!-- Arrow Pointer connecting card to cutout -->
+      <div class="tour-arrow" id="tourArrow" aria-hidden="true"></div>
     </div>
   </div>
 

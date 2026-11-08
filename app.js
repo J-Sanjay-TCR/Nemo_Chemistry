@@ -412,6 +412,16 @@ async function askNemo(question, opts = {}) {
   const badge = $("#nemoOrbBadge");
   const prevBadge = badge ? badge.textContent : "Chat";
   if (badge) badge.textContent = "AI Thinking";
+  if (typeof triggerNemoReaction === "function") {
+    triggerNemoReaction({
+      expression: "thinking",
+      icon: "🧠",
+      text: "Formulating deep chemistry solution...",
+      badge: "AI Thinking",
+      persistent: true,
+      chime: "thinking"
+    });
+  }
 
   let answer = "", failed = false;
   let liveBubble = null;
@@ -537,6 +547,31 @@ async function askNemo(question, opts = {}) {
     history.push({ role: "assistant", content: answer });
     saveHistory();
     speak(answer, opts.fromVoice);
+    if (typeof triggerNemoReaction === "function") {
+      triggerNemoReaction({
+        expression: "celebrate",
+        icon: "✨",
+        text: "Solution ready! Hope this clears the doubt ✨",
+        badge: "Answered",
+        duration: 3500,
+        chime: "celebrate"
+      });
+    }
+  } else if (failed && !my.cancelled) {
+    if (typeof triggerNemoReaction === "function") {
+      triggerNemoReaction({
+        expression: "oops",
+        icon: "⚠️",
+        text: "Connection hiccup — please retry!",
+        badge: "Retry",
+        duration: 3200,
+        chime: "incorrect"
+      });
+    }
+  } else {
+    if (typeof resetNemoExpression === "function") {
+      resetNemoExpression();
+    }
   }
   busy = false; run = null; refreshSend();
   return bubble;
@@ -620,10 +655,53 @@ function playNemoChime(type = "tip") {
     const ctx = new AudioCtx();
     if (ctx.state === "suspended") ctx.resume();
     const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    if (type === "tip") {
+
+    if (type === "correct" || type === "celebrate") {
+      const notes = type === "celebrate" ? [523.25, 659.25, 783.99, 1046.50] : [523.25, 659.25, 783.99];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0, now + idx * 0.08);
+        gain.gain.linearRampToValueAtTime(0.065, now + idx * 0.08 + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0008, now + idx * 0.08 + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.38);
+      });
+    } else if (type === "incorrect" || type === "oops") {
+      const notes = [369.99, 311.13]; // F#4 -> Eb4 (gentle supportive tone)
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+        gain.gain.setValueAtTime(0, now + idx * 0.12);
+        gain.gain.linearRampToValueAtTime(0.045, now + idx * 0.12 + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0008, now + idx * 0.12 + 0.32);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.12);
+        osc.stop(now + idx * 0.12 + 0.35);
+      });
+    } else if (type === "thinking") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(554.37, now + 0.15);
+      gain.gain.setValueAtTime(0.035, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.38);
+    } else {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
       osc.frequency.setValueAtTime(587.33, now); // D5
       osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12); // A5
       osc.frequency.exponentialRampToValueAtTime(1174.66, now + 0.28); // D6
@@ -633,18 +711,103 @@ function playNemoChime(type = "tip") {
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.68);
-    } else {
-      osc.frequency.setValueAtTime(523.25, now);
-      osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.14);
-      gain.gain.setValueAtTime(0.06, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.48);
     }
   } catch (_) {}
 }
+
+let nemoReactionTimer = null;
+function triggerNemoReaction(options = {}) {
+  const {
+    expression = "happy",
+    icon = "✨",
+    text = "",
+    badge = "",
+    duration = 3000,
+    persistent = false,
+    chime = null
+  } = options;
+
+  const orb = $("#widgetOrb") || $("#nemoOrb");
+  if (!orb) return;
+
+  if (nemoReactionTimer) {
+    clearTimeout(nemoReactionTimer);
+    nemoReactionTimer = null;
+  }
+
+  // Clear inline pupil transform so facial expression's pupil positions take effect
+  const pupils = orb.querySelectorAll(".nemo-pupil");
+  pupils.forEach((p) => {
+    p.style.transform = "";
+  });
+
+  // Apply the reaction expression
+  orb.setAttribute("data-expression", expression);
+
+  // Badge handling: remember original if not already remembered
+  const badgeEl = $("#nemoOrbBadge");
+  if (badgeEl && badge) {
+    if (!badgeEl.hasAttribute("data-saved-text")) {
+      badgeEl.setAttribute("data-saved-text", badgeEl.textContent.trim());
+    }
+    badgeEl.textContent = badge;
+  }
+
+  // Mood bubble text & icon
+  const moodIcon = $("#nemoMoodIcon");
+  const moodText = $("#nemoMoodText");
+  const moodBubble = $("#nemoMoodBubble");
+
+  if (moodIcon && icon) moodIcon.textContent = icon;
+  if (moodText && text) moodText.textContent = text;
+  if (moodBubble) {
+    moodBubble.classList.add("active");
+    clearTimeout(moodBubble._timer);
+  }
+
+  if (chime) {
+    playNemoChime(chime);
+  }
+
+  if (!persistent && duration > 0) {
+    nemoReactionTimer = setTimeout(() => {
+      resetNemoExpression();
+    }, duration);
+  }
+}
+
+function resetNemoExpression() {
+  const orb = $("#widgetOrb") || $("#nemoOrb");
+  if (orb) {
+    orb.removeAttribute("data-expression");
+  }
+  const badgeEl = $("#nemoOrbBadge");
+  if (badgeEl && badgeEl.hasAttribute("data-saved-text")) {
+    badgeEl.textContent = badgeEl.getAttribute("data-saved-text");
+    badgeEl.removeAttribute("data-saved-text");
+  }
+  const moodBubble = $("#nemoMoodBubble");
+  if (moodBubble) {
+    moodBubble.classList.remove("active");
+  }
+
+  // Restore current active section defaults
+  const activeSec = window.currentActiveSection || "chatPanel";
+  const secDict = window.NEMO_SECTION_EXPRESSIONS;
+  if (secDict && secDict[activeSec]) {
+    const cfg = secDict[activeSec];
+    if (orb) orb.setAttribute("data-state", cfg.state);
+    const moodIcon = $("#nemoMoodIcon");
+    if (moodIcon) moodIcon.textContent = cfg.moodIcon;
+    const moodText = $("#nemoMoodText");
+    if (moodText) moodText.textContent = cfg.moodText;
+    if (badgeEl && !badgeEl.hasAttribute("data-saved-text")) badgeEl.textContent = cfg.badge;
+  }
+  nemoReactionTimer = null;
+}
+
+window.triggerNemoReaction = triggerNemoReaction;
+window.resetNemoExpression = resetNemoExpression;
 
 function setMascotSpeaking(isSpeaking) {
   const mouth = $("#nemoMouth"), eyes = $("#nemoEyes"), ant = $(".nemo-antenna"), orb = $("#widgetOrb") || $("#nemoOrb");
@@ -1056,6 +1219,15 @@ scheduleNextVoiceTip();
     const s = current; current = null;
     if (s.tool === "arrow" && Math.hypot(s.pts[1].x - s.pts[0].x, s.pts[1].y - s.pts[0].y) < 6) { redraw(); return; }
     strokes.push(s); cleared = null; redraw(); persist();
+    if (typeof triggerNemoReaction === "function" && strokes.length % 2 === 1) {
+      triggerNemoReaction({
+        expression: "artistic",
+        icon: "✎",
+        text: s.tool === "arrow" ? "Reaction arrow drawn! 🧪" : "Sketching reaction pathway! 🎨",
+        badge: "Artist",
+        duration: 2400
+      });
+    }
   };
   canvas.addEventListener("pointerup", finish);
   canvas.addEventListener("pointercancel", () => { current = null; redraw(); });
@@ -1316,6 +1488,15 @@ function hillFormula(atoms) {
   function show(m, isCustom) {
     mol = m; computeExtent(); resetView(); showInfo(m, isCustom);
     hint.textContent = "Drag to rotate • scroll or pinch to zoom • double-click to reset"; schedule();
+    if (typeof triggerNemoReaction === "function") {
+      triggerNemoReaction({
+        expression: "curious",
+        icon: "⬡",
+        text: `Inspecting ${m.name || "molecule"}! ⬡`,
+        badge: (m.labels && m.labels.shape) || m.shape || "3D Mol",
+        duration: 2500
+      });
+    }
   }
   function selectBuiltIn(id) {
     const m = MOLS.find((x) => x.id === id) || custom.get(id); if (!m) return;
@@ -1495,6 +1676,32 @@ $("#resetStats").addEventListener("click", () => { if (confirm("Reset all of you
     if (answered) return; answered = true; roundDone++;
     const ok = shown[i].ok; recordAttempt(q, ok); render({ ok, picked: i });
     const nb = $(".btn-row .primary", body); if (nb) nb.focus({ preventScroll: true });
+
+    if (typeof triggerNemoReaction === "function") {
+      if (ok) {
+        const isStreakMilestone = stats.streak >= 3 && stats.streak % 3 === 0;
+        const msg = isStreakMilestone
+          ? `${stats.streak} Streak! Unstoppable chemistry mastery! 🔥`
+          : (stats.streak > 1 ? `Correct! Streak ${stats.streak} in a row ✨` : "Spot on! Perfect conceptual answer! 🎉");
+        triggerNemoReaction({
+          expression: "celebrate",
+          icon: isStreakMilestone ? "🔥" : "🎉",
+          text: msg,
+          badge: isStreakMilestone ? `${stats.streak} Streak!` : "Spot On!",
+          duration: 3400,
+          chime: "correct"
+        });
+      } else {
+        triggerNemoReaction({
+          expression: "oops",
+          icon: "💡",
+          text: "Tricky question! Check the theory breakdown below",
+          badge: "Review!",
+          duration: 3400,
+          chime: "incorrect"
+        });
+      }
+    }
   }
   body.addEventListener("keydown", (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -2236,7 +2443,43 @@ const PYQ = (function pyqBank() {
       const a = Array.from(picks).sort((x, y) => x - y); ok = a.length === cur.answer.length && a.every((v, i) => v === cur.answer[i]);
     }
     say(""); done = true; roundDone++; mark(cur.id, ok); recordAttempt({ branch: cur.branch, chapter: cur.chapter }, ok); render({ ok, typed }); renderTable();
+
+    if (typeof triggerNemoReaction === "function") {
+      if (ok) {
+        const examName = cur.exam || "PYQ";
+        triggerNemoReaction({
+          expression: "celebrate",
+          icon: "🏆",
+          text: `${examName} Cracked! Ranker-level reasoning! 🚀`,
+          badge: "Ranker!",
+          duration: 3600,
+          chime: "celebrate"
+        });
+      } else {
+        triggerNemoReaction({
+          expression: "oops",
+          icon: "⚠️",
+          text: "Exam trap spotted! Check official step breakdown",
+          badge: "Exam Trap!",
+          duration: 3600,
+          chime: "incorrect"
+        });
+      }
+    }
   }
+
+  body.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target && e.target.tagName === "INPUT") return;
+    if (cur && (cur.type === "mcq" || cur.type === "msq")) {
+      const n = "1234".indexOf(e.key) >= 0 ? +e.key - 1 : "abcd".indexOf(e.key.toLowerCase());
+      if (!done && n >= 0 && n < cur.options.length && e.key.length === 1) {
+        e.preventDefault();
+        pick(n);
+      }
+    }
+  });
+
   [fExam, fYear, fChap, fStat].forEach((s) => s.addEventListener("change", start));
   fBranch.addEventListener("change", () => { fillFilters(); start(); });
   $q("pyqStart").addEventListener("click", start);
@@ -2387,24 +2630,28 @@ let onActiveSectionChange = null;
   };
 
   let currentActiveSection = "chatPanel";
+  window.NEMO_SECTION_EXPRESSIONS = NEMO_SECTION_EXPRESSIONS;
+  window.currentActiveSection = currentActiveSection;
+
   function updateNemoView(sectionId) {
     if (!sectionId || !NEMO_SECTION_EXPRESSIONS[sectionId]) sectionId = "chatPanel";
     currentActiveSection = sectionId;
+    window.currentActiveSection = sectionId;
     const cfg = NEMO_SECTION_EXPRESSIONS[sectionId];
-    if (orb) orb.setAttribute("data-state", cfg.state);
+    if (orb && !orb.hasAttribute("data-expression")) orb.setAttribute("data-state", cfg.state);
     const badge = $("#nemoOrbBadge");
-    if (badge) badge.textContent = cfg.badge;
+    if (badge && !badge.hasAttribute("data-saved-text")) badge.textContent = cfg.badge;
     const moodIcon = $("#nemoMoodIcon");
-    if (moodIcon) moodIcon.textContent = cfg.moodIcon;
+    if (moodIcon && (!orb || !orb.hasAttribute("data-expression"))) moodIcon.textContent = cfg.moodIcon;
     const moodText = $("#nemoMoodText");
-    if (moodText) moodText.textContent = cfg.moodText;
+    if (moodText && (!orb || !orb.hasAttribute("data-expression"))) moodText.textContent = cfg.moodText;
     const popHeading = $("#popoverHeading");
     if (popHeading) popHeading.textContent = cfg.heading;
     const popContext = $("#popoverContextText");
     if (popContext) popContext.textContent = cfg.context;
 
     const bubble = $("#nemoMoodBubble");
-    if (bubble) {
+    if (bubble && (!orb || !orb.hasAttribute("data-expression"))) {
       bubble.classList.add("active");
       clearTimeout(bubble._timer);
       bubble._timer = setTimeout(() => bubble.classList.remove("active"), 3200);
@@ -2532,6 +2779,7 @@ let onActiveSectionChange = null;
   window.addEventListener("pointermove", (e) => {
     if (reduceMotion) return;
     if (widget.classList.contains("is-morphing") || widget.classList.contains("dragging")) return;
+    if (orb && orb.hasAttribute("data-expression")) return; // Preserve active emotional expression gaze
     const rc = orb.getBoundingClientRect();
     if (!rc.width) return;
     const cx = rc.left + rc.width / 2;
@@ -2590,14 +2838,26 @@ let onActiveSectionChange = null;
   orb.addEventListener("click", () => {
     if (justDragged) return;
     if (isHeroDocked) {
-      playNemoChime("chime");
-      const bubble = $("#nemoMoodBubble");
-      if (bubble) {
-        const text = $("#nemoMoodText");
-        if (text) text.textContent = "✨ Ready to explore chemistry with you!";
-        bubble.classList.add("active");
-        clearTimeout(bubble._timer);
-        bubble._timer = setTimeout(() => bubble.classList.remove("active"), 3000);
+      if (typeof triggerNemoReaction === "function") {
+        triggerNemoReaction({
+          expression: "celebrate",
+          icon: "✨",
+          text: "✨ Ready to explore chemistry with you!",
+          badge: "Nemo 3D",
+          duration: 3200,
+          chime: "correct"
+        });
+      }
+    } else {
+      if (typeof triggerNemoReaction === "function" && pop.hidden) {
+        triggerNemoReaction({
+          expression: "happy",
+          icon: "👋",
+          text: "Hi! Need help with chemistry concepts?",
+          badge: "Nemo 3D",
+          duration: 2800,
+          chime: "tip"
+        });
       }
     }
     if (widget.classList.contains("compact")) {
@@ -2722,9 +2982,11 @@ let onActiveSectionChange = null;
     if (btn) btn.addEventListener("click", openFounderModal);
   });
 
-  /* Mobile Dynamic Island Drawer Controls */
+  /* Left Sidebar Navigation Controls (Mobile & Desktop) */
   const mobileMenuBtn = $("#mobileMenuBtn");
+  const desktopSidebarToggleBtn = $("#desktopSidebarToggleBtn");
   const sidebar = $("#appSidebar");
+  const appShell = document.querySelector(".app-shell");
   const backdrop = $("#sidebarBackdrop");
   const sidebarCloseBtn = $("#sidebarCloseBtn");
 
@@ -2753,6 +3015,13 @@ let onActiveSectionChange = null;
       } else {
         openSidebar();
       }
+    });
+  }
+  if (desktopSidebarToggleBtn && appShell) {
+    desktopSidebarToggleBtn.addEventListener("click", () => {
+      const isCollapsed = appShell.classList.toggle("sidebar-collapsed");
+      desktopSidebarToggleBtn.setAttribute("aria-expanded", String(!isCollapsed));
+      desktopSidebarToggleBtn.title = isCollapsed ? "Expand left sidebar navigation" : "Collapse left sidebar navigation";
     });
   }
   if (sidebarCloseBtn) sidebarCloseBtn.addEventListener("click", closeSidebar);
@@ -2894,34 +3163,29 @@ let onActiveSectionChange = null;
   paintEffects();
 })();
 
-/* ============================== Kinetic Button Clicking Motion & Bluish Ripple Animations ============================== */
+/* ============================== Zero-Latency Reactive Button Motion & Haptic Pipeline ============================== */
 (function setupButtonAnimations() {
+  // Ultra-fast zero-latency button reactance without DOM-mutating reflows
   document.addEventListener("pointerdown", (e) => {
-    const btn = e.target.closest("button, .btn-row a, .nav-item, .ws-tab, .formula-card, .opt, .tool, [role='button']");
+    const btn = e.target.closest("button, .btn-row a, .nav-item, .ws-tab, .formula-card, .opt, .tool, [role='button'], .qn-btn");
     if (!btn || btn.disabled) return;
 
-    // Create glowing bluish ripple
-    const rect = btn.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const ripple = document.createElement("span");
-    ripple.className = "btn-ripple";
-    ripple.style.left = `${x}px`;
-    ripple.style.top = `${y}px`;
-    const size = Math.max(rect.width, rect.height);
-    ripple.style.width = `${size}px`;
-    ripple.style.height = `${size}px`;
-    if (btn.tagName !== "INPUT") {
-      btn.appendChild(ripple);
+    // Optional gentle haptic pulse on mobile touch devices
+    if (e.pointerType === "touch" && typeof navigator.vibrate === "function") {
+      try { navigator.vibrate(6); } catch (_) {}
     }
+  }, { passive: true });
 
-    // Spring clicking motion animation
+  // Spring release pop on pointer up without interrupting active depression
+  document.addEventListener("pointerup", (e) => {
+    const btn = e.target.closest("button, .btn-row a, .nav-item, .ws-tab, .formula-card, .opt, .tool, [role='button'], .qn-btn");
+    if (!btn || btn.disabled) return;
+
     btn.classList.add("btn-clicked");
     setTimeout(() => {
-      ripple.remove();
       btn.classList.remove("btn-clicked");
-    }, 450);
-  });
+    }, 200);
+  }, { passive: true });
 })();
 
 /* ============================== Universal Aspect Ratio & Multi-Display Auto-Adapter ============================== */
@@ -3179,7 +3443,444 @@ let onActiveSectionChange = null;
   }, { passive: true });
 })();
 
+/* ============================== Interactive Step-by-Step Spotlight Feature Tour ============================== */
+(function setupInteractiveSpotlightTour() {
+  const tourModal = document.getElementById("appSpotlightTour");
+  const tourBackdrop = document.getElementById("tourBackdrop");
+  const tourCutout = document.getElementById("tourCutout");
+  const tourCard = document.getElementById("tourCard");
+  const tourArrow = document.getElementById("tourArrow");
+  const tourStepBadge = document.getElementById("tourStepBadge");
+  const tourCategory = document.getElementById("tourCategory");
+  const tourTargetTag = document.getElementById("tourTargetTag");
+  const tourStepTitle = document.getElementById("tourStepTitle");
+  const tourStepDesc = document.getElementById("tourStepDesc");
+  const tourStepAction = document.getElementById("tourStepAction");
+  const tourKeysList = document.getElementById("tourKeysList");
+  const tourDotsList = document.getElementById("tourDotsList");
+  const tourPrevBtn = document.getElementById("tourPrevBtn");
+  const tourNextBtn = document.getElementById("tourNextBtn");
+  const tourSkipBtn = document.getElementById("tourSkipBtn");
+  const tourCloseBtn = document.getElementById("tourCloseBtn");
+  const startTourBtn = document.getElementById("startTourBtn");
+  const mobileTourBtn = document.getElementById("mobileTourBtn");
+  const sidebarTourBtn = document.getElementById("sidebarTourBtn");
+
+  if (!tourModal || !tourCutout || !tourCard) return;
+
+  const TOUR_STEPS = [
+    {
+      target: "#heroMascotAnchor",
+      fallbackTarget: ".hero",
+      panelId: null,
+      category: "AI TUTOR & COMPANION",
+      badge: "Mascot Intelligence",
+      title: "Nemo: 3D AI Chemistry Companion",
+      desc: "Meet Nemo, your live chemistry mentor powered by real-time Google Gemini reasoning. Nemo features interactive 3D physics, an ocular gaze that dynamically follows your cursor, and floats with you across all workspace panels.",
+      action: "Click Nemo's face orb to access voice tips & quick navigation, or drag Nemo to reposition him anywhere on your screen.",
+      keys: [
+        { key: "Click Orb", desc: "Voice & Quick Navigation" },
+        { key: "Drag Mascot", desc: "Free screen positioning" },
+        { key: "Alt + N", desc: "Focus Mascot Companion" }
+      ]
+    },
+    {
+      target: "#chatPanel",
+      fallbackTarget: ".chat-panel",
+      panelId: "chatPanel",
+      category: "REASONING ENGINE",
+      badge: "Deep Mechanism Chat",
+      title: "Deep-Reasoning Chemistry Chat",
+      desc: "Ask complex organic reaction mechanisms (SN1, SN2, E2, Aldol, Cannizzaro), IUPAC nomenclature, thermochemical derivations, and stoichiometric numericals with step-by-step clarity.",
+      action: "Type your query into the prompt input or click any mechanism quick-prompt below (SN1, Aldol, Markovnikov). Nemo formats all equations with crisp KaTeX math symbols.",
+      keys: [
+        { key: "Enter", desc: "Send question" },
+        { key: "Shift + Enter", desc: "Insert line break" },
+        { key: "🎙 Voice", desc: "Speech-to-text input" },
+        { key: "Level Select", desc: "CBSE / JEE Main / Adv" },
+        { key: "🔊 Read Aloud", desc: "Voice narration" }
+      ]
+    },
+    {
+      target: "#moleculePanel",
+      fallbackTarget: ".molecule-panel",
+      panelId: "moleculePanel",
+      category: "3D SIMULATION",
+      badge: "3D Crystal & Orbital Lab",
+      title: "Interactive 3D Molecular Viewer",
+      desc: "Examine crystal unit cells, VSEPR geometries, organic stereochemistry, coordination complexes, and reaction intermediates in full rotatable 3D simulation.",
+      action: "Select a compound from the dropdown or search in the filter box. Left-click and drag on the canvas to inspect bond angles and molecular orbitals from any perspective.",
+      keys: [
+        { key: "Left Drag", desc: "360° 3D orbital rotation" },
+        { key: "Scroll / Pinch", desc: "Zoom in & out" },
+        { key: "Filter Box", desc: "Search NaCl, Benzene..." },
+        { key: "Style Buttons", desc: "Ball & stick / Space-fill" }
+      ]
+    },
+    {
+      target: "#practicePanel",
+      fallbackTarget: ".practice-panel",
+      panelId: "practicePanel",
+      category: "EXAM PRACTICE",
+      badge: "Adaptive Practice Quiz",
+      title: "Topic Mastery Quiz & Instant Grading",
+      desc: "Sharpen your problem-solving skills with timed chemical practice questions spanning Physical, Organic, and Inorganic Chemistry with authentic exam rigor.",
+      action: "Click any option A, B, C, or D. Nemo instantly validates your choice, reveals the underlying reaction mechanism, and displays KaTeX math derivations.",
+      keys: [
+        { key: "Click Option", desc: "Select answer" },
+        { key: "Keys 1, 2, 3, 4", desc: "Quick keyboard answer" },
+        { key: "Exam Filters", desc: "CBSE / JEE Main / Adv" }
+      ]
+    },
+    {
+      target: "#analyticsPanel",
+      fallbackTarget: ".analytics-panel",
+      panelId: "analyticsPanel",
+      category: "INTELLIGENCE RADAR",
+      badge: "Mastery Analytics",
+      title: "Performance Radar & Error Analysis",
+      desc: "Monitor your topic-level mastery in real time. The analytics engine tracks accuracy across chemical disciplines and identifies conceptual blind spots.",
+      action: "Review your strength bars. Click 'Explain Weaknesses' to have Nemo formulate an individualized revision roadmap targeting low-scoring subtopics.",
+      keys: [
+        { key: "Explain Weaknesses", desc: "AI study recommendations" },
+        { key: "Review Wrong", desc: "Re-attempt missed questions" }
+      ]
+    },
+    {
+      target: "#canvasPanel",
+      fallbackTarget: ".canvas-panel",
+      panelId: "canvasPanel",
+      category: "MECHANISM SCRATCHPAD",
+      badge: "Reaction Blackboard",
+      title: "Reaction Blackboard Canvas",
+      desc: "A dedicated digital blackboard for sketching curved-arrow mechanisms, resonance structures, unit cell projections, and organic reaction pathways.",
+      action: "Choose your pen color and line thickness from the toolbar. Sketch freely, annotate structures, or use the eraser to refine your reaction diagrams.",
+      keys: [
+        { key: "Pen / Arrow", desc: "Switch drawing tools" },
+        { key: "Color Palette", desc: "Cyan, Amber, Rose, White" },
+        { key: "Clear", desc: "Reset blackboard" }
+      ]
+    },
+    {
+      target: "#pyqPanel",
+      fallbackTarget: ".pyq-panel",
+      panelId: "pyqPanel",
+      category: "10-YR ARCHIVE",
+      badge: "10-Yr PYQ Bank & Portals",
+      title: "10-Year PYQ Bank & Official Portals",
+      desc: "Comprehensive archive of 113+ past year examination questions (2016–2026) across JEE Main, JEE Advanced, and CBSE, complete with numerical input evaluation.",
+      action: "Filter by year and shift. Click '★ Official Gold Portals' for direct, verified links to official NTA, JEE Advanced, and CBSE exam portals.",
+      keys: [
+        { key: "★ Gold Portals", desc: "Official exam links" },
+        { key: "Year / Shift", desc: "Filter historical papers" },
+        { key: "Numerical Box", desc: "Integer type evaluations" }
+      ]
+    },
+    {
+      target: "#formulasPanel",
+      fallbackTarget: ".formula-panel",
+      panelId: "formulasPanel",
+      category: "EQUATION ENGINE & TOOLS",
+      badge: "Formula Bank & Controls",
+      title: "418+ Formula Bank & Classroom Tools",
+      desc: "Indexed repository of 418 verified chemistry formulas with KaTeX display, LaTeX source copy, and multi-display presentation tools.",
+      action: "Scroll horizontally through long formulas. Click 'Copy TeX' to copy LaTeX code. Use the Topbar buttons to toggle Projector Mode (4:3) and visual effects.",
+      keys: [
+        { key: "Copy TeX", desc: "Copy LaTeX to clipboard" },
+        { key: "📽️ Projector", desc: "High-contrast 4:3 mode" },
+        { key: "✦ Effects", desc: "Toggle quantum sparks" },
+        { key: "Esc", desc: "Exit modals & tour" }
+      ]
+    }
+  ];
+
+  let currentStepIndex = 0;
+  let isTourActive = false;
+  let rafId = null;
+  let activeTargetEl = null;
+
+  function ensurePanelVisible(panelId) {
+    if (!panelId) return;
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+
+    if (panel.style.display === "none") {
+      const allTab = document.querySelector('.ws-tab[data-filter="all"]');
+      if (allTab) {
+        allTab.click();
+      } else {
+        panel.style.display = "";
+      }
+    }
+  }
+
+  function isElementVisible(el) {
+    if (!el) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") return false;
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }
+
+  function getTargetElement(step) {
+    let el = document.querySelector(step.target);
+    if (!isElementVisible(el) && step.fallbackTarget) {
+      const fallback = document.querySelector(step.fallbackTarget);
+      if (isElementVisible(fallback)) el = fallback;
+    }
+    return el;
+  }
+
+  function positionSpotlightAndCard() {
+    if (!isTourActive) return;
+    const step = TOUR_STEPS[currentStepIndex];
+    if (!step) return;
+
+    ensurePanelVisible(step.panelId);
+    const targetEl = getTargetElement(step);
+    if (!targetEl) return;
+
+    const rect = targetEl.getBoundingClientRect();
+    const pad = 8;
+    const top = Math.max(4, Math.floor(rect.top - pad));
+    const left = Math.max(4, Math.floor(rect.left - pad));
+    const width = Math.min(window.innerWidth - left - 4, Math.ceil(rect.width + pad * 2));
+    const height = Math.min(window.innerHeight - top - 4, Math.ceil(rect.height + pad * 2));
+    const right = left + width;
+    const bottom = top + height;
+
+    // Update Neon Outline Cutout Frame
+    tourCutout.style.top = `${top}px`;
+    tourCutout.style.left = `${left}px`;
+    tourCutout.style.width = `${width}px`;
+    tourCutout.style.height = `${height}px`;
+
+    // Update Blurred Backdrop Cutout Hole (Blurs everything outside, leaves focused element 100% sharp & un-tinted)
+    const clipPolygon = `polygon(evenodd, 0% 0%, 0% 100%, 100% 100%, 100% 0%, 0% 0%, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px ${top}px)`;
+    tourBackdrop.style.clipPath = clipPolygon;
+    tourBackdrop.style.webkitClipPath = clipPolygon;
+
+    // Responsive Card Positioning
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      tourArrow.className = "tour-arrow";
+      return;
+    }
+
+    const cardRect = tourCard.getBoundingClientRect();
+    const cardW = cardRect.width || 420;
+    const cardH = cardRect.height || 360;
+
+    let cardTop = 0;
+    let cardLeft = 0;
+    let arrowClass = "tour-arrow";
+
+    const spaceBelow = window.innerHeight - (top + height);
+    const spaceAbove = top;
+    const spaceRight = window.innerWidth - (left + width);
+
+    if (spaceBelow >= cardH + 18) {
+      // Position below
+      cardTop = top + height + 16;
+      cardLeft = Math.max(16, Math.min(window.innerWidth - cardW - 16, left + (width / 2) - (cardW / 2)));
+      arrowClass = "tour-arrow arrow-top";
+      const arrowLeft = Math.max(20, Math.min(cardW - 30, (left + width / 2) - cardLeft));
+      tourArrow.style.left = `${arrowLeft}px`;
+      tourArrow.style.top = "-8px";
+    } else if (spaceAbove >= cardH + 18) {
+      // Position above
+      cardTop = top - cardH - 16;
+      cardLeft = Math.max(16, Math.min(window.innerWidth - cardW - 16, left + (width / 2) - (cardW / 2)));
+      arrowClass = "tour-arrow arrow-bottom";
+      const arrowLeft = Math.max(20, Math.min(cardW - 30, (left + width / 2) - cardLeft));
+      tourArrow.style.left = `${arrowLeft}px`;
+      tourArrow.style.bottom = "-8px";
+    } else if (spaceRight >= cardW + 18) {
+      // Position right
+      cardLeft = left + width + 16;
+      cardTop = Math.max(16, Math.min(window.innerHeight - cardH - 16, top + (height / 2) - (cardH / 2)));
+      arrowClass = "tour-arrow arrow-left";
+      const arrowTop = Math.max(20, Math.min(cardH - 30, (top + height / 2) - cardTop));
+      tourArrow.style.top = `${arrowTop}px`;
+      tourArrow.style.left = "-8px";
+    } else {
+      // Position inside/left fallback
+      cardLeft = Math.max(16, left - cardW - 16);
+      cardTop = Math.max(16, Math.min(window.innerHeight - cardH - 16, top + (height / 2) - (cardH / 2)));
+      arrowClass = "tour-arrow arrow-right";
+      const arrowTop = Math.max(20, Math.min(cardH - 30, (top + height / 2) - cardTop));
+      tourArrow.style.top = `${arrowTop}px`;
+      tourArrow.style.right = "-8px";
+    }
+
+    tourCard.style.top = `${cardTop}px`;
+    tourCard.style.left = `${cardLeft}px`;
+    tourArrow.className = arrowClass;
+  }
+
+  let trackRafId = null;
+  function startContinuousTracking(durationMs = 550) {
+    if (trackRafId) cancelAnimationFrame(trackRafId);
+    const startTime = performance.now();
+    function frame() {
+      if (!isTourActive) return;
+      positionSpotlightAndCard();
+      if (performance.now() - startTime < durationMs) {
+        trackRafId = requestAnimationFrame(frame);
+      }
+    }
+    trackRafId = requestAnimationFrame(frame);
+  }
+
+  function renderStep(index) {
+    if (index < 0 || index >= TOUR_STEPS.length) return;
+    currentStepIndex = index;
+    const step = TOUR_STEPS[currentStepIndex];
+
+    ensurePanelVisible(step.panelId);
+
+    // Update header badges
+    tourStepBadge.textContent = `Step ${currentStepIndex + 1} of ${TOUR_STEPS.length}`;
+    tourCategory.textContent = step.category;
+    tourTargetTag.textContent = step.badge;
+
+    // Content
+    tourStepTitle.textContent = step.title;
+    tourStepDesc.textContent = step.desc;
+    tourStepAction.textContent = step.action;
+
+    // Render key chips
+    tourKeysList.innerHTML = "";
+    step.keys.forEach((k) => {
+      const item = document.createElement("div");
+      item.className = "tour-key-item";
+      item.innerHTML = `<kbd>${k.key}</kbd><span>${k.desc}</span>`;
+      tourKeysList.appendChild(item);
+    });
+
+    // Render progress dots
+    tourDotsList.innerHTML = "";
+    TOUR_STEPS.forEach((_, idx) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = `tour-dot ${idx === currentStepIndex ? "active" : ""}`;
+      dot.title = `Jump to Step ${idx + 1}: ${TOUR_STEPS[idx].title}`;
+      dot.setAttribute("aria-label", `Step ${idx + 1}`);
+      dot.addEventListener("click", () => renderStep(idx));
+      tourDotsList.appendChild(dot);
+    });
+
+    // Button states
+    tourPrevBtn.disabled = currentStepIndex === 0;
+    if (currentStepIndex === TOUR_STEPS.length - 1) {
+      tourNextBtn.textContent = "Finish Tour 🎉";
+      tourNextBtn.classList.add("finish-tour-btn");
+    } else {
+      tourNextBtn.textContent = "Next Step →";
+      tourNextBtn.classList.remove("finish-tour-btn");
+    }
+
+    // Smooth scroll to target and focus
+    const targetEl = getTargetElement(step);
+    if (activeTargetEl && activeTargetEl !== targetEl) {
+      activeTargetEl.classList.remove("tour-highlighted-element");
+    }
+    if (targetEl) {
+      targetEl.classList.add("tour-highlighted-element");
+      activeTargetEl = targetEl;
+      targetEl.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+    }
+
+    // Continuous 60fps tracking during smooth scroll
+    startContinuousTracking(550);
+  }
+
+  function startTour(fromStep = 0) {
+    isTourActive = true;
+    tourModal.classList.add("active");
+    tourModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("tour-active");
+    renderStep(fromStep);
+    window.addEventListener("resize", handleResizeOrScroll, { passive: true });
+    window.addEventListener("scroll", handleResizeOrScroll, { passive: true });
+    document.addEventListener("keydown", handleKeyNavigation);
+  }
+
+  function closeTour() {
+    isTourActive = false;
+    if (trackRafId) cancelAnimationFrame(trackRafId);
+    tourModal.classList.remove("active");
+    tourModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("tour-active");
+    tourBackdrop.style.clipPath = "";
+    tourBackdrop.style.webkitClipPath = "";
+    if (activeTargetEl) {
+      activeTargetEl.classList.remove("tour-highlighted-element");
+      activeTargetEl = null;
+    }
+    window.removeEventListener("resize", handleResizeOrScroll);
+    window.removeEventListener("scroll", handleResizeOrScroll);
+    document.removeEventListener("keydown", handleKeyNavigation);
+    store.set("nemo.tour.seen.v1", true);
+  }
+
+  function handleResizeOrScroll() {
+    if (!isTourActive) return;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(positionSpotlightAndCard);
+  }
+
+  function handleKeyNavigation(e) {
+    if (!isTourActive) return;
+    if (e.key === "Escape") {
+      closeTour();
+    } else if (e.key === "ArrowRight" || e.key === "Enter") {
+      e.preventDefault();
+      if (currentStepIndex < TOUR_STEPS.length - 1) renderStep(currentStepIndex + 1);
+      else closeTour();
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      if (currentStepIndex > 0) renderStep(currentStepIndex - 1);
+    }
+  }
+
+  // Event Listeners
+  tourNextBtn.addEventListener("click", () => {
+    if (currentStepIndex < TOUR_STEPS.length - 1) {
+      renderStep(currentStepIndex + 1);
+    } else {
+      closeTour();
+    }
+  });
+
+  tourPrevBtn.addEventListener("click", () => {
+    if (currentStepIndex > 0) {
+      renderStep(currentStepIndex - 1);
+    }
+  });
+
+  tourSkipBtn.addEventListener("click", closeTour);
+  tourCloseBtn.addEventListener("click", closeTour);
+  tourBackdrop.addEventListener("click", closeTour);
+
+  if (startTourBtn) startTourBtn.addEventListener("click", () => startTour(0));
+  if (mobileTourBtn) mobileTourBtn.addEventListener("click", () => startTour(0));
+  if (sidebarTourBtn) {
+    sidebarTourBtn.addEventListener("click", () => {
+      // Close mobile drawer if open
+      const sidebar = document.getElementById("appSidebar");
+      const backdrop = document.getElementById("sidebarBackdrop");
+      if (sidebar) sidebar.classList.remove("active");
+      if (backdrop) backdrop.classList.remove("active");
+      startTour(0);
+    });
+  }
+
+  window.startNemoTour = startTour;
+})();
+
 /* ============================== boot ============================== */
 renderHistory();
 refreshSend();
+
 
