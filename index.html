@@ -190,9 +190,9 @@
             </span>
             <span class="nav-text">Rules &amp; Exceptions</span>
           </a>
-          <button class="nav-item nav-tour-btn" id="sidebarTourBtn" type="button" aria-label="Start Interactive Spotlight App Tour">
+          <button class="nav-item nav-tour-btn" id="sidebarTourBtn" type="button" aria-label="Start Interactive Spotlight App Tutorial" title="Interactive Step-by-Step App Tutorial">
             <span class="nav-icon-box" aria-hidden="true">💡</span>
-            <span class="nav-text">Interactive App Tour</span>
+            <span class="nav-text">App Tutorial</span>
             <span class="nav-badge-pill gold">Guide</span>
           </button>
         </nav>
@@ -241,6 +241,7 @@
           <div class="btn-row"><button class="outline-btn" id="aiSave">Save</button><button class="outline-btn danger" id="aiRemove">Remove</button></div>
           <p id="aiMsg" role="status"></p>
         </details>
+        <button class="sidebar-exit-btn-mobile" id="sidebarExitBtnMobile" type="button" aria-label="Close navigation drawer">✕ Close Sidebar Menu</button>
       </div>
     </aside>
 
@@ -288,14 +289,18 @@
           <button class="founder-island-btn" id="openFounderIslandBtn" type="button" aria-label="Founder J.Sanjay tribute">
             <span class="badge-star">★</span> J.Sanjay
           </button>
-          <button class="icon-btn tour-btn" id="mobileTourBtn" type="button" title="Start Interactive App Spotlight Tour" aria-label="Start interactive feature tour">
-            <span class="btn-icon">💡</span>
+          <button class="icon-btn tour-btn" id="mobileTourBtn" type="button" title="App Tutorial: Interactive Spotlight Feature Guide" aria-label="Start interactive app tutorial">
+            <span class="btn-icon" aria-hidden="true">💡</span>
+            <span class="tour-mobile-label">Tutorial</span>
           </button>
           <button class="icon-btn toggle-btn" id="mobileProjectorBtn" aria-pressed="false" title="Toggle 4:3 Projector Presentation Mode">
             <span class="btn-icon">📽️</span>
           </button>
           <button class="icon-btn toggle-btn active" id="mobileEffectsBtn" aria-pressed="true" title="Toggle visual animations & effects">
             <span class="btn-icon">✦</span>
+          </button>
+          <button class="icon-btn toggle-btn active" id="mobileFloatBtn" aria-pressed="true" title="Show or hide floating Nemo">
+            <span class="btn-icon">◉</span>
           </button>
         </div>
       </header>
@@ -314,8 +319,8 @@
           <button class="founder-top-btn" id="openFounderTopBtn" type="button" title="Meet the Creator &amp; Engineer J.Sanjay">
             <span class="badge-star">★</span> Founder: J.Sanjay
           </button>
-          <button class="ghost-btn tour-top-btn" id="startTourBtn" type="button" title="Interactive Step-by-Step Spotlight Feature Tour">
-            <span class="btn-icon">💡</span> <span class="btn-text">Feature Tour</span>
+          <button class="ghost-btn tour-top-btn" id="startTourBtn" type="button" title="Interactive Step-by-Step App Tutorial">
+            <span class="btn-icon">💡</span> <span class="btn-text">App Tutorial</span>
           </button>
           <button class="ghost-btn toggle-btn" id="projectorToggle" aria-pressed="false" title="Toggle 4:3 Projector Presentation Mode (enhanced legibility, high contrast &amp; 4:3 projection ratio)">
             <span class="btn-icon">📽️</span> <span class="btn-text">Projector (4:3)</span>
@@ -365,6 +370,16 @@
         <button class="ws-tab" data-filter="library" role="tab" aria-selected="false">§ Rules &amp; Canvas</button>
         <button class="ws-tab" data-filter="pyq" role="tab" aria-selected="false">⌗ 10-Yr PYQ Bank</button>
         <button class="ws-tab" data-filter="formulas" role="tab" aria-selected="false">∑ Formula Bank</button>
+      </div>
+
+      <div class="workspace-filter-status" id="workspaceFilterStatus" hidden>
+        <div class="filter-status-info">
+          <span class="filter-status-badge">FILTERED VIEW</span>
+          <span class="filter-status-text" id="filterStatusText">Showing active modules</span>
+        </div>
+        <button class="filter-exit-btn" id="exitFilterBtn" type="button" title="Restore all chemistry modules">
+          ✕ Show All Modules
+        </button>
       </div>
 
       <noscript><p class="small-muted">Nemo needs JavaScript to run.</p></noscript>
@@ -487,6 +502,9 @@
                       </div>
                     </a>
                   </div>
+                  <div class="portal-menu-footer">
+                    <button class="portal-close-btn" type="button" aria-label="Close exam portal menu">✕ Close Portals</button>
+                  </div>
                 </div>
               </div>
               <select id="practiceBranch" aria-label="Choose branch">
@@ -596,6 +614,9 @@
                         <div class="portal-desc">Official NTA Master Papers &amp; Shift Answer Keys</div>
                       </div>
                     </a>
+                  </div>
+                  <div class="portal-menu-footer">
+                    <button class="portal-close-btn" type="button" aria-label="Close exam portal menu">✕ Close Portals</button>
                   </div>
                 </div>
               </div>
@@ -843,6 +864,7 @@
       </div>
 
       <div class="nemo-quick-nav">
+        <button class="qn-btn qn-tour-btn" id="popoverTourBtn" type="button">💡 App Tutorial</button>
         <button class="qn-btn" type="button" data-target="chatPanel">💬 Chat &amp; Hints</button>
         <button class="qn-btn" type="button" data-target="moleculePanel">⬡ 3D Molecules</button>
         <button class="qn-btn" type="button" data-target="practicePanel">✔ Practice Quiz</button>
@@ -853,6 +875,7 @@
       </div>
       <div class="popover-actions">
         <button id="jumpToChat" class="action-btn-primary" type="button">Open Chat with Nemo ↗</button>
+        <button id="exitPopoverBtn" class="popover-exit-btn" type="button" aria-label="Close companion menu">✕ Close Menu</button>
       </div>
       <small>Drag the 3D sphere anywhere. Click to toggle. Use − to minimize.</small>
     </div>
@@ -860,7 +883,7 @@
   <!-- DEDICATED FOUNDER TRIBUTE MODAL (J.SANJAY) -->
   <div class="founder-modal-backdrop" id="founderModal" role="dialog" aria-modal="true" aria-labelledby="founderModalTitle" hidden>
     <div class="founder-modal-card">
-      <button class="founder-modal-close" id="closeFounderModal" aria-label="Close founder tribute">&times;</button>
+      <button class="founder-modal-close" id="closeFounderModal" aria-label="Close founder tribute" title="Close founder tribute (Esc)">✕ Close</button>
       <div class="founder-decorations" aria-hidden="true">
         <span class="founder-sparkle s1">✦</span>
         <span class="founder-sparkle s2">★</span>
@@ -935,9 +958,27 @@
           <button class="founder-ask-nemo-btn" id="askNemoAboutFounderBtn" type="button">
             Ask Nemo About J.Sanjay ↗
           </button>
+          <button class="founder-exit-btn" id="closeFounderModalBottom" type="button" aria-label="Exit founder tribute">
+            ✕ Close Tribute
+          </button>
         </div>
         <p class="founder-footnote">Crafted with passion &amp; engineering rigor for chemistry aspirants worldwide.</p>
       </div>
+    </div>
+  </div>
+
+  <!-- First-Time Visitor Friendly One-Time Tutorial Welcome Prompt -->
+  <div id="tourWelcomePrompt" class="tour-welcome-prompt" role="alert" aria-live="polite" hidden>
+    <div class="welcome-prompt-content">
+      <div class="welcome-prompt-icon" aria-hidden="true">💡</div>
+      <div class="welcome-prompt-text">
+        <strong class="welcome-prompt-title">New to Nemo Chemistry?</strong>
+        <p class="welcome-prompt-desc">Take a quick 1-minute interactive tutorial to discover 3D molecules, PYQs, and chemistry tools.</p>
+      </div>
+    </div>
+    <div class="welcome-prompt-actions">
+      <button id="welcomeStartTourBtn" class="welcome-btn primary" type="button">Start Tutorial</button>
+      <button id="welcomeDismissTourBtn" class="welcome-btn dismiss" type="button" aria-label="Dismiss tutorial prompt">Later</button>
     </div>
   </div>
 

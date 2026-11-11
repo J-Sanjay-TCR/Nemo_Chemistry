@@ -1,10 +1,11 @@
 "use strict";
 const { GoogleGenAI, ThinkingLevel } = require("@google/genai");
 const PROMPT = require("../system-prompt.js");
+const { generateChemistryFallback } = require("./chemistry-fallback.js");
 const fs = require("fs");
 const path = require("path");
 
-// Try reading .env file if present
+// Load .env file if present in project or root
 try {
   const envPath = path.join(__dirname, "..", ".env");
   if (fs.existsSync(envPath)) {
@@ -25,8 +26,8 @@ try {
 let aiClient = null;
 let cachedKey = "";
 
-function getGenAI() {
-  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+function getGenAI(customKey = "") {
+  const key = customKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
   if (!key) return null;
   if (!aiClient || cachedKey !== key) {
     aiClient = new GoogleGenAI({
@@ -47,13 +48,16 @@ function limited(ip) {
   const now = Date.now(), arr = (hits.get(ip) || []).filter((t) => now - t < 60000);
   arr.push(now); hits.set(ip, arr);
   if (hits.size > 5000) for (const [k, v] of hits) if (!v.some((t) => now - t < 60000)) hits.delete(k);
-  return arr.length > 30;
+  return arr.length > 40;
 }
+
+// Sleep helper for backoff retry
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Goog-Api-Key, Authorization");
   res.setHeader("Cache-Control", "no-store");
 
   const send = (code, obj) => {
@@ -75,21 +79,29 @@ module.exports = async function handler(req, res) {
   }
 
   const ip = (req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || (req.socket && req.socket.remoteAddress) || "?";
-  if (limited(ip)) return send(429, { error: "Too many requests. Please wait a minute." });
+  if (limited(ip)) return send(429, { error: "Too many requests. Please wait a moment." });
 
+  // Parse request body
   let body = req.body;
   if (!body && typeof req.on === "function") {
     try {
       body = await new Promise((resolve, reject) => {
         let raw = "";
+        const timer = setTimeout(() => {
+          req.destroy();
+          reject(new Error("Request body reading timed out"));
+        }, 8000);
+
         req.on("data", (chunk) => {
           raw += chunk;
-          if (raw.length > 60000) {
+          if (raw.length > 80000) {
+            clearTimeout(timer);
             req.destroy();
-            reject(new Error("Request too large"));
+            reject(new Error("Request payload too large"));
           }
         });
         req.on("end", () => {
+          clearTimeout(timer);
           if (!raw.trim()) return resolve({});
           try {
             resolve(JSON.parse(raw));
@@ -97,7 +109,10 @@ module.exports = async function handler(req, res) {
             reject(new Error("Invalid JSON"));
           }
         });
-        req.on("error", reject);
+        req.on("error", (e) => {
+          clearTimeout(timer);
+          reject(e);
+        });
       });
     } catch (e) {
       return send(400, { error: e.message || "Invalid JSON body." });
@@ -107,7 +122,7 @@ module.exports = async function handler(req, res) {
   }
 
   body = body || {};
-  const message = typeof body.message === "string" ? body.message.trim().slice(0, 3000) : "";
+  const message = typeof body.message === "string" ? body.message.trim().slice(0, 4000) : "";
   if (!message) return send(400, { error: "Missing message." });
 
   const wantsStream = body.stream !== false && (!req.headers.accept || req.headers.accept.includes("text/event-stream") || req.headers.accept.includes("*/*"));
@@ -124,9 +139,10 @@ module.exports = async function handler(req, res) {
       res.writeHead(200, {
         "Content-Type": "text/event-stream; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
-        "Connection": "keep-alive"
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no"
       });
-      res.write(`data: ${JSON.stringify({ type: "meta", tier: "simple", badge: "Fast Answer", model: "system" })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "meta", tier: "simple", badge: "Fast Answer", model: "system", status: "connected" })}\n\n`);
       res.write(`data: ${JSON.stringify({ type: "chunk", text: founderAnswer })}\n\n`);
       res.write(`data: ${JSON.stringify({ type: "done", answer: founderAnswer, tier: "simple", model: "system" })}\n\n`);
       return res.end();
@@ -139,26 +155,11 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  /* 2. Live Google GenAI Integration with Gemini 3.8 Flash */
-  const ai = getGenAI();
-  if (!ai) {
-    const notice = "### ✦ Connect to Gemini 3.8 Flash Online\n\n" +
-      "Nemo's live AI brain is integrated with Google's new **Gemini 3.8 Flash** model (`@google/genai`).\n\n" +
-      "To activate live responses, attach your Gemini API key under **Settings > Secrets** (`GEMINI_API_KEY`). Once attached, Nemo will reason through your chemistry derivations, mechanisms, and questions live with state-of-the-art intelligence!";
-
-    if (wantsStream) {
-      res.writeHead(200, {
-        "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache, no-transform",
-        "Connection": "keep-alive"
-      });
-      res.write(`data: ${JSON.stringify({ type: "meta", tier: "simple", badge: "Setup Notice", model: "offline" })}\n\n`);
-      res.write(`data: ${JSON.stringify({ type: "chunk", text: notice })}\n\n`);
-      res.write(`data: ${JSON.stringify({ type: "done", answer: notice, tier: "simple", onlineRequired: true })}\n\n`);
-      return res.end();
-    }
-    return send(200, { answer: notice, onlineRequired: true });
-  }
+  /* 2. Client API key extraction with multi-source fallback */
+  const customKey = (req.headers && req.headers["x-goog-api-key"]) ||
+                    (req.headers && req.headers["authorization"] && req.headers["authorization"].replace(/^Bearer\s+/i, "")) ||
+                    (body && body.apiKey) || "";
+  const ai = getGenAI(customKey);
 
   /* 3. Query Complexity Classifier: Simple vs In-Depth */
   const words = message.split(/\s+/).filter(Boolean);
@@ -181,28 +182,64 @@ module.exports = async function handler(req, res) {
 
   const classification = isInDepth ? {
     tier: "deep",
-    thinkingLevel: ThinkingLevel.MEDIUM,
+    thinkingLevel: ThinkingLevel.LOW, // Use LOW to balance reasoning depth with sub-10s latency
     badge: "Deep Reasoning",
-    guidance: "\n\n[QUERY PROFILE: IN-DEPTH REASONING]\nTake your time to reason through all intermediate steps. Provide structured headings, electron-pushing curved arrow explanations, thermodynamic/kinetic driving forces, clear KaTeX formulas ($$...$$ and $...$), and NCERT/JEE exceptions."
+    guidance: "\n\n[QUERY PROFILE: IN-DEPTH REASONING]\nReason step-by-step through intermediate states. Provide structured headings, curved arrow mechanism descriptions, thermodynamic/kinetic driving forces, clear KaTeX formulas ($$...$$ and $...$), and NCERT/JEE practical traps."
   } : {
     tier: "simple",
-    thinkingLevel: ThinkingLevel.LOW,
+    thinkingLevel: ThinkingLevel.MINIMAL,
     badge: "Fast Answer",
-    guidance: "\n\n[QUERY PROFILE: RAPID & DIRECT]\nThe student asked a focused or direct query. Answer very quickly, accurately, and concisely. State the core answer, key formula or definition in the very first sentence without verbose preamble. Keep the output crisp and immediately helpful."
+    guidance: "\n\n[QUERY PROFILE: RAPID & DIRECT]\nThe student asked a focused query. Answer very quickly, accurately, and concisely. State the core answer, key formula or definition in the very first sentence without verbose preamble. Keep the output crisp and immediately helpful."
   };
 
+  // Autonomous Fallback helper if all live models fail or key is absent
+  const handleOfflineFallback = () => {
+    const fallbackData = generateChemistryFallback(message);
+    const answer = fallbackData.answer;
+    if (wantsStream) {
+      if (!res.headersSent) {
+        res.writeHead(200, {
+          "Content-Type": "text/event-stream; charset=utf-8",
+          "Cache-Control": "no-cache, no-transform",
+          "Connection": "keep-alive",
+          "X-Accel-Buffering": "no"
+        });
+      }
+      res.write(`data: ${JSON.stringify({ type: "meta", tier: classification.tier, badge: fallbackData.badge, model: "offline-core", status: "connected" })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "chunk", text: answer })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "done", answer, tier: classification.tier, badge: fallbackData.badge, model: "offline-core" })}\n\n`);
+      return res.end();
+    }
+    return send(200, {
+      answer,
+      model: "offline-core",
+      tier: classification.tier,
+      badge: fallbackData.badge,
+      provider: "offline"
+    });
+  };
+
+  if (!ai) {
+    return handleOfflineFallback();
+  }
+
   const system = PROMPT.build(typeof body.level === "string" ? body.level : "auto");
-  const defaultModel = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+  const configuredModel = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+
+  // Optimized model sequence for blistering speed and reliable fallback
   const modelsToTry = isInDepth
-    ? [defaultModel, "gemini-3.1-flash-lite", "gemini-flash-latest"]
-    : ["gemini-3.1-flash-lite", defaultModel, "gemini-flash-latest"];
+    ? [configuredModel, "gemini-3.1-flash-lite", "gemini-flash-latest"]
+    : ["gemini-3.1-flash-lite", configuredModel, "gemini-flash-latest"];
+
+  // Deduplicate model list
+  const uniqueModels = [...new Set(modelsToTry)];
 
   // Build clean alternating conversation turns
   const rawTurns = [];
   if (Array.isArray(body.history)) {
-    for (const m of body.history.slice(-10)) {
+    for (const m of body.history.slice(-8)) {
       if (!m || (m.role !== "user" && m.role !== "assistant") || typeof m.content !== "string") continue;
-      const text = m.content.slice(0, 4000).trim();
+      const text = m.content.slice(0, 3000).trim();
       if (!text) continue;
       rawTurns.push({
         role: m.role === "assistant" ? "model" : "user",
@@ -218,7 +255,7 @@ module.exports = async function handler(req, res) {
   const contents = [];
   for (const turn of rawTurns) {
     if (!contents.length) {
-      if (turn.role === "model") continue; // Gemini requires the first turn to be 'user'
+      if (turn.role === "model") continue;
       contents.push({ role: turn.role, parts: [{ text: turn.parts[0].text }] });
     } else {
       const last = contents[contents.length - 1];
@@ -231,80 +268,133 @@ module.exports = async function handler(req, res) {
   }
 
   let lastError = null;
-  for (const model of modelsToTry) {
-    try {
-      const isGemini3or4 = /^gemini-[34]/i.test(model);
-      const config = {
-        systemInstruction: system + classification.guidance
-      };
-      if (isGemini3or4) {
-        if (model.includes("flash-lite")) {
-          config.thinkingConfig = { thinkingLevel: ThinkingLevel.MINIMAL };
-        } else {
-          config.thinkingConfig = { thinkingLevel: classification.thinkingLevel };
-        }
+
+  for (const model of uniqueModels) {
+    // Retry loop for transient rate-limit or network errors
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (attempt > 0) {
+        await sleep(350);
       }
 
-      if (wantsStream) {
-        const streamPromise = ai.models.generateContentStream({
-          model,
-          contents,
-          config
-        });
-        const attemptTimeoutMs = isInDepth ? 28000 : 8000;
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Model attempt timed out")), attemptTimeoutMs));
-        const stream = await Promise.race([streamPromise, timeoutPromise]);
+      try {
+        const config = {
+          systemInstruction: system + classification.guidance
+        };
 
-        res.writeHead(200, {
-          "Content-Type": "text/event-stream; charset=utf-8",
-          "Cache-Control": "no-cache, no-transform",
-          "Connection": "keep-alive"
-        });
-
-        res.write(`data: ${JSON.stringify({ type: "meta", tier: classification.tier, badge: classification.badge, model })}\n\n`);
-
-        let fullText = "";
-        for await (const chunk of stream) {
-          const text = chunk.text;
-          if (text) {
-            fullText += text;
-            res.write(`data: ${JSON.stringify({ type: "chunk", text })}\n\n`);
+        // Set thinkingConfig only for supported Gemini 3 / 4 models
+        if (/^gemini-[34]/i.test(model)) {
+          if (model.includes("flash-lite")) {
+            config.thinkingConfig = { thinkingLevel: ThinkingLevel.MINIMAL };
+          } else {
+            config.thinkingConfig = { thinkingLevel: classification.thinkingLevel };
           }
         }
 
-        res.write(`data: ${JSON.stringify({ type: "done", answer: fullText, tier: classification.tier, badge: classification.badge, model })}\n\n`);
-        return res.end();
-      } else {
-        const response = await ai.models.generateContent({
-          model,
-          contents,
-          config
-        });
-        const text = response.text;
-        if (text && text.trim()) {
-          return send(200, {
-            answer: text.trim(),
+        const modelTimeoutMs = model.includes("flash-lite") ? 14000 : 25000;
+
+        if (wantsStream) {
+          const streamPromise = ai.models.generateContentStream({
             model,
-            tier: classification.tier,
-            badge: classification.badge,
-            provider: "gemini"
+            contents,
+            config
           });
+
+          let timerId = null;
+          const timeoutPromise = new Promise((_, reject) => {
+            timerId = setTimeout(() => reject(new Error(`Model ${model} stream timed out`)), modelTimeoutMs);
+          });
+
+          const stream = await Promise.race([streamPromise, timeoutPromise]);
+          clearTimeout(timerId);
+
+          // Test stream iterator before sending headers to catch handshake/authentication failures early
+          const iterator = stream[Symbol.asyncIterator]();
+          const firstChunkPromise = iterator.next();
+
+          let chunkTimer = null;
+          const chunkTimeout = new Promise((_, reject) => {
+            chunkTimer = setTimeout(() => reject(new Error(`Model ${model} first chunk timed out`)), modelTimeoutMs);
+          });
+
+          const firstResult = await Promise.race([firstChunkPromise, chunkTimeout]);
+          clearTimeout(chunkTimer);
+
+          if (!res.headersSent) {
+            res.writeHead(200, {
+              "Content-Type": "text/event-stream; charset=utf-8",
+              "Cache-Control": "no-cache, no-transform",
+              "Connection": "keep-alive",
+              "X-Accel-Buffering": "no"
+            });
+          }
+
+          res.write(`data: ${JSON.stringify({ type: "meta", tier: classification.tier, badge: classification.badge, model, status: "connected" })}\n\n`);
+
+          let fullText = "";
+          if (firstResult && !firstResult.done) {
+            const firstText = firstResult.value.text || "";
+            if (firstText) {
+              fullText += firstText;
+              res.write(`data: ${JSON.stringify({ type: "chunk", text: firstText })}\n\n`);
+            }
+          }
+
+          for await (const chunk of { [Symbol.asyncIterator]: () => iterator }) {
+            const text = chunk.text;
+            if (text) {
+              fullText += text;
+              res.write(`data: ${JSON.stringify({ type: "chunk", text })}\n\n`);
+            }
+          }
+
+          res.write(`data: ${JSON.stringify({ type: "done", answer: fullText, tier: classification.tier, badge: classification.badge, model })}\n\n`);
+          return res.end();
+        } else {
+          let timerId = null;
+          const genPromise = ai.models.generateContent({
+            model,
+            contents,
+            config
+          });
+
+          const timeoutPromise = new Promise((_, reject) => {
+            timerId = setTimeout(() => reject(new Error(`Model ${model} timed out`)), modelTimeoutMs);
+          });
+
+          const response = await Promise.race([genPromise, timeoutPromise]);
+          clearTimeout(timerId);
+
+          const text = response.text;
+          if (text && text.trim()) {
+            return send(200, {
+              answer: text.trim(),
+              model,
+              tier: classification.tier,
+              badge: classification.badge,
+              provider: "gemini"
+            });
+          }
         }
-      }
-    } catch (err) {
-      lastError = err;
-      console.warn(`Gemini attempt error on ${model}:`, err.message || err);
-      if (res.headersSent) {
-        res.write(`data: ${JSON.stringify({ type: "error", error: err.message || "Streaming failed" })}\n\n`);
-        return res.end();
+      } catch (err) {
+        lastError = err;
+        console.warn(`[Nemo AI] Attempt error on ${model} (attempt ${attempt + 1}):`, err.message || err);
+
+        // If headers are already sent, stream error and complete
+        if (res.headersSent) {
+          res.write(`data: ${JSON.stringify({ type: "error", error: err.message || "Streaming interrupted" })}\n\n`);
+          return res.end();
+        }
+
+        // Retry only if 429, 503, or temporary network failure
+        const isTransient = /429|503|500|econnreset|etimedout|socket|network/i.test(err.message || "");
+        if (!isTransient) {
+          break; // Advance immediately to next model in sequence
+        }
       }
     }
   }
 
-  console.error("Gemini live call error:", lastError);
-  if (!res.headersSent) {
-    return send(500, {
-      error: `Gemini live model error: ${(lastError && lastError.message) || "Service unavailable."}`
-    });
-  }
+  // If all live models failed or timed out, gracefully invoke autonomous chemistry fallback
+  console.warn("[Nemo AI] All live models unavailable, activating Autonomous Chemistry Core:", lastError && lastError.message);
+  return handleOfflineFallback();
 };

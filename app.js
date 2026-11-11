@@ -3,11 +3,48 @@
    Never put a secret API key in this file. */
 "use strict";
 
+/* Global aggressive exception handling guards */
+window.addEventListener("error", (e) => {
+  console.warn("[Nemo Handled Global Error]", e.message, e.filename, e.lineno);
+});
+window.addEventListener("unhandledrejection", (e) => {
+  console.warn("[Nemo Handled Global Rejection]", e.reason);
+});
+
 const AI_ENDPOINT = "/api/chat"; // High-performance Gemini Flash & adaptive server backend
 
 /* ============================== helpers ============================== */
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
+
+function safeOn(target, event, handler, options) {
+  try {
+    const el = typeof target === "string" ? $(target) : target;
+    if (el && typeof el.addEventListener === "function") {
+      el.addEventListener(event, handler, options);
+      return true;
+    }
+  } catch (err) {
+    console.warn("safeOn failed for", target, event, err);
+  }
+  return false;
+}
+
+function ensurePanelVisible(panelId) {
+  if (!panelId) return;
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  if (panel.style.display === "none") {
+    const allTab = document.querySelector('.ws-tab[data-filter="all"]');
+    if (allTab) {
+      allTab.click();
+    } else {
+      panel.style.display = "";
+    }
+  }
+}
+window.ensurePanelVisible = ensurePanelVisible;
+
 const TAU = Math.PI * 2;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -430,91 +467,112 @@ async function askNemo(question, opts = {}) {
     my.ctrl = new AbortController();
     const timeout = setTimeout(() => my.ctrl.abort(), 95000);
     try {
-      if (endpoint === "direct") {
-        answer = await callGeminiDirect(question, prior, my.ctrl.signal, store.get(AI_CFG_KEY, {}) || {});
-      } else {
-        const targetUrl = endpoint || "/api/chat";
-        const res = await fetch(targetUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "text/event-stream, application/json"
-          },
-          signal: my.ctrl.signal,
-          body: JSON.stringify({ message: question, history: prior, level: answerLevel, stream: true })
-        });
+      const cfg = store.get(AI_CFG_KEY, null) || {};
+      const targetUrl = endpoint || "/api/chat";
+      const reqHeaders = {
+        "Content-Type": "application/json",
+        "Accept": "text/event-stream, application/json"
+      };
+      if (cfg && cfg.key) {
+        reqHeaders["X-Goog-Api-Key"] = cfg.key;
+      }
 
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          const errMsg = errData.error || ("AI service returned HTTP " + res.status);
-          throw new Error(errMsg);
+      // Execute request with 1 automatic retry on transient network/5xx glitch
+      let res = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          if (attempt > 0) {
+            await new Promise((r) => setTimeout(r, 450));
+          }
+          res = await fetch(targetUrl, {
+            method: "POST",
+            headers: reqHeaders,
+            signal: my.ctrl.signal,
+            body: JSON.stringify({ message: question, history: prior, level: answerLevel, stream: true })
+          });
+          if (res.ok) break;
+          // If server error 500/502/503/504 or 429, retry once
+          if (attempt === 0 && (res.status >= 500 || res.status === 429)) {
+            continue;
+          }
+        } catch (fetchErr) {
+          if (attempt === 0 && !my.cancelled && fetchErr.name !== "AbortError") {
+            continue;
+          }
+          throw fetchErr;
         }
+      }
 
-        const contentType = res.headers.get("content-type") || "";
-        if (contentType.includes("text/event-stream") && res.body) {
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder("utf-8");
-          let sseBuffer = "";
-          let accumulated = "";
-          let lastRenderTime = 0;
+      if (!res || !res.ok) {
+        const errData = res ? await res.json().catch(() => ({})) : {};
+        const errMsg = (errData && errData.error) || ("Live AI connection returned status " + (res ? res.status : "offline"));
+        throw new Error(errMsg);
+      }
 
-          let sseCompleted = false;
-          while (!sseCompleted) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            sseBuffer += decoder.decode(value, { stream: true });
-            const lines = sseBuffer.split("\n");
-            sseBuffer = lines.pop();
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("text/event-stream") && res.body) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let sseBuffer = "";
+        let accumulated = "";
+        let lastRenderTime = 0;
 
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed || !trimmed.startsWith("data:")) continue;
-              const jsonStr = trimmed.slice(5).trim();
-              if (!jsonStr) continue;
-              try {
-                const evt = JSON.parse(jsonStr);
-                if (evt.type === "meta") {
-                  if (badge) {
-                    badge.textContent = evt.badge === "Fast Answer" ? "⚡ Fast Answer" : "🧠 In-Depth Reasoning";
-                  }
-                  if (orb) {
-                    orb.setAttribute("data-state", evt.tier === "deep" ? "analytics" : "chat");
-                  }
-                } else if (evt.type === "chunk") {
-                  if (!liveBubble) {
-                    if (typing.row.parentNode) typing.row.remove();
-                    liveBubble = addMessage("", "nemo");
-                    setMascotSpeaking(true);
-                  }
-                  accumulated += evt.text;
-                  const now = Date.now();
-                  if (now - lastRenderTime > 35) {
-                    lastRenderTime = now;
-                    liveBubble.innerHTML = mdToHtml(accumulated);
-                    messagesEl.scrollTop = messagesEl.scrollHeight;
-                  }
-                } else if (evt.type === "done") {
-                  if (typeof evt.answer === "string" && evt.answer) {
-                    accumulated = evt.answer;
-                  }
-                  sseCompleted = true;
-                  break;
-                } else if (evt.type === "error") {
-                  throw new Error(evt.error || "Streaming failed");
+        let sseCompleted = false;
+        while (!sseCompleted) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split("\n");
+          sseBuffer = lines.pop();
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith("data:")) continue;
+            const jsonStr = trimmed.slice(5).trim();
+            if (!jsonStr) continue;
+            try {
+              const evt = JSON.parse(jsonStr);
+              if (evt.type === "meta") {
+                if (badge) {
+                  badge.textContent = evt.badge === "Fast Answer" ? "⚡ Fast Answer" : "🧠 In-Depth Reasoning";
                 }
-              } catch (parseErr) {
-                if (parseErr.message && !parseErr.message.includes("JSON")) throw parseErr;
+                if (orb) {
+                  orb.setAttribute("data-state", evt.tier === "deep" ? "analytics" : "chat");
+                }
+              } else if (evt.type === "chunk") {
+                if (!liveBubble) {
+                  if (typing.row.parentNode) typing.row.remove();
+                  liveBubble = addMessage("", "nemo");
+                  setMascotSpeaking(true);
+                }
+                accumulated += evt.text;
+                const now = Date.now();
+                if (now - lastRenderTime > 25) {
+                  lastRenderTime = now;
+                  liveBubble.innerHTML = mdToHtml(accumulated);
+                  messagesEl.scrollTop = messagesEl.scrollHeight;
+                }
+              } else if (evt.type === "done") {
+                if (typeof evt.answer === "string" && evt.answer) {
+                  accumulated = evt.answer;
+                }
+                sseCompleted = true;
+                break;
+              } else if (evt.type === "error") {
+                throw new Error(evt.error || "Streaming interrupted");
               }
+            } catch (parseErr) {
+              if (parseErr.message && !parseErr.message.includes("JSON")) throw parseErr;
             }
           }
-
-          answer = accumulated.trim();
-          if (!answer) throw new Error("The live Gemini AI returned an empty response.");
-        } else {
-          const data = await res.json();
-          answer = (data && typeof data.answer === "string" && data.answer.trim()) || "";
-          if (!answer) throw new Error("The live Gemini AI returned an empty response.");
         }
+
+        answer = accumulated.trim();
+        if (!answer) throw new Error("The live AI model returned an empty response. Please rephrase or retry.");
+      } else {
+        const data = await res.json();
+        answer = (data && typeof data.answer === "string" && data.answer.trim()) || "";
+        if (!answer) throw new Error("The live AI model returned an empty response. Please rephrase or retry.");
       }
     } finally {
       clearTimeout(timeout);
@@ -525,9 +583,9 @@ async function askNemo(question, opts = {}) {
     if (my.cancelled) {
       answer = "*Generation stopped.*";
     } else if (err.name === "AbortError") {
-      answer = "⚠️ **Generation timed out after 95 seconds.** The chemistry explanation or mechanism was extensive. Please ask a focused sub-step!";
+      answer = "⚠️ **Generation timed out after 95 seconds.** The chemistry explanation was extensive. Tap **Retry Connection** below to re-attempt!";
     } else {
-      answer = "⚠️ **Live AI Connection Notice:** " + err.message + "\n\n*Nemo requires an active online connection to Google Gemini's live model. Please check your internet connection or reload.*";
+      answer = "⚠️ **Live AI Connection Notice:** " + err.message + "\n\n*Tap the button below to re-connect to the live AI model.*";
     }
   } finally {
     if (orb) orb.setAttribute("data-state", prevOrbState);
@@ -541,6 +599,20 @@ async function askNemo(question, opts = {}) {
     bubble = addMessage(answer, "nemo", { error: failed && !my.cancelled });
   } else {
     setBubble(bubble, answer, failed && !my.cancelled);
+  }
+
+  // Attach interactive one-click Retry button if failed
+  if (failed && !my.cancelled) {
+    const retryBtn = el("button", {
+      class: "bubble-retry-btn",
+      text: "🔄 Re-connect & Retry",
+      title: "Retry sending this question to Nemo"
+    });
+    retryBtn.addEventListener("click", () => {
+      retryBtn.remove();
+      askNemo(question);
+    });
+    bubble.append(retryBtn);
   }
 
   if (!failed) {
@@ -562,7 +634,7 @@ async function askNemo(question, opts = {}) {
       triggerNemoReaction({
         expression: "oops",
         icon: "⚠️",
-        text: "Connection hiccup — please retry!",
+        text: "Connection hiccup — tap Retry!",
         badge: "Retry",
         duration: 3200,
         chime: "incorrect"
@@ -595,41 +667,53 @@ $("#analyticsExplain").addEventListener("click", () => {
 
 /* ---- Connected AI Model Detection & Status Management ---- */
 function setMode(live, provider) {
-  const prov = provider ? (provider[0].toUpperCase() + provider.slice(1)) : "Gemini Flash";
+  let prov = "Gemini 3.8 Flash";
+  if (typeof provider === "string" && provider.trim()) {
+    const raw = provider.trim();
+    if (/gemini-3\.8/i.test(raw)) prov = "Gemini 3.8 Flash Live";
+    else if (/flash-lite/i.test(raw)) prov = "Gemini Flash Lite";
+    else if (/flash/i.test(raw)) prov = "Gemini Flash";
+    else if (/offline/i.test(raw)) prov = "Nemo Autonomous Core";
+    else prov = raw[0].toUpperCase() + raw.slice(1);
+  }
   const label = $("#modeLabel");
-  if (label) label.textContent = "Nemo AI connected (" + prov + ")";
+  if (label) label.textContent = "Nemo AI Connected • " + prov;
   const dot = $("#modeDot");
   if (dot) {
     dot.className = "online-dot live";
+    dot.title = "Connected to " + prov;
   }
   const mobileDot = $("#mobileStatusDot");
   if (mobileDot) {
     mobileDot.className = "island-status-dot live";
+    mobileDot.title = "Connected to " + prov;
   }
 }
 
 async function detectBackend() {
   endpoint = "/api/chat";
-  setMode(true, "Gemini Flash");
   if (/^https?:$/.test(location.protocol)) {
     try {
       const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 3500);
+      const t = setTimeout(() => ctrl.abort(), 4000);
       const res = await fetch("/api/health", { signal: ctrl.signal, cache: "no-store" });
       clearTimeout(t);
       if (res.ok) {
         const info = await res.json();
-        const prov = (info && (info.model || info.provider)) || "Gemini Flash";
+        const prov = (info && (info.model || info.provider)) || "gemini-3.8-flash";
         setMode(true, prov);
         return;
       }
     } catch (_) {
-      // Keep connected to endpoint = "/api/chat"
+      // Aggressive fallback to live endpoint
     }
   }
-  setMode(true, "Gemini Flash");
+  setMode(true, "gemini-3.8-flash");
 }
 detectBackend();
+// Periodic background connection heartbeat and window focus reconnection
+setInterval(detectBackend, 45000);
+window.addEventListener("focus", detectBackend);
 
 (function aiSettings() {
   const box = $("#aiSettings"); if (!box) return;
@@ -1235,19 +1319,20 @@ scheduleNextVoiceTip();
   function setTool(t) {
     tool = t;
     for (const [id, name] of [["#toolPen", "pen"], ["#toolArrow", "arrow"], ["#toolEraser", "eraser"]]) {
-      const b = $(id); b.classList.toggle("active", name === t); b.setAttribute("aria-pressed", String(name === t));
+      const b = $(id); if (b) { b.classList.toggle("active", name === t); b.setAttribute("aria-pressed", String(name === t)); }
     }
-    canvas.style.cursor = t === "eraser" ? "cell" : "crosshair";
+    if (canvas) canvas.style.cursor = t === "eraser" ? "cell" : "crosshair";
   }
-  $("#toolPen").addEventListener("click", () => setTool("pen"));
-  $("#toolArrow").addEventListener("click", () => setTool("arrow"));
-  $("#toolEraser").addEventListener("click", () => setTool("eraser"));
-  $("#undoStroke").addEventListener("click", () => {
+  safeOn("#toolPen", "click", () => setTool("pen"));
+  safeOn("#toolArrow", "click", () => setTool("arrow"));
+  safeOn("#toolEraser", "click", () => setTool("eraser"));
+  safeOn("#undoStroke", "click", () => {
     if (strokes.length) strokes.pop(); else if (cleared) { strokes = cleared; cleared = null; }
     redraw(); persist();
   });
-  $("#clearCanvas").addEventListener("click", () => { if (!strokes.length) return; cleared = strokes; strokes = []; redraw(); persist(); });
-  $("#saveCanvas").addEventListener("click", () => {
+  safeOn("#clearCanvas", "click", () => { if (!strokes.length) return; cleared = strokes; strokes = []; redraw(); persist(); });
+  safeOn("#saveCanvas", "click", () => {
+    if (!canvas) return;
     const a = document.createElement("a"); a.download = "nemo-reaction-sketch.png"; a.href = canvas.toDataURL("image/png"); document.body.append(a); a.click(); a.remove();
   });
 })();
@@ -1465,29 +1550,35 @@ function hillFormula(atoms) {
     else if (e.key === "0") resetView();
   });
   function resetView() { R = mat.mul(mat.rotX(-0.45), mat.rotY(0.6)); zoom = 1; schedule(); }
-  $("#molReset").addEventListener("click", resetView);
-  $("#molStyle").addEventListener("change", (e) => { opt.style = e.target.value; computeExtent(); schedule(); });
-  $("#molSpin").addEventListener("change", (e) => { opt.spin = e.target.checked; schedule(); });
-  $("#molLabels").addEventListener("change", (e) => { opt.labels = e.target.checked; schedule(); });
-  $("#molLP").addEventListener("change", (e) => { opt.lp = e.target.checked; schedule(); });
+  safeOn("#molReset", "click", resetView);
+  safeOn("#molStyle", "change", (e) => { opt.style = e.target.value; computeExtent(); schedule(); });
+  safeOn("#molSpin", "change", (e) => { opt.spin = e.target.checked; schedule(); });
+  safeOn("#molLabels", "change", (e) => { opt.labels = e.target.checked; schedule(); });
+  safeOn("#molLP", "change", (e) => { opt.lp = e.target.checked; schedule(); });
 
   /* ---- info panel & legend ---- */
   function showInfo(m, custom) {
-    const dl = $("#moleculeInfo"); dl.innerHTML = "";
+    const dl = $("#moleculeInfo");
+    if (!dl) return;
+    dl.innerHTML = "";
     dl.append(el("dd", { class: "big", text: `${m.name} · ${m.formula}` }));
     const rows = custom ? [["Source", m.source], ["Atoms", String(m.atoms.length)]] :
       [[(m.labels || {}).shape || "Shape", m.shape], [(m.labels || {}).electron || "Electron geometry", m.electron], [(m.labels || {}).hyb || "Hybridisation", m.hyb], [(m.labels || {}).angle || "Bond angle", m.angle], [(m.labels || {}).polar || "Polarity", m.polar]];
     rows.forEach(([k, v]) => { dl.append(el("dt", { text: k }), el("dd", { text: v })); });
     if (m.note) dl.append(el("dd", { class: "note", text: m.note }));
     else if (custom) dl.append(el("dd", { class: "note", text: "Geometry is a computed 3D conformer from PubChem, shown for visualisation only. Check stereochemistry against a textbook." }));
-    const legend = $("#viewerLegend"); legend.innerHTML = "";
-    [...new Set(m.atoms.map((a) => a[0]))].forEach((s) => legend.append(el("span", {}, el("i", { style: "background:" + elInfo(s).c }), elInfo(s).n)));
-    if ((m.lonePairs || []).length) legend.append(el("span", {}, el("i", { style: "background:#a66bff" }), "Lone pair"));
-    $("#lpWrap").hidden = !(m.lonePairs || []).length;
+    const legend = $("#viewerLegend");
+    if (legend) {
+      legend.innerHTML = "";
+      [...new Set(m.atoms.map((a) => a[0]))].forEach((s) => legend.append(el("span", {}, el("i", { style: "background:" + elInfo(s).c }), elInfo(s).n)));
+      if ((m.lonePairs || []).length) legend.append(el("span", {}, el("i", { style: "background:#a66bff" }), "Lone pair"));
+    }
+    const lpWrap = $("#lpWrap");
+    if (lpWrap) lpWrap.hidden = !(m.lonePairs || []).length;
   }
   function show(m, isCustom) {
     mol = m; computeExtent(); resetView(); showInfo(m, isCustom);
-    hint.textContent = "Drag to rotate • scroll or pinch to zoom • double-click to reset"; schedule();
+    if (hint) hint.textContent = "Drag to rotate • scroll or pinch to zoom • double-click to reset"; schedule();
     if (typeof triggerNemoReaction === "function") {
       triggerNemoReaction({
         expression: "curious",
@@ -1502,11 +1593,11 @@ function hillFormula(atoms) {
     const m = MOLS.find((x) => x.id === id) || custom.get(id); if (!m) return;
     show(m, custom.has(id));
   }
-  select.addEventListener("change", () => selectBuiltIn(select.value));
+  if (select) select.addEventListener("change", () => selectBuiltIn(select.value));
 
   /* ---- optional PubChem search (needs internet) ---- */
   let pcCtrl = null;
-  $("#pubchemForm").addEventListener("submit", async (e) => {
+  safeOn("#pubchemForm", "submit", async (e) => {
     e.preventDefault();
     const name = $("#pubchemInput").value.trim(), msg = $("#pubchemMsg");
     if (!name) return;
@@ -1564,6 +1655,7 @@ function formatMathText(str) {
 }
 
 function makeScrollableByDrag(elem) {
+  if (!elem) return;
   let isDown = false, startX = 0, scrollLeft = 0;
   elem.addEventListener("mousedown", (e) => {
     if (e.button !== 0) return;
@@ -1586,6 +1678,27 @@ function makeScrollableByDrag(elem) {
     const walk = (x - startX) * 1.5;
     elem.scrollLeft = scrollLeft - walk;
   });
+
+  // Touch drag support for mobile / tablet devices
+  elem.addEventListener("touchstart", (e) => {
+    if (e.touches.length !== 1) return;
+    if (elem.scrollWidth <= elem.clientWidth) return;
+    isDown = true;
+    startX = e.touches[0].pageX - elem.offsetLeft;
+    scrollLeft = elem.scrollLeft;
+  }, { passive: true });
+  elem.addEventListener("touchend", () => {
+    isDown = false;
+  }, { passive: true });
+  elem.addEventListener("touchcancel", () => {
+    isDown = false;
+  }, { passive: true });
+  elem.addEventListener("touchmove", (e) => {
+    if (!isDown || e.touches.length !== 1) return;
+    const x = e.touches[0].pageX - elem.offsetLeft;
+    const walk = (x - startX) * 1.2;
+    elem.scrollLeft = scrollLeft - walk;
+  }, { passive: true });
 }
 
 /* ============================== practice + analytics ============================== */
@@ -1622,7 +1735,7 @@ function recordAttempt(q, ok) {
   stats.streak = ok ? stats.streak + 1 : 0; stats.best = Math.max(stats.best, stats.streak);
   store.set("nemo.stats.v1", stats); renderAnalytics();
 }
-$("#resetStats").addEventListener("click", () => { if (confirm("Reset all of your practice statistics on this device?")) { stats = emptyStats(); store.del("nemo.stats.v1"); renderAnalytics(); } });
+safeOn("#resetStats", "click", () => { if (confirm("Reset all of your practice statistics on this device?")) { stats = emptyStats(); store.del("nemo.stats.v1"); renderAnalytics(); } });
 
 (function practice() {
   const body = $("#quizBody"), branchSel = $("#practiceBranch");
@@ -1703,11 +1816,19 @@ $("#resetStats").addEventListener("click", () => { if (confirm("Reset all of you
       }
     }
   }
-  body.addEventListener("keydown", (e) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-    const n = "1234".indexOf(e.key) >= 0 ? +e.key - 1 : "abcd".indexOf(e.key.toLowerCase());
-    if (!answered && n >= 0 && n < shown.length && e.key.length === 1) { e.preventDefault(); choose(n); }
-  });
+  if (body) {
+    body.addEventListener("keydown", (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const n = "1234".indexOf(e.key) >= 0 ? +e.key - 1 : "abcd".indexOf(e.key.toLowerCase());
+      if (!answered && n >= 0 && n < shown.length && e.key.length === 1) {
+        e.preventDefault();
+        choose(n);
+      } else if (answered && (e.key === "Enter" || e.key === " " || e.key === "ArrowRight")) {
+        e.preventDefault();
+        next();
+      }
+    });
+  }
   branchSel.addEventListener("change", () => { queue = []; next(); });
   if (DATA.quiz.length) next(); else body.textContent = "Practice questions failed to load (data.js missing).";
 })();
@@ -1886,6 +2007,13 @@ $("#resetStats").addEventListener("click", () => { if (confirm("Reset all of you
 
     menu.addEventListener("click", (e) => {
       e.stopPropagation();
+    });
+  });
+
+  $$(".portal-close-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeAll();
     });
   });
 
@@ -2468,17 +2596,23 @@ const PYQ = (function pyqBank() {
     }
   }
 
-  body.addEventListener("keydown", (e) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.target && e.target.tagName === "INPUT") return;
-    if (cur && (cur.type === "mcq" || cur.type === "msq")) {
-      const n = "1234".indexOf(e.key) >= 0 ? +e.key - 1 : "abcd".indexOf(e.key.toLowerCase());
-      if (!done && n >= 0 && n < cur.options.length && e.key.length === 1) {
-        e.preventDefault();
-        pick(n);
+  if (body) {
+    body.addEventListener("keydown", (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.target && e.target.tagName === "INPUT") return;
+      if (cur && (cur.type === "mcq" || cur.type === "msq")) {
+        const n = "1234".indexOf(e.key) >= 0 ? +e.key - 1 : "abcd".indexOf(e.key.toLowerCase());
+        if (!done && n >= 0 && n < cur.options.length && e.key.length === 1) {
+          e.preventDefault();
+          pick(n);
+        }
       }
-    }
-  });
+      if (done && (e.key === "Enter" || e.key === " " || e.key === "ArrowRight")) {
+        e.preventDefault();
+        next();
+      }
+    });
+  }
 
   [fExam, fYear, fChap, fStat].forEach((s) => s.addEventListener("change", start));
   fBranch.addEventListener("change", () => { fillFilters(); start(); });
@@ -2540,7 +2674,13 @@ let onActiveSectionChange = null;
     });
     if (typeof onActiveSectionChange === "function") onActiveSectionChange(id);
   };
-  links.forEach((a) => a.addEventListener("click", () => setActive(a.dataset.target)));
+  links.forEach((a) => a.addEventListener("click", () => {
+    const targetId = a.dataset.target;
+    if (typeof window.ensurePanelVisible === "function") {
+      window.ensurePanelVisible(targetId);
+    }
+    setActive(targetId);
+  }));
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); });
   }, { rootMargin: "-30% 0px -60% 0px" });
@@ -2549,7 +2689,7 @@ let onActiveSectionChange = null;
 
 /* ============================== floating 3D Nemo Companion ============================== */
 (function floatingNemo() {
-  const widget = $("#nemoWidget"), orb = $("#widgetOrb"), pop = $("#widgetPopover"), toggle = $("#floatToggle");
+  const widget = $("#nemoWidget"), orb = $("#widgetOrb"), pop = $("#widgetPopover"), toggle = $("#floatToggle"), mobileToggle = $("#mobileFloatBtn");
   const saved = store.get("nemo.widget.v1", {}) || {};
   let drag = null, moved = false, justDragged = false;
   if (saved.compact) widget.classList.add("compact");
@@ -2660,21 +2800,75 @@ let onActiveSectionChange = null;
 
   onActiveSectionChange = updateNemoView;
 
-  const vw = () => document.documentElement.clientWidth, vh = () => document.documentElement.clientHeight;
+  const vw = () => document.documentElement.clientWidth || window.innerWidth || 360;
+  const vh = () => document.documentElement.clientHeight || window.innerHeight || 640;
   let isHeroDocked = false;
+  let userDragged = false;
   let scrollRaf = null;
+  let scrollTimeout = null;
+
+  function syncPopoverDirection(r, b) {
+    if (!widget) return;
+    const isMobile = vw() <= 480;
+    if (isMobile) {
+      widget.classList.remove("popover-on-right");
+      return;
+    }
+    // When Nemo is placed near the left edge of the viewport, flip popover to the right
+    const orbEl = orb || widget;
+    const orbW = orbEl.offsetWidth || 74;
+    const leftDist = vw() - r - orbW;
+    if (leftDist < 350) {
+      widget.classList.add("popover-on-right");
+    } else {
+      widget.classList.remove("popover-on-right");
+    }
+
+    // When Nemo is placed near the top edge of the viewport, flip voice bubble downward
+    const orbH = orbEl.offsetHeight || 74;
+    const topDist = vh() - b - orbH;
+    if (topDist < 160) {
+      widget.classList.add("voice-bubble-below");
+    } else {
+      widget.classList.remove("voice-bubble-below");
+    }
+  }
 
   const place = (r, b) => {
-    const maxR = Math.max(0, vw() - widget.offsetWidth), maxB = Math.max(0, vh() - widget.offsetHeight);
-    widget.style.right = clamp(Math.round(r), -20, maxR + 20) + "px";
-    widget.style.bottom = clamp(Math.round(b), -20, maxB + 20) + "px";
+    if (isHeroDocked) {
+      widget.style.right = Math.round(r) + "px";
+      widget.style.bottom = Math.round(b) + "px";
+      widget.style.left = "auto";
+      widget.style.top = "auto";
+      return;
+    }
+
+    const isMobile = vw() <= 640;
+    const orbSize = isMobile ? 64 : 74;
+    const minInset = isMobile ? 12 : 18;
+    const maxR = Math.max(minInset, vw() - orbSize - minInset);
+    const maxB = Math.max(minInset, vh() - orbSize - minInset);
+
+    const clampedR = clamp(Math.round(r), minInset, maxR);
+    const clampedB = clamp(Math.round(b), minInset, maxB);
+
+    widget.style.right = clampedR + "px";
+    widget.style.bottom = clampedB + "px";
     widget.style.left = "auto";
     widget.style.top = "auto";
+
+    syncPopoverDirection(clampedR, clampedB);
   };
 
   const current = () => {
-    const rc = widget.getBoundingClientRect();
-    return { r: vw() - rc.right, b: vh() - rc.bottom };
+    const orbEl = orb || widget;
+    const rc = orbEl.getBoundingClientRect();
+    if (rc.width > 0 && rc.right > 0) {
+      return { r: vw() - rc.right, b: vh() - rc.bottom };
+    }
+    const rVal = parseFloat(widget.style.right) || 22;
+    const bVal = parseFloat(widget.style.bottom) || 22;
+    return { r: rVal, b: bVal };
   };
 
   function getHeroDockCoords() {
@@ -2716,8 +2910,8 @@ let onActiveSectionChange = null;
     const anchor = document.getElementById("heroMascotAnchor");
     const anchorRect = anchor ? anchor.getBoundingClientRect() : null;
 
-    // Expand into Hero when near top of page and anchor is on screen
-    const isAtHome = scrollY < 75 && anchorRect && anchorRect.bottom > 60 && anchorRect.width > 0;
+    // Expand into Hero when near top of page and anchor is on screen, provided user hasn't explicitly dragged Nemo away
+    const isAtHome = !userDragged && scrollY < 65 && anchorRect && anchorRect.bottom > 40 && anchorRect.width > 0;
 
     if (isAtHome) {
       const coords = getHeroDockCoords();
@@ -2726,6 +2920,7 @@ let onActiveSectionChange = null;
           isHeroDocked = true;
           triggerMorphState();
           widget.classList.add("hero-docked");
+          pop.hidden = true;
           const moodText = $("#nemoMoodText");
           if (moodText && currentActiveSection === "chatPanel") {
             moodText.textContent = "Welcome! I'm Nemo";
@@ -2752,6 +2947,12 @@ let onActiveSectionChange = null;
   }
 
   const handleScroll = () => {
+    widget.classList.add("is-scrolling");
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      widget.classList.remove("is-scrolling");
+    }, 120);
+
     if (scrollRaf) cancelAnimationFrame(scrollRaf);
     scrollRaf = requestAnimationFrame(syncNemoPosition);
   };
@@ -2768,6 +2969,10 @@ let onActiveSectionChange = null;
   addEventListener("resize", keepInView);
   window.addEventListener("nemo:display-adapt", keepInView);
   window.addEventListener("orientationchange", keepInView);
+  window.addEventListener("nemo:sync-dock", () => {
+    userDragged = false;
+    syncNemoPosition();
+  });
 
   const save = () => {
     if (isHeroDocked) return;
@@ -2801,11 +3006,6 @@ let onActiveSectionChange = null;
 
   orb.addEventListener("pointerdown", (e) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    widget.classList.add("dragging");
-    if (isHeroDocked) {
-      isHeroDocked = false;
-      widget.classList.remove("hero-docked");
-    }
     const c = current();
     drag = { x: e.clientX, y: e.clientY, r: c.r, b: c.b };
     moved = false;
@@ -2814,7 +3014,17 @@ let onActiveSectionChange = null;
   orb.addEventListener("pointermove", (e) => {
     if (!drag) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-    if (!moved && Math.abs(dx) + Math.abs(dy) > 5) moved = true;
+    const dist = Math.hypot(dx, dy);
+    if (!moved && dist > 6) {
+      moved = true;
+      userDragged = true;
+      widget.classList.add("dragging");
+      if (isHeroDocked) {
+        isHeroDocked = false;
+        widget.classList.remove("hero-docked");
+        triggerMorphState();
+      }
+    }
     if (moved) place(drag.r - dx, drag.b - dy);
   });
   const end = (e) => {
@@ -2824,7 +3034,7 @@ let onActiveSectionChange = null;
     try { orb.releasePointerCapture(e.pointerId); } catch (_) {}
     if (moved) {
       justDragged = true;
-      setTimeout(() => { justDragged = false; }, 40);
+      setTimeout(() => { justDragged = false; }, 80);
       save();
     }
   };
@@ -2848,17 +3058,18 @@ let onActiveSectionChange = null;
           chime: "correct"
         });
       }
-    } else {
-      if (typeof triggerNemoReaction === "function" && pop.hidden) {
-        triggerNemoReaction({
-          expression: "happy",
-          icon: "👋",
-          text: "Hi! Need help with chemistry concepts?",
-          badge: "Nemo 3D",
-          duration: 2800,
-          chime: "tip"
-        });
-      }
+      return;
+    }
+
+    if (typeof triggerNemoReaction === "function" && pop.hidden) {
+      triggerNemoReaction({
+        expression: "happy",
+        icon: "👋",
+        text: "Hi! Need help with chemistry concepts?",
+        badge: "Nemo 3D",
+        duration: 2800,
+        chime: "tip"
+      });
     }
     if (widget.classList.contains("compact")) {
       widget.classList.remove("compact");
@@ -2870,22 +3081,31 @@ let onActiveSectionChange = null;
     save();
   });
 
-  $("#closePopover").addEventListener("click", () => { pop.hidden = true; save(); });
-  $("#minimizeWidget").addEventListener("click", () => {
+  safeOn("#closePopover", "click", () => { pop.hidden = true; save(); });
+  const exitPopBtn = $("#exitPopoverBtn");
+  if (exitPopBtn) exitPopBtn.addEventListener("click", () => { pop.hidden = true; save(); });
+  safeOn("#minimizeWidget", "click", () => {
     widget.classList.add("compact");
     pop.hidden = true;
     save();
   });
-  $("#jumpToChat").addEventListener("click", () => {
+  safeOn("#jumpToChat", "click", () => {
     pop.hidden = true;
-    $("#chatPanel").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-    input.focus({ preventScroll: true });
+    if (typeof window.ensurePanelVisible === "function") {
+      window.ensurePanelVisible("chatPanel");
+    }
+    const chatPanel = $("#chatPanel");
+    if (chatPanel) chatPanel.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    if (input) input.focus({ preventScroll: true });
     updateNemoView("chatPanel");
   });
 
   $$(".qn-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetId = btn.dataset.target;
+      if (typeof window.ensurePanelVisible === "function") {
+        window.ensurePanelVisible(targetId);
+      }
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
         pop.hidden = true;
@@ -2930,17 +3150,31 @@ let onActiveSectionChange = null;
 
   const updateFloatToggle = () => {
     const isVisible = !widget.classList.contains("hidden");
-    toggle.setAttribute("aria-pressed", String(isVisible));
-    toggle.classList.toggle("active", isVisible);
-    toggle.innerHTML = `<span class="btn-icon">◉</span> Floating Nemo`;
+    if (toggle) {
+      toggle.setAttribute("aria-pressed", String(isVisible));
+      toggle.classList.toggle("active", isVisible);
+      toggle.innerHTML = `<span class="btn-icon">◉</span> Floating Nemo`;
+    }
+    if (mobileToggle) {
+      mobileToggle.setAttribute("aria-pressed", String(isVisible));
+      mobileToggle.classList.toggle("active", isVisible);
+    }
   };
-  toggle.addEventListener("click", () => {
+  const handleToggle = () => {
     const hide = !widget.classList.contains("hidden");
     widget.classList.toggle("hidden", hide);
     updateFloatToggle();
-    toggle.classList.add("toggle-animate");
-    setTimeout(() => toggle.classList.remove("toggle-animate"), 600);
-  });
+    if (toggle) {
+      toggle.classList.add("toggle-animate");
+      setTimeout(() => toggle.classList.remove("toggle-animate"), 600);
+    }
+    if (mobileToggle) {
+      mobileToggle.classList.add("toggle-animate");
+      setTimeout(() => mobileToggle.classList.remove("toggle-animate"), 600);
+    }
+  };
+  if (toggle) toggle.addEventListener("click", handleToggle);
+  if (mobileToggle) mobileToggle.addEventListener("click", handleToggle);
   updateFloatToggle();
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !pop.hidden) {
@@ -2957,6 +3191,7 @@ let onActiveSectionChange = null;
 (function setupFounderAndWorkspace() {
   const modal = $("#founderModal");
   const closeBtn = $("#closeFounderModal");
+  const closeBtnBottom = $("#closeFounderModalBottom");
   const celebrateBtn = $("#celebrateFounderBtn");
   const countEl = $("#celebrateCount");
   const askBtn = $("#askNemoAboutFounderBtn");
@@ -3046,6 +3281,9 @@ let onActiveSectionChange = null;
   }
 
   if (closeBtn) closeBtn.addEventListener("click", closeFounderModal);
+  if (closeBtnBottom) closeBtnBottom.addEventListener("click", closeFounderModal);
+  const sidebarExitBtnMobile = $("#sidebarExitBtnMobile");
+  if (sidebarExitBtnMobile) sidebarExitBtnMobile.addEventListener("click", closeSidebar);
   if (modal) {
     modal.addEventListener("click", (e) => {
       if (e.target === modal) closeFounderModal();
@@ -3079,6 +3317,17 @@ let onActiveSectionChange = null;
 
   /* Workspace Filter Tabs */
   const tabBtns = $$(".ws-tab");
+  const filterStatusBar = $("#workspaceFilterStatus");
+  const filterStatusText = $("#filterStatusText");
+  const exitFilterBtn = $("#exitFilterBtn");
+
+  if (exitFilterBtn) {
+    exitFilterBtn.addEventListener("click", () => {
+      const allTab = document.querySelector('.ws-tab[data-filter="all"]');
+      if (allTab) allTab.click();
+    });
+  }
+
   const panels = {
     tutor: ["chatPanel", "moleculePanel"],
     practice: ["practicePanel", "analyticsPanel"],
@@ -3106,6 +3355,17 @@ let onActiveSectionChange = null;
           p.style.display = activeIds.includes(id) ? "" : "none";
         }
       });
+
+      if (filterStatusBar && filterStatusText) {
+        if (filter === "all") {
+          filterStatusBar.hidden = true;
+        } else {
+          filterStatusBar.hidden = false;
+          const tabLabel = btn.textContent.trim();
+          const activeCount = (panels[filter] || []).length;
+          filterStatusText.textContent = `${tabLabel} (${activeCount} active ${activeCount === 1 ? "module" : "modules"})`;
+        }
+      }
 
       if (filter === "portals") {
         if (typeof window.focusGoldHub === "function") {
@@ -3385,6 +3645,10 @@ let onActiveSectionChange = null;
       burst.appendChild(spark);
     }
 
+    // Performance: clean up oldest bursts if rapid clicking produces excessive concurrent nodes
+    while (fxLayer.children.length >= 3) {
+      fxLayer.firstElementChild.remove();
+    }
     fxLayer.appendChild(burst);
 
     // Auto cleanup after animation ends
@@ -3465,6 +3729,10 @@ let onActiveSectionChange = null;
   const startTourBtn = document.getElementById("startTourBtn");
   const mobileTourBtn = document.getElementById("mobileTourBtn");
   const sidebarTourBtn = document.getElementById("sidebarTourBtn");
+  const popoverTourBtn = document.getElementById("popoverTourBtn");
+  const welcomePrompt = document.getElementById("tourWelcomePrompt");
+  const welcomeStartTourBtn = document.getElementById("welcomeStartTourBtn");
+  const welcomeDismissTourBtn = document.getElementById("welcomeDismissTourBtn");
 
   if (!tourModal || !tourCutout || !tourCard) return;
 
@@ -3631,6 +3899,34 @@ let onActiveSectionChange = null;
     return el;
   }
 
+  // Initialize persistent step dots once to maintain focus/accessibility
+  function initTourDots() {
+    if (!tourDotsList) return;
+    tourDotsList.innerHTML = "";
+    TOUR_STEPS.forEach((step, idx) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = `tour-dot ${idx === 0 ? "active" : ""}`;
+      dot.title = `Step ${idx + 1}: ${step.title}`;
+      dot.setAttribute("aria-label", `Step ${idx + 1}: ${step.title}`);
+      dot.setAttribute("role", "tab");
+      dot.setAttribute("aria-selected", idx === 0 ? "true" : "false");
+      dot.addEventListener("click", () => renderStep(idx));
+      tourDotsList.appendChild(dot);
+    });
+  }
+  initTourDots();
+
+  function updateTourDots(activeIndex) {
+    if (!tourDotsList) return;
+    const dots = tourDotsList.querySelectorAll(".tour-dot");
+    dots.forEach((dot, idx) => {
+      const isActive = idx === activeIndex;
+      dot.classList.toggle("active", isActive);
+      dot.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+  }
+
   function positionSpotlightAndCard() {
     if (!isTourActive) return;
     const step = TOUR_STEPS[currentStepIndex];
@@ -3642,12 +3938,21 @@ let onActiveSectionChange = null;
 
     const rect = targetEl.getBoundingClientRect();
     const pad = 8;
-    const top = Math.max(4, Math.floor(rect.top - pad));
-    const left = Math.max(4, Math.floor(rect.left - pad));
-    const width = Math.min(window.innerWidth - left - 4, Math.ceil(rect.width + pad * 2));
-    const height = Math.min(window.innerHeight - top - 4, Math.ceil(rect.height + pad * 2));
-    const right = left + width;
-    const bottom = top + height;
+    const vpW = window.innerWidth;
+    const vpH = window.innerHeight;
+
+    // Viewport-clamped cutout coordinates to prevent clip-path parsing failure
+    const rawLeft = rect.left - pad;
+    const rawTop = rect.top - pad;
+    const rawRight = rect.right + pad;
+    const rawBottom = rect.bottom + pad;
+
+    const left = Math.max(0, Math.min(vpW, Math.floor(rawLeft)));
+    const top = Math.max(0, Math.min(vpH, Math.floor(rawTop)));
+    const right = Math.max(0, Math.min(vpW, Math.ceil(rawRight)));
+    const bottom = Math.max(0, Math.min(vpH, Math.ceil(rawBottom)));
+    const width = Math.max(4, right - left);
+    const height = Math.max(4, bottom - top);
 
     // Update Neon Outline Cutout Frame
     tourCutout.style.top = `${top}px`;
@@ -3655,14 +3960,25 @@ let onActiveSectionChange = null;
     tourCutout.style.width = `${width}px`;
     tourCutout.style.height = `${height}px`;
 
-    // Update Blurred Backdrop Cutout Hole (Blurs everything outside, leaves focused element 100% sharp & un-tinted)
+    // Update Blurred Backdrop Cutout Hole (strictly clamped polygon)
     const clipPolygon = `polygon(evenodd, 0% 0%, 0% 100%, 100% 100%, 100% 0%, 0% 0%, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px ${top}px)`;
     tourBackdrop.style.clipPath = clipPolygon;
     tourBackdrop.style.webkitClipPath = clipPolygon;
 
-    // Responsive Card Positioning
-    const isMobile = window.innerWidth <= 768;
+    // Always reset directional inline styles on arrow connector to prevent conflict
+    tourArrow.style.top = "";
+    tourArrow.style.bottom = "";
+    tourArrow.style.left = "";
+    tourArrow.style.right = "";
+
+    // Responsive Card Positioning: Mobile viewport bottom docking
+    const isMobile = vpW <= 768;
     if (isMobile) {
+      tourCard.style.top = "";
+      tourCard.style.left = "";
+      tourCard.style.right = "";
+      tourCard.style.bottom = "";
+      tourArrow.style.display = "none";
       tourArrow.className = "tour-arrow";
       return;
     }
@@ -3674,52 +3990,115 @@ let onActiveSectionChange = null;
     let cardTop = 0;
     let cardLeft = 0;
     let arrowClass = "tour-arrow";
+    let showArrow = true;
 
-    const spaceBelow = window.innerHeight - (top + height);
+    const spaceBelow = vpH - (top + height);
     const spaceAbove = top;
-    const spaceRight = window.innerWidth - (left + width);
+    const spaceRight = vpW - (left + width);
+    const spaceLeft = left;
 
-    if (spaceBelow >= cardH + 18) {
-      // Position below
+    // Helper: test if [cLeft, cTop, cardW, cardH] collides with [left, top, width, height]
+    const collidesWithTarget = (cL, cT) => {
+      const padCheck = 10;
+      return !(
+        cL + cardW + padCheck <= left ||
+        cL >= right + padCheck ||
+        cT + cardH + padCheck <= top ||
+        cT >= bottom + padCheck
+      );
+    };
+
+    // Candidate 1: Below target if space permits
+    if (spaceBelow >= cardH + 20) {
       cardTop = top + height + 16;
-      cardLeft = Math.max(16, Math.min(window.innerWidth - cardW - 16, left + (width / 2) - (cardW / 2)));
+      cardLeft = Math.max(16, Math.min(vpW - cardW - 16, left + (width / 2) - (cardW / 2)));
       arrowClass = "tour-arrow arrow-top";
-      const arrowLeft = Math.max(20, Math.min(cardW - 30, (left + width / 2) - cardLeft));
+      const arrowLeft = Math.max(24, Math.min(cardW - 32, (left + width / 2) - cardLeft));
       tourArrow.style.left = `${arrowLeft}px`;
       tourArrow.style.top = "-8px";
-    } else if (spaceAbove >= cardH + 18) {
-      // Position above
+    }
+    // Candidate 2: Above target if space permits
+    else if (spaceAbove >= cardH + 20) {
       cardTop = top - cardH - 16;
-      cardLeft = Math.max(16, Math.min(window.innerWidth - cardW - 16, left + (width / 2) - (cardW / 2)));
+      cardLeft = Math.max(16, Math.min(vpW - cardW - 16, left + (width / 2) - (cardW / 2)));
       arrowClass = "tour-arrow arrow-bottom";
-      const arrowLeft = Math.max(20, Math.min(cardW - 30, (left + width / 2) - cardLeft));
+      const arrowLeft = Math.max(24, Math.min(cardW - 32, (left + width / 2) - cardLeft));
       tourArrow.style.left = `${arrowLeft}px`;
       tourArrow.style.bottom = "-8px";
-    } else if (spaceRight >= cardW + 18) {
-      // Position right
+    }
+    // Candidate 3: Right of target if space permits
+    else if (spaceRight >= cardW + 20) {
       cardLeft = left + width + 16;
-      cardTop = Math.max(16, Math.min(window.innerHeight - cardH - 16, top + (height / 2) - (cardH / 2)));
+      cardTop = Math.max(16, Math.min(vpH - cardH - 16, top + (height / 2) - (cardH / 2)));
       arrowClass = "tour-arrow arrow-left";
-      const arrowTop = Math.max(20, Math.min(cardH - 30, (top + height / 2) - cardTop));
+      const arrowTop = Math.max(24, Math.min(cardH - 32, (top + height / 2) - cardTop));
       tourArrow.style.top = `${arrowTop}px`;
       tourArrow.style.left = "-8px";
-    } else {
-      // Position inside/left fallback
-      cardLeft = Math.max(16, left - cardW - 16);
-      cardTop = Math.max(16, Math.min(window.innerHeight - cardH - 16, top + (height / 2) - (cardH / 2)));
+    }
+    // Candidate 4: Left of target if space permits
+    else if (spaceLeft >= cardW + 20) {
+      cardLeft = left - cardW - 16;
+      cardTop = Math.max(16, Math.min(vpH - cardH - 16, top + (height / 2) - (cardH / 2)));
       arrowClass = "tour-arrow arrow-right";
-      const arrowTop = Math.max(20, Math.min(cardH - 30, (top + height / 2) - cardTop));
+      const arrowTop = Math.max(24, Math.min(cardH - 32, (top + height / 2) - cardTop));
       tourArrow.style.top = `${arrowTop}px`;
       tourArrow.style.right = "-8px";
+    }
+    // Candidate 5: Intelligent non-overlapping viewport docking
+    // Place card on whichever side or corner has the maximum free space and zero overlap with target
+    else {
+      showArrow = false;
+      const targetMidX = left + width / 2;
+      const targetMidY = top + height / 2;
+
+      // Determine the horizontal quadrant with more room
+      let bestLeft = 24;
+      if (spaceRight > spaceLeft && spaceRight > 100) {
+        bestLeft = Math.max(20, Math.min(vpW - cardW - 20, right + 16));
+      } else if (spaceLeft > 100) {
+        bestLeft = Math.max(20, left - cardW - 16);
+      } else {
+        // Place on the side away from the target center
+        bestLeft = targetMidX > vpW / 2 ? 24 : Math.max(20, vpW - cardW - 24);
+      }
+
+      // Determine vertical positioning away from target
+      let bestTop = 24;
+      if (spaceBelow > spaceAbove) {
+        bestTop = Math.min(vpH - cardH - 24, Math.max(24, bottom + 16));
+      } else {
+        bestTop = Math.max(24, Math.min(top - cardH - 16, vpH - cardH - 24));
+      }
+
+      // If still intersecting target, shift to opposite corner
+      if (collidesWithTarget(bestLeft, bestTop)) {
+        if (targetMidY > vpH / 2) {
+          bestTop = 24; // Top corner
+        } else {
+          bestTop = Math.max(20, vpH - cardH - 24); // Bottom corner
+        }
+        bestLeft = targetMidX > vpW / 2 ? 24 : Math.max(20, vpW - cardW - 24);
+      }
+
+      cardTop = bestTop;
+      cardLeft = bestLeft;
     }
 
     tourCard.style.top = `${cardTop}px`;
     tourCard.style.left = `${cardLeft}px`;
-    tourArrow.className = arrowClass;
+    tourCard.style.right = "auto";
+    tourCard.style.bottom = "auto";
+
+    if (showArrow) {
+      tourArrow.style.display = "block";
+      tourArrow.className = arrowClass;
+    } else {
+      tourArrow.style.display = "none";
+    }
   }
 
   let trackRafId = null;
-  function startContinuousTracking(durationMs = 550) {
+  function startContinuousTracking(durationMs = 600) {
     if (trackRafId) cancelAnimationFrame(trackRafId);
     const startTime = performance.now();
     function frame() {
@@ -3738,6 +4117,11 @@ let onActiveSectionChange = null;
     const step = TOUR_STEPS[currentStepIndex];
 
     ensurePanelVisible(step.panelId);
+
+    // If step 1 targets hero mascot anchor, trigger mascot dock sync so Nemo is in place
+    if (currentStepIndex === 0) {
+      window.dispatchEvent(new CustomEvent("nemo:sync-dock"));
+    }
 
     // Update header badges
     tourStepBadge.textContent = `Step ${currentStepIndex + 1} of ${TOUR_STEPS.length}`;
@@ -3758,17 +4142,8 @@ let onActiveSectionChange = null;
       tourKeysList.appendChild(item);
     });
 
-    // Render progress dots
-    tourDotsList.innerHTML = "";
-    TOUR_STEPS.forEach((_, idx) => {
-      const dot = document.createElement("button");
-      dot.type = "button";
-      dot.className = `tour-dot ${idx === currentStepIndex ? "active" : ""}`;
-      dot.title = `Jump to Step ${idx + 1}: ${TOUR_STEPS[idx].title}`;
-      dot.setAttribute("aria-label", `Step ${idx + 1}`);
-      dot.addEventListener("click", () => renderStep(idx));
-      tourDotsList.appendChild(dot);
-    });
+    // Update persistent progress dots
+    updateTourDots(currentStepIndex);
 
     // Button states
     tourPrevBtn.disabled = currentStepIndex === 0;
@@ -3788,14 +4163,42 @@ let onActiveSectionChange = null;
     if (targetEl) {
       targetEl.classList.add("tour-highlighted-element");
       activeTargetEl = targetEl;
-      targetEl.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+
+      // Compute refined scroll position:
+      // For large panels (>400px height), scroll the panel header into the upper third of the viewport
+      // so the controls and content are not pushed below the screen fold.
+      const elRect = targetEl.getBoundingClientRect();
+      const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      const isMobile = window.innerWidth <= 768;
+
+      if (isMobile) {
+        targetEl.scrollIntoView({
+          behavior: reduceMotion ? "auto" : "smooth",
+          block: "start"
+        });
+      } else {
+        const targetAbsTop = currentScrollY + elRect.top;
+        if (elRect.height > 420) {
+          const idealScroll = Math.max(0, targetAbsTop - 85);
+          window.scrollTo({
+            top: idealScroll,
+            behavior: reduceMotion ? "auto" : "smooth"
+          });
+        } else {
+          targetEl.scrollIntoView({
+            behavior: reduceMotion ? "auto" : "smooth",
+            block: "center"
+          });
+        }
+      }
     }
 
     // Continuous 60fps tracking during smooth scroll
-    startContinuousTracking(550);
+    startContinuousTracking(600);
   }
 
   function startTour(fromStep = 0) {
+    dismissWelcomePrompt();
     isTourActive = true;
     tourModal.classList.add("active");
     tourModal.setAttribute("aria-hidden", "false");
@@ -3807,6 +4210,7 @@ let onActiveSectionChange = null;
   }
 
   function closeTour() {
+    dismissWelcomePrompt();
     isTourActive = false;
     if (trackRafId) cancelAnimationFrame(trackRafId);
     tourModal.classList.remove("active");
@@ -3863,6 +4267,60 @@ let onActiveSectionChange = null;
   tourCloseBtn.addEventListener("click", closeTour);
   tourBackdrop.addEventListener("click", closeTour);
 
+  function dismissWelcomePrompt() {
+    try {
+      localStorage.setItem("nemo_tutorial_prompted", "true");
+    } catch (_) {}
+    if (welcomePrompt) {
+      welcomePrompt.classList.remove("active");
+      setTimeout(() => {
+        if (welcomePrompt) welcomePrompt.hidden = true;
+      }, 350);
+    }
+  }
+
+  function initWelcomePrompt() {
+    try {
+      if (localStorage.getItem("nemo_tutorial_prompted")) return;
+    } catch (_) {
+      return;
+    }
+
+    if (!welcomePrompt) return;
+
+    // Wait 3.2 seconds dwell time so prompt does not interrupt initial page appearance
+    setTimeout(() => {
+      if (isTourActive) return;
+      try {
+        if (localStorage.getItem("nemo_tutorial_prompted")) return;
+      } catch (_) {}
+      welcomePrompt.hidden = false;
+      requestAnimationFrame(() => {
+        welcomePrompt.classList.add("active");
+      });
+    }, 3200);
+  }
+
+  if (welcomeStartTourBtn) {
+    welcomeStartTourBtn.addEventListener("click", () => {
+      dismissWelcomePrompt();
+      startTour(0);
+    });
+  }
+
+  if (welcomeDismissTourBtn) {
+    welcomeDismissTourBtn.addEventListener("click", dismissWelcomePrompt);
+  }
+
+  if (popoverTourBtn) {
+    popoverTourBtn.addEventListener("click", () => {
+      const popover = document.getElementById("widgetPopover");
+      if (popover) popover.hidden = true;
+      dismissWelcomePrompt();
+      startTour(0);
+    });
+  }
+
   if (startTourBtn) startTourBtn.addEventListener("click", () => startTour(0));
   if (mobileTourBtn) mobileTourBtn.addEventListener("click", () => startTour(0));
   if (sidebarTourBtn) {
@@ -3875,6 +4333,8 @@ let onActiveSectionChange = null;
       startTour(0);
     });
   }
+
+  initWelcomePrompt();
 
   window.startNemoTour = startTour;
 })();

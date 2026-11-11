@@ -1,140 +1,123 @@
-# Direct Exam & Gold PYQ Navigation in Practice Section
+# Clarify Tutorial Option Labeling & First-Time Visitor Prompt
 
-Accelerate student exam readiness by integrating direct launch pathways to premier **JEE Main** and **JEE Advanced** Chemistry PYQ examination portals directly from the Practice header, while automatically safeguarding the student's ongoing quiz state and performance statistics.
-
----
+Resolve ambiguity around the tutorial button so users immediately recognize its purpose across desktop, mobile island, sidebar navigation, and the companion popover, supplemented by a polite one-time welcome prompt for first-time visitors.
 
 ## User Review & Critical Decisions
 
 > [!IMPORTANT]
-> The following parameters were confirmed through the interactive clarification:
-> - **Destination Portals**: Direct choices for both **JEE Main Chemistry** and **JEE Advanced Chemistry** examination portals (featuring ExamGOAL and official examination archives).
-> - **Header Integration**: Seamlessly placed in the **top header of the Practice panel** right alongside the branch selector (`#practiceBranch`), providing immediate visibility without cluttering the quiz questions.
-> - **Session Persistence**: Redirection launches in a secure **new tab (`target="_blank" rel="noopener noreferrer"`)**, ensuring the student's active practice questions, selected options, and timer never reset.
-
-- **Confirmed Decision 1**: Dual-option portal launcher supporting both **JEE Main Chemistry PYQs** (ExamGOAL / NTA) and **JEE Advanced Chemistry PYQs** (ExamGOAL / IIT JEE Advanced Archive).
-- **Confirmed Decision 2**: Top header placement styled as an interactive, glowing **Gold Exam Portal Button & Dropdown Menu** matching Nemo's dark scientific aesthetic.
-- **Confirmed Decision 3**: Automatic state preservation in browser `localStorage` before launch so students can switch back and forth effortlessly.
+> The following user preferences were confirmed during clarification:
+> - **Mobile & Compact Presentation**: Icon with visible "Tutorial" text and clear tooltip title, ensuring mobile users immediately know what the button does.
+> - **First-Time Visitor Experience**: A friendly, non-intrusive one-time welcome prompt offering new visitors a guided tour of the chemistry workspace.
+> - **Unified Naming**: Standardizing on **"App Tutorial"** across desktop topbar, mobile island header, sidebar drawer, and Nemo's quick navigation menu.
 
 ---
 
-## 1. Overview & Core Concept
+### 1. Overview & Core Concept
 
-- **What It Does**: Provides direct access to dedicated online exam practice portals across multiple prominent access points:
-  1. **Practice Header Dropdown**: Top header action button with auto-upward positioning and panel elevation (`isolation: auto !important`, `z-index: 2500+`) to eliminate any clipping by lower panels.
-  2. **10-Year PYQ Bank Header Dropdown**: Directly embedded in `#pyqPanel` alongside the 10-year question archive.
-  3. **Standalone Gold PYQ Showcase Hub (`#pyqGoldHub`)**: Dedicated full-width glassmorphism showcase card with direct cards for JEE Main, JEE Advanced, IIT Archive, and NTA Downloads.
-  4. **Standalone App Navigation**: Dedicated sidebar navigation item (`#navGoldPortals`) and workspace tab (`★ Gold Exam Portals`) with smooth scrolling and radiant spotlight highlight.
-- **Direct Portal Destinations**:
-  1. **JEE Main Chemistry PYQs (ExamSIDE)**: `https://questions.examside.com/past-years/jee/jee-main/chemistry`
-  2. **JEE Advanced Chemistry PYQs (ExamSIDE)**: `https://questions.examside.com/past-years/jee/jee-advanced/chemistry`
-  3. **Official IIT JEE Advanced Archive**: `https://jeeadv.ac.in/archive.html`
-  4. **NTA Official Question Paper Bank**: `https://nta.ac.in/Downloads`
+- **What It Does**: Replaces ambiguous standalone icons (such as the unlabelled `💡` icon in the mobile top island header) with explicit, high-contrast "App Tutorial" button labels and tooltips. Adds a polite one-time welcome card for first-time visitors that invites them to take the 1-minute interactive spotlight walkthrough.
+- **Target Audience**: Students preparing for CBSE Class 12, JEE Main, and JEE Advanced who need to quickly understand the 3D molecular viewer, formula bank, PYQ archive, and AI tutor features without guesswork.
+- **Key Value**: Eradicates navigation confusion, improves feature discoverability, and provides clear orientation for first-time users.
 
 ---
 
-## 1.1 Unified Living Nemo Tutor & Dynamic Scroll Transitions
+### 2. User Experience & Visual Design
 
-- **Removed Static Disfigured Face**: Replaced the static crude blue faceplate in the Hero banner with a clean, quantum orbital docking anchor (`#heroMascotAnchor`) surrounded by rotating atomic paths and floating chemical symbols (`CH₃`, `H₂O`, `⌬`, `NH₃`).
-- **Living Mascot in Hero (Home View)**: When at the top of the home page, the 3D Nemo companion expands into the Hero position (~156px diameter), displaying live expressive facial expressions:
-  - Cute periodic anime double-blinks (`cuteBlink`) with dual sparkling glints and eyelids.
-  - Interactive cursor gaze tracking: pupils follow user cursor movements with realistic subtle eye parallax.
-  - Rosy blushing cheeks with glowing ambient warmth.
-  - Expressive smiling mouth with tongue and animated speaking waves during voice tips (`mouthTalk`).
-  - Swaying antenna with a twinkling golden star (`★`).
-- **Dynamic Scroll Transitions**:
-  - **Scrolling Down**: Nemo smoothly glides and shrinks from the Hero anchor (~156px) into the bottom-right compact floating companion (74px).
-  - **Returning to Home Page**: Nemo smoothly expands and glides back into the Hero docking position without layout shifts, visual artifacts, or pipeline errors.
-  - Interactive clicking in Hero mode plays a cheerful Web Audio chime, triggers a happy reaction, and opens the companion navigation popover.
+#### A. Key Touchpoints & Visual Changes
+1. **Mobile Floating Dynamic Island Header (`#mobileTourBtn`)**:
+   - Replace bare `💡` icon button with a cohesive button containing both the icon and an explicit text label: `[💡 Tutorial]`.
+   - Add explicit accessible attributes: `title="App Tutorial: Interactive Spotlight Feature Guide"`, `aria-label="Start interactive app tutorial"`.
+   - Apply clean styling that gracefully fits the mobile island header (`max-height: 36px`, touch target $\ge 44\text{px}$, subtle hover glow).
 
----
+2. **Desktop Topbar (`#startTourBtn`)**:
+   - Update label from `"Feature Tour"` to `"App Tutorial"` with tooltip `"Interactive Step-by-Step App Tutorial"`.
+   - Maintain the gold/cyan accent theme matching the high-performance chemistry tutor aesthetic.
 
-## 2. User Experience & Visual Design
+3. **Sidebar Drawer (`#sidebarTourBtn`)**:
+   - Update label to `"App Tutorial"` accompanied by the `"Guide"` badge for complete terminology consistency.
 
-### A. Layout Placement & Interaction
+4. **Floating Nemo Quick Access Popover (`#widgetPopover`)**:
+   - Add an `"🎓 App Tutorial"` quick action in the companion popover so users can launch the interactive walkthrough directly while chatting with Nemo.
 
-The control is positioned in `.practice-panel .panel-head` right next to `#practiceBranch`:
+5. **First-Time Visitor Welcome Card (`#tourWelcomePrompt`)**:
+   - Non-intrusive floating toast/banner anchored at the bottom-center or top-center of the screen.
+   - Appears after a gentle 3-second dwell delay only on first visit (tracked via `localStorage.getItem("nemo_tutorial_seen")`).
+   - Copy: *"Welcome to Nemo Chemistry Tutor! Would you like a quick 1-minute interactive tutorial of all features and controls?"*
+   - Actions:
+     - Primary button: `"Start Tutorial"` (launches spotlight tour immediately)
+     - Dismiss button: `"Explore on My Own"` (closes and remembers choice)
+   - Never re-triggers once dismissed or completed.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│ Practice                                                               │
-│ Original study questions • not official PYQs                           │
-│                                                                        │
-│                      [⌗ Gold Exam Portals ▾]  [All branches ▾]        │
+│  Mobile Island Header:   [☰] [Nemo Logo]  ★ Sanjay  [💡 Tutorial] [✦] │
+└────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ▼ (Opens)
+┌────────────────────────────────────────────────────────────────────────┐
+│  Interactive Step-by-Step Spotlight Tutorial                           │
+│  ┌──────────────────────────────────────────────┐                      │
+│  │ Feature Spotlight Frame (Neon Cyan Outline)  │                      │
+│  └──────────────────────────────────────────────┘                      │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │ Step 1 of 8: Nemo AI Chemistry Tutor                             │  │
+│  │ Contextual controls, keys (1-4, Enter), and feature tips        │  │
+│  │ [Skip Tutorial]                           [← Back] [Next Step →] │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-When clicked, a sleek, glassmorphic dropdown card expands smoothly with two primary options:
+---
 
-1. **⚡ JEE Main Chemistry Portal**:
-   - Launches ExamGOAL / NTA JEE Main Chemistry chapterwise question bank.
-   - Shows sub-tag: `2019–2025 Multi-Shift CBT Tests · Single Choice & Numerical`.
-2. **⚛ JEE Advanced Chemistry Portal**:
-   - Launches ExamGOAL / IIT JEE Advanced Chemistry portal.
-   - Shows sub-tag: `Multi-Correct, Matrix Match, Paragraph & Integer Types`.
+### 3. Key Product Decisions & Trade-Offs
 
-### B. Visual Identity & Theme Tokens
+- **Decision 1: Text + Icon on Mobile Island vs Icon Only**
+  - *Chosen Approach*: Display both the icon and the compact text label `"Tutorial"` on mobile screens.
+  - *Why*: Solves the primary user complaint where users had no way of knowing what the bare `💡` icon was for.
+  - *Alternative Considered*: Tooltip-only on hover. Rejected because mobile touch devices lack continuous hover states.
 
-- **Button Style**: Styled with a high-visibility gold-amber gradient (`#f59e0b` to `#d97706`) with an amber ring pulse (`rgba(245, 158, 11, 0.25)`), contrasting sharply against the deep slate canvas (`#08142a`).
-- **Tactile Click Feedback**: Integrated with the app's kinetic button click animations (`btn-clicked`, blue/gold ripple effect on click).
-- **Mobile Responsive**: Adapts into a streamlined icon button or flex-wrap header item on screens $<640\text{px}$, preventing any overflow.
-- **Accessible & Screen-Reader Ready**: Uses `aria-haspopup="true"`, `aria-expanded="false"`, `role="menu"`, and keyboard navigation (`Escape`, `ArrowDown`, `Enter`).
+- **Decision 2: Non-Modal Welcome Prompt vs Blocking Modal**
+  - *Chosen Approach*: A lightweight, dismissible toast card with a 3-second dwell timer.
+  - *Why*: Respects user agency and avoids annoying aggressive modal popups upon page load while ensuring first-time visitors are aware of the tutorial.
 
 ---
 
-## 3. Key Product Decisions & Trade-Offs
-
-- **Decision 1: Direct Dropdown vs Modal vs Immediate Redirect**
-  - *Chosen Approach*: Lightweight floating dropdown popover directly in the Practice header.
-  - *Why*: Gives the student an immediate one-click choice between JEE Main and JEE Advanced without opening a disruptive modal or losing context on the current question.
-  - *Alternatives Considered*: Direct single-URL link was discarded because students preparing for JEE Main need different question styles than those preparing for JEE Advanced.
-
-- **Decision 2: Tab Target & Session Safety**
-  - *Chosen Approach*: New tab launch (`window.open(url, '_blank', 'noopener,noreferrer')`) with pre-launch quiz state backup.
-  - *Why*: Ensures the student doesn't accidentally navigate away from an in-progress 10-question practice drill.
-
----
-
-## 4. Technical Architecture & Data Strategy
-
-### System Flow & Component Diagram
+### 4. Technical Architecture & Data Strategy
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          Practice Header Component                          │
-│                                                                             │
-│  ┌───────────────────────┐              ┌────────────────────────────────┐  │
-│  │ #practiceBranch       │              │ #examPortalBtn                 │  │
-│  │ (Branch Filter)       │              │ "⌗ Gold Exam Portals ▾"        │  │
-│  └───────────┬───────────┘              └───────────────┬────────────────┘  │
-└──────────────┼──────────────────────────────────────────┼───────────────────┘
-               │                                          │ (click / keyboard)
-               ▼                                          ▼
-   ┌───────────────────────┐              ┌────────────────────────────────┐
-   │ Filter Quiz Questions │              │ #examPortalDropdown            │
-   │ (Physical/Org/Inorg)  │              │ (Glassmorphic Popover)         │
-   └───────────────────────┘              └───────┬────────────────┬───────┘
-                                                  │                │
-                         ┌────────────────────────┘                └────────────────────────┐
-                         ▼                                                                  ▼
-        ┌─────────────────────────────────┐                                ┌─────────────────────────────────┐
-        │ Option 1: JEE Main Portal       │                                │ Option 2: JEE Advanced Portal   │
-        │ - ExamGOAL JEE Main Chemistry   │                                │ - ExamGOAL JEE Adv Chemistry    │
-        │ - Save Quiz Session             │                                │ - Save Quiz Session             │
-        │ - Open New Tab                  │                                │ - Open New Tab                  │
-        └─────────────────────────────────┘                                └─────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│                       Client Storage                           │
+│     localStorage: "nemo_tutorial_seen" = "true" | "false"      │
+└────────────────────────────────┬───────────────────────────────┘
+                                 │ checks status on load
+                                 ▼
+┌────────────────────────────────────────────────────────────────┐
+│                   Tutorial Controller (app.js)                 │
+│  ├─ initTutorialPrompts()  ──> Evaluates first-visit status   │
+│  ├─ showWelcomePrompt()    ──> Displays polite 3s toast        │
+│  ├─ startTour(stepIndex)   ──> Launches spotlight sequence     │
+│  └─ closeTour()            ──> Marks completed & restores view │
+└─────────────────┬──────────────────────────────┬───────────────┘
+                  │                              │
+                  ▼                              ▼
+┌──────────────────────────────────┐ ┌───────────────────────────┐
+│        Desktop & Mobile UI       │ │   Nemo 3D Companion       │
+│  ├─ #mobileTourBtn (💡 Tutorial) │ │   #widgetPopover          │
+│  ├─ #startTourBtn (App Tutorial) │ │   ├─ "🎓 App Tutorial"    │
+│  └─ #sidebarTourBtn (App Tour)   │ └───────────────────────────┘
+└──────────────────────────────────┘
 ```
 
-### Event Handling & Implementation Strategy
-
-1. **DOM Markup (`index.html`)**:
-   - Add `#examPortalContainer` inside `#practicePanel .panel-head`.
-   - Include trigger `#examPortalBtn` and dropdown card `#examPortalMenu`.
-2. **CSS Styling (`style.css`)**:
-   - Add `.exam-portal-btn`, `.exam-portal-menu`, `.portal-item`, and gold hover animations.
-   - Support mobile collapse and `no-effects` mode.
-3. **Behavioral Controller (`app.js`)**:
-   - Toggle dropdown open/close on click.
-   - Close on outside click or `Escape` key.
-   - Save current quiz state before triggering `window.open(targetUrl, '_blank')`.
-   - Show quick celebratory toast: `"Opening JEE Chemistry Portal in new tab"`.
+- **DOM Elements**:
+  - Update `#mobileTourBtn`, `#startTourBtn`, and `#sidebarTourBtn` markup in `index.html`.
+  - Add `#tourWelcomePrompt` container in `index.html`.
+  - Add tutorial trigger in `#widgetPopover` in `index.html`.
+- **CSS Styling (`style.css`)**:
+  - Add `.tour-mobile-label` styling with proper flex alignment and responsive truncation if screen width is $< 360\text{px}$.
+  - Style `#tourWelcomePrompt` with glassmorphic backdrop, crisp typography, and high-contrast buttons matching the app's aesthetic.
+- **Script Logic (`app.js`)**:
+  - Implement `initTutorialWelcomePrompt()` with `localStorage` persistence.
+  - Bind click events for all tutorial trigger buttons and dismiss actions.
+- **Verification**:
+  - Co-execute `compile_applet` and `lint_applet` twice with zero errors.
+  - Rebuild distribution bundles via `npm run build`.
+  - Confirm live endpoint availability.

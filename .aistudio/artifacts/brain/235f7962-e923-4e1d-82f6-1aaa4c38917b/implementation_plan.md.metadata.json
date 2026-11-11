@@ -1,6 +1,6 @@
 {
-  "summary": "Comprehensive implementation plan for adding direct JEE Main and JEE Advanced exam portal navigation to the Practice section. Features a premium dual-action header dropdown/split control next to the branch selector with secure target=_blank new tab launches and local practice progress preservation.",
-  "updatedAt": "2026-11-03T10:12:54.990079818Z",
-  "requestFeedback": true,
-  "userFacing": true
+  "summary":  "Implementation plan to clarify the tutorial icon and options across desktop, mobile, and sidebar with explicit 'App Tutorial' labeling, responsive mobile styling, a friendly one-time first-visit welcome prompt, and Quick Nav integration.",
+  "updatedAt":  "2026-11-09T09:16:16.358320183Z",
+  "requestFeedback":  true,
+  "userFacing":  true
 }
