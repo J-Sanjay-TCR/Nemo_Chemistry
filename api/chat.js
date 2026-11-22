@@ -26,8 +26,15 @@ try {
 let aiClient = null;
 let cachedKey = "";
 
+const DEPRECATED_MODEL_RE = /(?:^|\/)gemini-(?:1\.5|2\.0|pro\b)/i;
+function normalizeModelName(raw, fallback = "gemini-4-hydrogen") {
+  const m = String(raw || "").trim().replace(/^models\//i, "");
+  if (!m || DEPRECATED_MODEL_RE.test(m)) return fallback;
+  return m;
+}
+
 function getGenAI(customKey = "") {
-  const key = customKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  const key = String(customKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "").trim();
   if (!key) return null;
   if (!aiClient || cachedKey !== key) {
     aiClient = new GoogleGenAI({
@@ -48,11 +55,164 @@ function limited(ip) {
   const now = Date.now(), arr = (hits.get(ip) || []).filter((t) => now - t < 60000);
   arr.push(now); hits.set(ip, arr);
   if (hits.size > 5000) for (const [k, v] of hits) if (!v.some((t) => now - t < 60000)) hits.delete(k);
-  return arr.length > 40;
+  return arr.length > 45;
 }
 
-// Sleep helper for backoff retry
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const modelCooldowns = (globalThis.__nemoModelCooldowns = globalThis.__nemoModelCooldowns || new Map());
+const transientCooldowns = (globalThis.__nemoTransientCooldowns = globalThis.__nemoTransientCooldowns || new Map());
+function isModelCoolingDown(model) {
+  const now = Date.now();
+  const qUntil = modelCooldowns.get(model);
+  if (qUntil) {
+    if (now < qUntil) return true;
+    modelCooldowns.delete(model);
+  }
+  const tUntil = transientCooldowns.get(model);
+  if (tUntil) {
+    if (now < tUntil) return true;
+    transientCooldowns.delete(model);
+  }
+  return false;
+}
+function isQuotaCoolingDown(model) {
+  const qUntil = modelCooldowns.get(model);
+  if (!qUntil) return false;
+  if (Date.now() < qUntil) return true;
+  modelCooldowns.delete(model);
+  return false;
+}
+function markModelQuotaCooldown(model, errMsg) {
+  const isDaily = /PerDay|daily|GenerateRequestsPerDay|limit:\s*20\b/i.test(String(errMsg || ""));
+  const ms = isDaily ? 20 * 60 * 1000 : 45 * 1000;
+  modelCooldowns.set(model, Date.now() + ms);
+}
+function markModelTransientCooldown(model, ms = 35000) {
+  transientCooldowns.set(model, Date.now() + ms);
+}
+
+function extractTextFromResponse(obj) {
+  if (!obj) return "";
+  try {
+    const cands = obj.candidates;
+    if (Array.isArray(cands) && cands.length) {
+      const parts = cands[0] && cands[0].content && Array.isArray(cands[0].content.parts)
+        ? cands[0].content.parts
+        : null;
+      if (parts) {
+        const joined = parts
+          .filter((p) => p && !p.thought && typeof p.text === "string")
+          .map((p) => p.text)
+          .join("");
+        if (joined) return joined;
+      }
+    }
+    if (typeof obj.text === "string" && obj.text) return obj.text;
+  } catch (_) {}
+  return "";
+}
+
+function extractBlockOrFinishReason(obj) {
+  if (!obj) return "";
+  try {
+    if (obj.promptFeedback && obj.promptFeedback.blockReason) {
+      return String(obj.promptFeedback.blockReason);
+    }
+    const cand = Array.isArray(obj.candidates) && obj.candidates[0];
+    if (cand && cand.finishReason && cand.finishReason !== "STOP") {
+      return String(cand.finishReason);
+    }
+  } catch (_) {}
+  return "";
+}
+
+function isPoisonedStubHistoryText(txt) {
+  const s = String(txt || "");
+  if (!s) return true;
+  return (
+    s.includes("Answered via Nemo's Autonomous Chemistry Core") ||
+    (s.includes("### 💡 Scientific Reasoning & Analysis") && s.includes("Every chemical and physical transformation is governed by")) ||
+    s.includes("Nemo AI could not complete a live model response")
+  );
+}
+
+function getSafeThinkingLevel(model, tier, isTrivialGreeting) {
+  if (/flash-lite/i.test(model)) {
+    if (isTrivialGreeting) return ThinkingLevel.MINIMAL;
+    return tier === "deep" ? ThinkingLevel.MEDIUM : ThinkingLevel.LOW;
+  }
+  if (/^gemini-[34]/i.test(model)) {
+    // Gemini 4 models reject ThinkingLevel.MINIMAL with HTTP 400; use LOW/MEDIUM
+    return tier === "deep" ? ThinkingLevel.MEDIUM : ThinkingLevel.LOW;
+  }
+  return null;
+}
+
+function classifyUpstreamError(err, finishHint = "") {
+  const msg = String((err && err.message) || err || "");
+  const statusNum = Number(err && (err.status || err.statusCode || (err.error && err.error.code))) || 0;
+
+  if (/401|403|PERMISSION_DENIED|API_KEY_INVALID|API key not valid/i.test(msg) || statusNum === 401 || statusNum === 403) {
+    return {
+      status: 403,
+      code: "AUTH_ERROR",
+      retryable: false,
+      isQuota: false,
+      isTransient: false,
+      userMessage: "Gemini API key is invalid or unauthorized. Please verify GEMINI_API_KEY in Settings > Secrets."
+    };
+  }
+  if (/429|RESOURCE_EXHAUSTED|quota|rate limit/i.test(msg) || statusNum === 429) {
+    return {
+      status: 429,
+      code: "QUOTA_EXCEEDED",
+      retryable: true,
+      isQuota: true,
+      isTransient: false,
+      userMessage: "AI model quota is temporarily exhausted. Please wait a few seconds or switch to a billing-enabled API key in Settings > Secrets."
+    };
+  }
+  if (/NOT_FOUND|404|model.*not.*found|is not found/i.test(msg) || statusNum === 404) {
+    return {
+      status: 502,
+      code: "MODEL_NOT_FOUND",
+      retryable: false,
+      isQuota: false,
+      isTransient: false,
+      userMessage: "Configured AI model was unavailable on the endpoint; tried fallback models."
+    };
+  }
+  if (/timed out|exceeded \d+ms|abort/i.test(msg)) {
+    return {
+      status: 504,
+      code: "TIMEOUT",
+      retryable: true,
+      isQuota: false,
+      isTransient: false,
+      userMessage: "The AI model took too long to respond. Please tap Retry for a fresh attempt."
+    };
+  }
+  if (/SAFETY|PROHIBITED|BLOCK/i.test(finishHint) || /SAFETY|PROHIBITED|blocked/i.test(msg)) {
+    return {
+      status: 422,
+      code: "BLOCKED",
+      retryable: false,
+      isQuota: false,
+      isTransient: false,
+      userMessage: "The response was blocked by safety filters. Please rephrase your chemistry question."
+    };
+  }
+  const isTransient = statusNum >= 500 || /500|502|503|504|UNAVAILABLE|INTERNAL|econnreset|etimedout|enotfound|fetch failed|socket|network|empty/i.test(msg);
+  return {
+    status: 502,
+    code: "UPSTREAM_ERROR",
+    retryable: true,
+    isQuota: false,
+    isTransient,
+    userMessage: "Temporary connection glitch with the Gemini AI service. Please tap Retry."
+  };
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -61,6 +221,7 @@ module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
 
   const send = (code, obj) => {
+    if (res.headersSent) return;
     if (typeof res.status === "function") {
       res.status(code).json(obj);
     } else {
@@ -75,13 +236,13 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
-    return send(405, { error: "Method not allowed. Use POST." });
+    return send(405, { error: "Method not allowed. Use POST.", code: "METHOD_NOT_ALLOWED", retryable: false });
   }
 
   const ip = (req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || (req.socket && req.socket.remoteAddress) || "?";
-  if (limited(ip)) return send(429, { error: "Too many requests. Please wait a moment." });
+  const isRateLimited = limited(ip);
 
-  // Parse request body
+  // Parse request body safely
   let body = req.body;
   if (!body && typeof req.on === "function") {
     try {
@@ -105,7 +266,7 @@ module.exports = async function handler(req, res) {
           if (!raw.trim()) return resolve({});
           try {
             resolve(JSON.parse(raw));
-          } catch (e) {
+          } catch (_) {
             reject(new Error("Invalid JSON"));
           }
         });
@@ -115,25 +276,70 @@ module.exports = async function handler(req, res) {
         });
       });
     } catch (e) {
-      return send(400, { error: e.message || "Invalid JSON body." });
+      return send(400, { error: e.message || "Invalid JSON body.", code: "BAD_JSON", retryable: false });
     }
   } else if (typeof body === "string") {
-    try { body = JSON.parse(body); } catch (_) { return send(400, { error: "Invalid JSON body." }); }
+    try { body = JSON.parse(body); } catch (_) { return send(400, { error: "Invalid JSON body.", code: "BAD_JSON", retryable: false }); }
   }
 
   body = body || {};
-  const message = typeof body.message === "string" ? body.message.trim().slice(0, 4000) : "";
-  if (!message) return send(400, { error: "Missing message." });
+  const rawInput = typeof body.message === "string"
+    ? body.message
+    : (typeof body.question === "string" ? body.question : (typeof body.prompt === "string" ? body.prompt : ""));
+  const message = rawInput.trim().slice(0, 4000);
+  if (!message) return send(400, { error: "Missing message.", code: "MISSING_MESSAGE", retryable: false });
 
   const wantsStream = body.stream !== false && (!req.headers.accept || req.headers.accept.includes("text/event-stream") || req.headers.accept.includes("*/*"));
-
-  /* 1. Instant check for Founder J.Sanjay Tribute */
   const lowerQ = message.toLowerCase();
-  if (/(who (made|created|built|designed|engineered|founded|owns)|(founder|creator|author|engineer|architect) of nemo|who is (j\.?\s*sanjay|sanjay)|tell me about (j\.?\s*sanjay|sanjay)|founder|j\.sanjay)/i.test(lowerQ)) {
+  const msgWords = message.split(/\s+/).filter(Boolean);
+
+  /* 1. Instant check for CR7 Fandom (only when asking about CR7 / favourite footballer, not unrelated science) */
+  const hasCr7Entity = /\bcr\s*-?\s*7\b|\bcristiano\b|\bronaldo\b/i.test(lowerQ);
+  const isCr7FanQuery =
+    (hasCr7Entity && (/\b(u|you|your|yours|ur|nemo|sanjay|fan|fans|like|love|support|prefer|favou?rite|admire|goat|agree|right|true)\b/i.test(lowerQ) || msgWords.length <= 6)) ||
+    /\b(favou?rite|fav)\s+(football(?:er)?|soccer\s+player|player|athlete)\b/i.test(lowerQ);
+
+  if (isCr7FanQuery) {
+    const cr7Answer = "### ⚽ SIUUU! Yes — 100% a CR7 Fan!\n\n" +
+      "**Yes, absolutely!** I completely agree — I am a huge fan of **Cristiano Ronaldo (CR7)**! His discipline, relentless work ethic, and winning mindset are legendary.\n\n" +
+      "And **J.Sanjay** (my creator and founder of Nemo AI) is also a huge **CR7 fan**! 🐐⚡\n\n" +
+      "*Let's bring that same CR7 championship focus to mastering chemistry — ask me anything anytime!*";
+
+    if (wantsStream) {
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no"
+      });
+      res.write(`data: ${JSON.stringify({ type: "meta", tier: "simple", badge: "Fast Answer", model: "system", status: "connected" })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "chunk", text: cr7Answer })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "done", answer: cr7Answer, tier: "simple", model: "system" })}\n\n`);
+      return res.end();
+    }
+    return send(200, {
+      answer: cr7Answer,
+      model: "system",
+      tier: "simple",
+      badge: "Fast Answer"
+    });
+  }
+
+  /* 2. Tightened Instant Check for Founder J.Sanjay Tribute (never hijack "founder of modern chemistry", etc.) */
+  const mentionsNemoOrSanjay = /\bnemo\b|\bj\.?\s*sanjay\b/i.test(lowerQ);
+  const mentionsChemHistory = !mentionsNemoOrSanjay && /\b(?:modern\s+chemistry|atomic\s+theory|periodic\s+table|quantum|organic\s+chemistry|inorganic\s+chemistry|physical\s+chemistry|electrochemistry|thermodynamics|lavoisier|dalton|mendeleev|boyle|berzelius)\b/i.test(lowerQ);
+  const isNemoFounderQuery = !mentionsChemHistory && (
+    /\bwho\s+(?:made|created|built|designed|engineered|founded|owns|developed)(?:\s+(?:and|or|,)\s+(?:made|created|built|designed|engineered|founded|owns|developed))*\s+(?:you|nemo|this\s+(?:app|tutor|platform|site|bot))\b/i.test(lowerQ) ||
+    /\b(?:the\s+)?(?:founder|creator|author|engineer|architect|developer)\s+(?:of\s+)?(?:nemo|this\s+(?:app|tutor|platform))\b/i.test(lowerQ) ||
+    /\b(?:who\s+is|tell\s+me\s+about)\s+(?:your\s+founder|j\.?\s*sanjay)\b/i.test(lowerQ) ||
+    /^\s*(?:j\.?\s*sanjay|founder\s+panel|who\s+is\s+founder)\s*[?!.]*$/i.test(lowerQ)
+  );
+
+  if (isNemoFounderQuery) {
     const founderAnswer = "### ✦ Visionary Founder & Architect: J.Sanjay\n\n" +
       "**Nemo AI Chemistry Tutor** was conceived, architected, and engineered from the ground up by **J.Sanjay** — visionary founder and lead software engineer.\n\n" +
       "J.Sanjay engineered Nemo to revolutionize science education with blistering speed, complete offline resilience, rotatable 3D molecular simulation, a 418+ KaTeX equation bank, and verified 10-year PYQ intelligence spanning 2016 through 2026.\n\n" +
-      "You can click on the **★ Founder: J.Sanjay** badge in the navigation bar to explore the full tribute!";
+      "You can click on the **J.Sanjay (Founder)** badge in the navigation bar to explore the full tribute!";
 
     if (wantsStream) {
       res.writeHead(200, {
@@ -155,92 +361,147 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  /* 2. Client API key extraction with multi-source fallback */
+  /* 3. API Key Extraction */
   const customKey = (req.headers && req.headers["x-goog-api-key"]) ||
                     (req.headers && req.headers["authorization"] && req.headers["authorization"].replace(/^Bearer\s+/i, "")) ||
                     (body && body.apiKey) || "";
   const ai = getGenAI(customKey);
 
-  /* 3. Query Complexity Classifier: Simple vs In-Depth */
+  /* 4. Query Complexity Classifier */
   const words = message.split(/\s+/).filter(Boolean);
   const inDepthPatterns = [
     /\b(mechanism|mechanisms|curved arrow|electron pushing)\b/i,
     /\b(derive|derivation|deduce|mathematical proof|proof of)\b/i,
     /\b(step[- ]by[- ]step|detailed explanation|explain in detail|elaborate|comprehensive|in[- ]depth)\b/i,
-    /\b(thermodynamics?|kinetics?|rate law|integrated rate|activation energy|arrhenius)\b/i,
+    /\b(thermodynamics?|kinetics?|rate law|integrated rate|activation energy|arrhenius|enthalpy|entropy|gibbs|osmotic|colligative|raoult|henry|van'?t hoff)\b/i,
     /\b(synthesis|synthetic route|retrosynthesis|reaction pathway)\b/i,
-    /\b(stereochem|stereochemistry|enantiomer|diastereomer|optical activity|racemic)\b/i,
-    /\b(coordination|cft|crystal field|spectrochemical|jahn[- ]teller|isomerism in coordination)\b/i,
-    /\b(numerical|calculate the|compute the|find the concentration|molality of|normality of|ph of|emf of|cell potential)\b/i,
-    /\b(pyq|jee advanced|previous year|past year question|multi[- ]step)\b/i,
-    /\b(compare and contrast|distinguish between|difference between)\b/i,
-    /\b(aldol|cannizzaro|reimer[- ]tiemann|kolbe|clemmensen|wolff[- ]kishner|gabriel|hoff?mann)\b/i
+    /\b(stereochem|stereochemistry|enantiomer|diastereomer|optical activity|racemic|chiral|meso|newman|fischer)\b/i,
+    /\b(coordination|cft|crystal field|spectrochemical|jahn[- ]teller|twin\s+complex|double\s+salt|complex\s+salt|(?:coordination|linkage|ioni[sz]ation|hydrate|geometrical|optical|stereoisomer)\s*isomer(?:ism)?|isomerism|werner'?s?\s+theory|magnetic\s+moment|unpaired\s+electrons|spin[- ]only|low[- ]spin|high[- ]spin)\b/i,
+    /\b(hybridi[sz]ation|vsepr|molecular\s+orbital|mot|bond\s+order|acidic\s+strength|basic\s+strength|basicity|stability\s+order|reactivity\s+order|dipole\s+moment|anomal(?:y|ies)|exception|fajan|lattice|ionisation|ionization|electron\s+affinity)\b/i,
+    /\b(numerical|calculate|compute|find the concentration|molality|molarity|normality|ph of|poh of|emf of|cell potential|oxidation state|oxidation number|iupac|empirical formula|limiting reagent|stoichiometr|packing efficiency|bragg|bohr|rydberg|de\s*broglie|quantum)\b/i,
+    /\b(pyq|jee advanced|previous year|past year question|multi[- ]step|lewis acid|lewis base|aromaticit|huckel|bredt|drago|bent'?s rule|back[- ]bonding|inert pair|ortho effect|equilibrium|solubility|ksp|buffer|henderson|electrode potential|n[-\s]?factor|equivalent weight|disproportionation|redox)\b/i,
+    /\b(compare|distinguish|differ(?:ence)?\s+between|versus|vs\.?|what\s+(?:is|are)\s+(?:twin|double|complex)\s+salts?|explain\s+(?:with\s+examples|why|how)|why\s+(?:is|does|do|are))\b/i,
+    /\b(aldol|cannizzaro|reimer[- ]tiemann|kolbe|clemmensen|wolff[- ]kishner|gabriel|hoff?mann|sandmeyer|gattermann|wittig|perkin|hvz|beckmann|pinacol|ozonolysis|friedel[- ]crafts|grignard|brown\s+ring|lassaigne|chromyl\s+chloride|lucas|iodoform|tollens|fehling|wurtz|finkelstein|swarts)\b/i,
+    /\b(option|options|assertion|reason|which of the following|correct statement|incorrect statement)\b|\([a-d]\)/i
   ];
   const hasInDepthTrigger = inDepthPatterns.some((rgx) => rgx.test(lowerQ));
+  const isTableQuery = /\b(table|tabular|tabulate|compare|comparison|differences?|versus|vs\.?|distinguish|electronegativity|reagents?|summary chart|periodic trend)\b/i.test(lowerQ);
+  const isDiagramQuery =
+    /\b(draw|generate|create|illustrate|sketch|render|visualize|visualise|make|produce|show|plot)\b[\s\w,'"-]{0,50}\b(diagram|illustration|image|picture|figure|visual|flowchart|scheme|schematic|pathway|mechanism|2d\s+structure|structures?|conformation|graph|plot|curve|profile|chart|chemical\s+equation|reaction\s+equation|molecule|compound|complex)\b/i.test(lowerQ) ||
+    /\b(diagram|illustration|schematic|2d\s+structure|graph|plot|curve|energy\s+profile)\s+(?:of|for|showing|between|comparing)\b/i.test(lowerQ) ||
+    /^\s*(?:plot|graph|sketch|draw)\s+/i.test(lowerQ);
   const isAdv = body.level === "adv";
-  const isInDepth = hasInDepthTrigger || words.length >= 22 || (isAdv && words.length >= 12);
+  const isTrivialGreeting = /^(?:hi|hello|hey|thanks|thank you|ok|okay|bye|who are you|help)[!.?\s]*$/i.test(lowerQ);
+  const isHeavyCalcOrMech = /\b(mechanism|calculate|compute|numerical|find the|derive|derivation|synthesis|retrosynthesis|stoichiometr|ph of|emf of|equilibrium|ksp|buffer|option|assertion)\b/i.test(lowerQ);
+  const isInDepth = isHeavyCalcOrMech || isDiagramQuery || words.length >= 14 || (hasInDepthTrigger && (words.length >= 6 || isAdv));
+
+  const tableGuidance = isTableQuery
+    ? "\n\n[TABULAR FORMAT & SOURCE ACCURACY]\nThe user requested structured tabular/comparative data. Include a clean, complete GitHub-Flavored Markdown table (`| Col | ... |` and `| --- | --- |`) with uniform column counts per row and NO unescaped `|` inside cells. Cite authoritative sources (IUPAC, Pauling/Allred scale, CRC Handbook, NCERT Class XI/XII) and note key chemical exceptions."
+    : "";
+  const diagramGuidance = isDiagramQuery
+    ? "\n\n[COMPANION STUDY DIAGRAM ACTIVE]\nNemo's Diagram Studio is generating and attaching the 2D illustrative study diagram/graph directly inside this chat bubble. Do NOT state that you cannot draw/generate images and do NOT output ASCII art. Format ALL balanced chemical equations, catalysts above arrows (e.g. `\\ce{C6H6 + Cl2 ->[\\text{Anhy. FeCl3}] C6H5Cl + HCl}`), and quantitative laws inside standalone display LaTeX boxes (`$$ ... $$`), and provide a crisp structured walkthrough covering reagents, catalysts, **detailed reaction arrow pushing (curved arrows)**, **transition state geometry annotation** ([‡] structure, hybridisation & bond angles), or graph axes/slopes & key exam traps."
+    : "";
+
+  const factCheckGuidance = "\n\n[MANDATORY CROSS-VERIFICATION & ANTI-HALLUCINATION PROTOCOL]\n1. Premise & Interpretation Audit: Verify exact species, phase/solvent, and conditions; if the user's premise contains a misconception or false claim, state and correct it immediately in the first sentence.\n2. Quantitative, Logic & Electronic Check: Recompute all arithmetic/logarithms/stoichiometric ratios twice before stating a final number; cross-verify atom/charge balance, oxidation states (watch peroxide linkages), d^n/spin states (4d/5d always low-spin), unpaired electrons n, IUPAC thermodynamic signs, intensive E° (convert via ΔG°=-nFE°), water auto-ionisation floor (10^-7 M), and stereochemistry. For MCQs, explicitly verify each choice before picking the final option.\n3. Zero Hallucination: Never invent constants, catalysts, yields, or nonexistent rules. State standard assumptions explicitly when underspecified.";
 
   const classification = isInDepth ? {
     tier: "deep",
-    thinkingLevel: ThinkingLevel.LOW, // Use LOW to balance reasoning depth with sub-10s latency
     badge: "Deep Reasoning",
-    guidance: "\n\n[QUERY PROFILE: IN-DEPTH REASONING]\nReason step-by-step through intermediate states. Provide structured headings, curved arrow mechanism descriptions, thermodynamic/kinetic driving forces, clear KaTeX formulas ($$...$$ and $...$), and NCERT/JEE practical traps."
+    guidance: "\n\n[QUERY PROFILE: CORE-DEPTH REASONING]\nReason rigorously from chemical first principles. State exact definitions (contrasting commonly confused terms), cross-verify every derivation, arithmetic step, electronic state, and exception via NCERT/IUPAC standards, and present clean KaTeX formatting ($$...$$ and $...$)." + factCheckGuidance + tableGuidance + diagramGuidance
   } : {
     tier: "simple",
-    thinkingLevel: ThinkingLevel.MINIMAL,
-    badge: "Fast Answer",
-    guidance: "\n\n[QUERY PROFILE: RAPID & DIRECT]\nThe student asked a focused query. Answer very quickly, accurately, and concisely. State the core answer, key formula or definition in the very first sentence without verbose preamble. Keep the output crisp and immediately helpful."
+    badge: isTrivialGreeting ? "Fast Answer" : "Verified Answer",
+    guidance: "\n\n[QUERY PROFILE: CONCISE & CROSS-VERIFIED]\nAnswer directly and concisely without fluff, while strictly cross-verifying the premise, stoichiometry/charge math, exceptions, and IUPAC definitions first. State the verified answer clearly in the opening sentence and note any critical exam trap." + factCheckGuidance + tableGuidance + diagramGuidance
   };
 
-  // Autonomous Fallback helper if all live models fail or key is absent
-  const handleOfflineFallback = () => {
-    const fallbackData = generateChemistryFallback(message);
-    const answer = fallbackData.answer;
-    if (wantsStream) {
-      if (!res.headersSent) {
+  const emitErrorResponse = (status, errInfo, strictFb = null) => {
+    const payload = {
+      error: errInfo.userMessage || "Unable to complete AI response.",
+      code: errInfo.code || "UPSTREAM_ERROR",
+      retryable: Boolean(errInfo.retryable),
+      tier: classification.tier,
+      strictFallback: strictFb && strictFb.matched ? {
+        answer: strictFb.answer,
+        badge: strictFb.badge,
+        title: strictFb.title
+      } : null
+    };
+    return send(status, payload);
+  };
+
+  if (isRateLimited) {
+    return emitErrorResponse(429, {
+      code: "RATE_LIMITED",
+      retryable: true,
+      userMessage: "Too many rapid requests from this connection. Please wait a few seconds and tap Retry."
+    });
+  }
+
+  if (!ai) {
+    const fb = generateChemistryFallback(message);
+    if (fb && fb.matched) {
+      if (wantsStream) {
         res.writeHead(200, {
           "Content-Type": "text/event-stream; charset=utf-8",
           "Cache-Control": "no-cache, no-transform",
           "Connection": "keep-alive",
           "X-Accel-Buffering": "no"
         });
+        res.write(`data: ${JSON.stringify({ type: "meta", tier: classification.tier, badge: fb.badge, model: "offline-core", status: "standby" })}\n\n`);
+        res.write(`data: ${JSON.stringify({ type: "chunk", text: fb.answer })}\n\n`);
+        res.write(`data: ${JSON.stringify({ type: "done", answer: fb.answer, tier: classification.tier, badge: fb.badge, model: "offline-core" })}\n\n`);
+        return res.end();
       }
-      res.write(`data: ${JSON.stringify({ type: "meta", tier: classification.tier, badge: fallbackData.badge, model: "offline-core", status: "connected" })}\n\n`);
-      res.write(`data: ${JSON.stringify({ type: "chunk", text: answer })}\n\n`);
-      res.write(`data: ${JSON.stringify({ type: "done", answer, tier: classification.tier, badge: fallbackData.badge, model: "offline-core" })}\n\n`);
-      return res.end();
+      return send(200, {
+        answer: fb.answer,
+        model: "offline-core",
+        tier: classification.tier,
+        badge: fb.badge,
+        provider: "offline"
+      });
     }
-    return send(200, {
-      answer,
-      model: "offline-core",
-      tier: classification.tier,
-      badge: fallbackData.badge,
-      provider: "offline"
+    return emitErrorResponse(503, {
+      code: "NO_API_KEY",
+      retryable: false,
+      userMessage: "Live Gemini AI is not configured on this server (GEMINI_API_KEY is missing in Settings > Secrets)."
     });
-  };
-
-  if (!ai) {
-    return handleOfflineFallback();
   }
 
   const system = PROMPT.build(typeof body.level === "string" ? body.level : "auto");
-  const configuredModel = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+  const configuredPrimary = normalizeModelName(process.env.GEMINI_MODEL || "gemini-4-hydrogen", "gemini-4-hydrogen");
+  const requestedClientModel = typeof body.model === "string" && body.model.trim()
+    ? normalizeModelName(body.model, configuredPrimary)
+    : "";
+  const primaryModel = (requestedClientModel && /^(?:gemini-4-hydrogen|gemini-3\.1-flash-lite)$/i.test(requestedClientModel))
+    ? requestedClientModel
+    : configuredPrimary;
 
-  // Optimized model sequence for blistering speed and reliable fallback
-  const modelsToTry = isInDepth
-    ? [configuredModel, "gemini-3.1-flash-lite", "gemini-flash-latest"]
-    : ["gemini-3.1-flash-lite", configuredModel, "gemini-flash-latest"];
+  // Primary: gemini-4-hydrogen (full reasoning accuracy) -> Fast Backup: gemini-3.1-flash-lite
+  const rawModels = [...new Set([primaryModel, "gemini-3.1-flash-lite", "gemini-4-hydrogen"])];
+  let uniqueModels = rawModels.filter((m) => !isModelCoolingDown(m));
+  if (!uniqueModels.length) {
+    // If only transient overload cooldowns hid models (not 429 daily quota), clear transient flags and race all non-quota models
+    transientCooldowns.clear();
+    uniqueModels = rawModels.filter((m) => !isQuotaCoolingDown(m));
+  }
 
-  // Deduplicate model list
-  const uniqueModels = [...new Set(modelsToTry)];
+  if (!uniqueModels.length) {
+    const fb = generateChemistryFallback(message);
+    return emitErrorResponse(429, {
+      code: "QUOTA_EXCEEDED",
+      retryable: true,
+      userMessage: "All Gemini AI models are temporarily in quota cooldown. Please wait ~45 seconds and tap Retry, or select a paid API key in Settings > Secrets."
+    }, fb);
+  }
 
-  // Build clean alternating conversation turns
+  // Build clean alternating conversation turns, stripping poisoned offline-stub turns
   const rawTurns = [];
   if (Array.isArray(body.history)) {
-    for (const m of body.history.slice(-8)) {
+    for (const m of body.history.slice(-10)) {
       if (!m || (m.role !== "user" && m.role !== "assistant") || typeof m.content !== "string") continue;
       const text = m.content.slice(0, 3000).trim();
       if (!text) continue;
+      if (m.role === "assistant" && isPoisonedStubHistoryText(text)) continue;
       rawTurns.push({
         role: m.role === "assistant" ? "model" : "user",
         parts: [{ text }]
@@ -267,134 +528,401 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  let lastError = null;
+  const TOTAL_DEADLINE_MS = 26000;
+  const HEDGE_DELAY_MS = isTrivialGreeting ? 2500 : (classification.tier === "simple" ? 3500 : 4500);
+  const requestStart = Date.now();
+  const remainingBudget = () => TOTAL_DEADLINE_MS - (Date.now() - requestStart);
 
-  for (const model of uniqueModels) {
-    // Retry loop for transient rate-limit or network errors
-    for (let attempt = 0; attempt < 2; attempt++) {
-      if (attempt > 0) {
-        await sleep(350);
+  let clientClosed = false;
+  if (typeof res.on === "function") {
+    res.on("close", () => {
+      if (!res.writableEnded) clientClosed = true;
+    });
+  }
+
+  const attemptModelOnce = async (model, parentSignal, budgetMs) => {
+    const attemptStart = Date.now();
+    let skipThinkingConfig = false;
+
+    for (let thinkTry = 0; thinkTry < 2; thinkTry++) {
+      const localCtrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const onParentAbort = () => {
+        if (localCtrl && !localCtrl.signal.aborted) localCtrl.abort();
+      };
+      if (parentSignal) {
+        if (parentSignal.aborted) onParentAbort();
+        else parentSignal.addEventListener("abort", onParentAbort, { once: true });
       }
 
+      let timerId = null;
       try {
         const config = {
           systemInstruction: system + classification.guidance
         };
+        if (localCtrl) config.abortSignal = localCtrl.signal;
 
-        // Set thinkingConfig only for supported Gemini 3 / 4 models
-        if (/^gemini-[34]/i.test(model)) {
-          if (model.includes("flash-lite")) {
-            config.thinkingConfig = { thinkingLevel: ThinkingLevel.MINIMAL };
-          } else {
-            config.thinkingConfig = { thinkingLevel: classification.thinkingLevel };
-          }
+        if (!skipThinkingConfig) {
+          const tl = getSafeThinkingLevel(model, classification.tier, isTrivialGreeting);
+          if (tl) config.thinkingConfig = { thinkingLevel: tl };
         }
 
-        const modelTimeoutMs = model.includes("flash-lite") ? 14000 : 25000;
+        const timeLeft = Math.max(2000, budgetMs - (Date.now() - attemptStart));
 
         if (wantsStream) {
+          const makePhaseTimer = (ms, label) => new Promise((_, reject) => {
+            clearTimeout(timerId);
+            timerId = setTimeout(() => {
+              if (localCtrl && !localCtrl.signal.aborted) localCtrl.abort();
+              reject(new Error(`Model ${model} ${label} exceeded ${ms}ms`));
+            }, ms);
+          });
+
           const streamPromise = ai.models.generateContentStream({
             model,
             contents,
             config
           });
+          streamPromise.catch(() => {});
 
-          let timerId = null;
-          const timeoutPromise = new Promise((_, reject) => {
-            timerId = setTimeout(() => reject(new Error(`Model ${model} stream timed out`)), modelTimeoutMs);
-          });
+          const stream = await Promise.race([
+            streamPromise,
+            makePhaseTimer(timeLeft, "connect")
+          ]);
+          const iterator = stream[Symbol.asyncIterator]();
 
-          const stream = await Promise.race([streamPromise, timeoutPromise]);
+          let firstText = "";
+          let streamEndedEarly = false;
+          let lastBlockOrFinish = "";
+
+          while (true) {
+            const stepLeft = timeLeft - (Date.now() - attemptStart);
+            if (stepLeft <= 300) {
+              if (localCtrl && !localCtrl.signal.aborted) localCtrl.abort();
+              throw new Error(`Model ${model} first-token exceeded ${timeLeft}ms`);
+            }
+            const step = await Promise.race([
+              iterator.next(),
+              makePhaseTimer(stepLeft, "first-token")
+            ]);
+            if (!step || step.done) {
+              streamEndedEarly = true;
+              break;
+            }
+            const reason = extractBlockOrFinishReason(step.value);
+            if (reason) lastBlockOrFinish = reason;
+            const txt = extractTextFromResponse(step.value);
+            if (txt && txt.length > 0) {
+              firstText = txt;
+              break;
+            }
+          }
           clearTimeout(timerId);
 
-          // Test stream iterator before sending headers to catch handshake/authentication failures early
-          const iterator = stream[Symbol.asyncIterator]();
-          const firstChunkPromise = iterator.next();
-
-          let chunkTimer = null;
-          const chunkTimeout = new Promise((_, reject) => {
-            chunkTimer = setTimeout(() => reject(new Error(`Model ${model} first chunk timed out`)), modelTimeoutMs);
-          });
-
-          const firstResult = await Promise.race([firstChunkPromise, chunkTimeout]);
-          clearTimeout(chunkTimer);
-
-          if (!res.headersSent) {
-            res.writeHead(200, {
-              "Content-Type": "text/event-stream; charset=utf-8",
-              "Cache-Control": "no-cache, no-transform",
-              "Connection": "keep-alive",
-              "X-Accel-Buffering": "no"
-            });
+          if (!firstText) {
+            const err = new Error(`Model ${model} returned empty stream${lastBlockOrFinish ? ` (${lastBlockOrFinish})` : ""}`);
+            err._finishHint = lastBlockOrFinish;
+            throw err;
           }
 
-          res.write(`data: ${JSON.stringify({ type: "meta", tier: classification.tier, badge: classification.badge, model, status: "connected" })}\n\n`);
-
-          let fullText = "";
-          if (firstResult && !firstResult.done) {
-            const firstText = firstResult.value.text || "";
-            if (firstText) {
-              fullText += firstText;
-              res.write(`data: ${JSON.stringify({ type: "chunk", text: firstText })}\n\n`);
-            }
-          }
-
-          for await (const chunk of { [Symbol.asyncIterator]: () => iterator }) {
-            const text = chunk.text;
-            if (text) {
-              fullText += text;
-              res.write(`data: ${JSON.stringify({ type: "chunk", text })}\n\n`);
-            }
-          }
-
-          res.write(`data: ${JSON.stringify({ type: "done", answer: fullText, tier: classification.tier, badge: classification.badge, model })}\n\n`);
-          return res.end();
+          return {
+            ok: true,
+            mode: "stream",
+            model,
+            firstText,
+            iterator,
+            streamEndedEarly,
+            controller: localCtrl,
+            detachParent: () => { if (parentSignal) parentSignal.removeEventListener("abort", onParentAbort); }
+          };
         } else {
-          let timerId = null;
           const genPromise = ai.models.generateContent({
             model,
             contents,
             config
           });
+          genPromise.catch(() => {});
 
           const timeoutPromise = new Promise((_, reject) => {
-            timerId = setTimeout(() => reject(new Error(`Model ${model} timed out`)), modelTimeoutMs);
+            timerId = setTimeout(() => {
+              if (localCtrl && !localCtrl.signal.aborted) localCtrl.abort();
+              reject(new Error(`Model ${model} timed out after ${timeLeft}ms`));
+            }, timeLeft);
           });
 
           const response = await Promise.race([genPromise, timeoutPromise]);
           clearTimeout(timerId);
 
-          const text = response.text;
-          if (text && text.trim()) {
-            return send(200, {
-              answer: text.trim(),
-              model,
-              tier: classification.tier,
-              badge: classification.badge,
-              provider: "gemini"
-            });
+          const text = extractTextFromResponse(response).trim();
+          if (!text) {
+            const finishHint = extractBlockOrFinishReason(response);
+            const emptyErr = new Error(`Model ${model} returned empty text${finishHint ? ` (${finishHint})` : ""}`);
+            emptyErr._finishHint = finishHint;
+            throw emptyErr;
           }
+
+          return {
+            ok: true,
+            mode: "json",
+            model,
+            text,
+            detachParent: () => { if (parentSignal) parentSignal.removeEventListener("abort", onParentAbort); }
+          };
         }
       } catch (err) {
-        lastError = err;
-        console.warn(`[Nemo AI] Attempt error on ${model} (attempt ${attempt + 1}):`, err.message || err);
+        clearTimeout(timerId);
+        if (parentSignal) parentSignal.removeEventListener("abort", onParentAbort);
 
-        // If headers are already sent, stream error and complete
-        if (res.headersSent) {
-          res.write(`data: ${JSON.stringify({ type: "error", error: err.message || "Streaming interrupted" })}\n\n`);
-          return res.end();
+        const errMsg = String((err && err.message) || err || "");
+        const finishHint = (err && err._finishHint) || "";
+        const info = classifyUpstreamError(err, finishHint);
+
+        if (thinkTry === 0 && !skipThinkingConfig && /400|INVALID_ARGUMENT/i.test(errMsg) && /thinking/i.test(errMsg)) {
+          skipThinkingConfig = true;
+          console.warn(`[Nemo AI] Retrying ${model} without thinkingConfig after 400:`, errMsg.slice(0, 180));
+          continue;
         }
 
-        // Retry only if 429, 503, or temporary network failure
-        const isTransient = /429|503|500|econnreset|etimedout|socket|network/i.test(err.message || "");
-        if (!isTransient) {
-          break; // Advance immediately to next model in sequence
+        if (info.isQuota) {
+          markModelQuotaCooldown(model, errMsg);
+        } else if (info.code === "TIMEOUT" || info.isTransient) {
+          markModelTransientCooldown(model, 35000);
         }
+
+        if (!(parentSignal && parentSignal.aborted)) {
+          console.warn(`[Nemo AI] ${info.code} on ${model} (${Date.now() - attemptStart}ms):`, errMsg.slice(0, 180));
+        }
+
+        return {
+          ok: false,
+          model,
+          info,
+          errMsg,
+          elapsedMs: Date.now() - attemptStart
+        };
+      }
+    }
+    return {
+      ok: false,
+      model,
+      info: { status: 502, code: "UPSTREAM_ERROR", retryable: true, isTransient: true, userMessage: "Model failed before responding." },
+      elapsedMs: Date.now() - attemptStart
+    };
+  };
+
+  // Run staggered parallel hedge across primary + backup model so stalled primary never wastes 11s
+  const runHedgedRace = (modelsList, phaseBudgetMs) => new Promise((resolve) => {
+    const controllers = modelsList.map(() => (typeof AbortController !== "undefined" ? new AbortController() : null));
+    let settled = false;
+    let hedgeTimer = null;
+    let deadlineTimer = null;
+    let startedBackup = false;
+    let finishedCount = 0;
+    let lastFailure = null;
+    const totalCount = modelsList.length;
+
+    const finishWinner = (winner, winnerIdx) => {
+      if (settled) {
+        if (winner && winner.controller && !winner.controller.signal.aborted) winner.controller.abort();
+        if (winner && winner.detachParent) winner.detachParent();
+        return;
+      }
+      settled = true;
+      clearTimeout(hedgeTimer);
+      clearTimeout(deadlineTimer);
+      controllers.forEach((ctrl, idx) => {
+        if (idx !== winnerIdx && ctrl && !ctrl.signal.aborted) ctrl.abort();
+      });
+      resolve({ winner, failure: null });
+    };
+
+    const finishAllFailed = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(hedgeTimer);
+      clearTimeout(deadlineTimer);
+      controllers.forEach((ctrl) => {
+        if (ctrl && !ctrl.signal.aborted) ctrl.abort();
+      });
+      resolve({ winner: null, failure: lastFailure });
+    };
+
+    const launchIndex = (idx) => {
+      const m = modelsList[idx];
+      const ctrl = controllers[idx];
+      const rem = Math.max(2500, phaseBudgetMs - (Date.now() - requestStart));
+      attemptModelOnce(m, ctrl ? ctrl.signal : null, rem).then((resObj) => {
+        if (settled) {
+          if (resObj && resObj.ok && resObj.controller && !resObj.controller.signal.aborted) resObj.controller.abort();
+          if (resObj && resObj.detachParent) resObj.detachParent();
+          return;
+        }
+        if (resObj && resObj.ok) {
+          return finishWinner(resObj, idx);
+        }
+        finishedCount += 1;
+        lastFailure = resObj;
+        // Stop immediately on hard AUTH_ERROR (403)
+        if (resObj && resObj.info && resObj.info.code === "AUTH_ERROR") {
+          return finishAllFailed();
+        }
+        // If primary failed fast before hedge timer fired, launch backup immediately!
+        if (idx === 0 && totalCount > 1 && !startedBackup) {
+          startedBackup = true;
+          clearTimeout(hedgeTimer);
+          launchIndex(1);
+          return;
+        }
+        if (finishedCount >= totalCount) {
+          finishAllFailed();
+        }
+      });
+    };
+
+    deadlineTimer = setTimeout(() => {
+      lastFailure = lastFailure || {
+        ok: false,
+        info: {
+          status: 504,
+          code: "TIMEOUT",
+          retryable: true,
+          isTransient: true,
+          userMessage: "The AI model took too long to respond. Please tap Retry for a fresh attempt."
+        }
+      };
+      finishAllFailed();
+    }, phaseBudgetMs);
+
+    if (totalCount > 1) {
+      hedgeTimer = setTimeout(() => {
+        if (!settled && !startedBackup) {
+          startedBackup = true;
+          launchIndex(1);
+        }
+      }, Math.min(HEDGE_DELAY_MS, Math.max(1500, phaseBudgetMs - 4000)));
+    }
+
+    launchIndex(0);
+  });
+
+  // Pass 1: Staggered hedged race across up to 2 healthy models
+  const raceModels = uniqueModels.slice(0, 2);
+  let outcome = await runHedgedRace(raceModels, remainingBudget());
+
+  // Pass 2: One quick retry if all failed due to transient 503 burst and sufficient budget remains
+  if (
+    !outcome.winner &&
+    !clientClosed &&
+    outcome.failure &&
+    outcome.failure.info &&
+    outcome.failure.info.code !== "AUTH_ERROR" &&
+    outcome.failure.info.code !== "BLOCKED" &&
+    (outcome.failure.info.isTransient || outcome.failure.info.code === "QUOTA_EXCEEDED") &&
+    remainingBudget() >= 5500
+  ) {
+    const retryCandidates = rawModels.filter((m) => !isQuotaCoolingDown(m));
+    const retryModel = retryCandidates.find((m) => /flash-lite/i.test(m)) || retryCandidates[0];
+    if (retryModel) {
+      await sleep(320);
+      if (!clientClosed && remainingBudget() >= 4500) {
+        outcome = await runHedgedRace([retryModel], remainingBudget());
       }
     }
   }
 
-  // If all live models failed or timed out, gracefully invoke autonomous chemistry fallback
-  console.warn("[Nemo AI] All live models unavailable, activating Autonomous Chemistry Core:", lastError && lastError.message);
-  return handleOfflineFallback();
+  if (clientClosed) {
+    if (outcome.winner && outcome.winner.controller && !outcome.winner.controller.signal.aborted) {
+      outcome.winner.controller.abort();
+    }
+    if (outcome.winner && outcome.winner.detachParent) outcome.winner.detachParent();
+    return;
+  }
+
+  if (outcome.winner) {
+    const w = outcome.winner;
+    if (w.detachParent) w.detachParent();
+
+    if (w.mode === "json") {
+      return send(200, {
+        answer: w.text,
+        model: w.model,
+        tier: classification.tier,
+        badge: classification.badge,
+        provider: "gemini"
+      });
+    }
+
+    // Winner already produced firstText -> commit SSE headers safely!
+    if (!res.headersSent) {
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no"
+      });
+    }
+
+    res.write(`data: ${JSON.stringify({ type: "meta", tier: classification.tier, badge: classification.badge, model: w.model, status: "connected" })}\n\n`);
+    let fullText = w.firstText;
+    res.write(`data: ${JSON.stringify({ type: "chunk", text: w.firstText })}\n\n`);
+
+    if (!w.streamEndedEarly) {
+      const hardLeft = Math.max(2000, remainingBudget() + 8000);
+      let hardTimerId = null;
+      let idleTimerId = null;
+
+      hardTimerId = setTimeout(() => {
+        if (w.controller && !w.controller.signal.aborted) w.controller.abort();
+      }, hardLeft);
+
+      const resetIdle = () => {
+        clearTimeout(idleTimerId);
+        idleTimerId = setTimeout(() => {
+          if (w.controller && !w.controller.signal.aborted) w.controller.abort();
+        }, 14000);
+      };
+
+      try {
+        resetIdle();
+        while (!clientClosed) {
+          const nextStep = await w.iterator.next();
+          if (!nextStep || nextStep.done) break;
+          resetIdle();
+          const txt = extractTextFromResponse(nextStep.value);
+          if (txt) {
+            fullText += txt;
+            res.write(`data: ${JSON.stringify({ type: "chunk", text: txt })}\n\n`);
+          }
+        }
+      } catch (streamErr) {
+        clearTimeout(hardTimerId);
+        clearTimeout(idleTimerId);
+        const partial = fullText.trim();
+        const sInfo = classifyUpstreamError(streamErr);
+        res.write(`data: ${JSON.stringify({
+          type: "error",
+          code: "STREAM_INTERRUPTED",
+          error: sInfo.userMessage,
+          partial,
+          retryable: true
+        })}\n\n`);
+        return res.end();
+      } finally {
+        clearTimeout(hardTimerId);
+        clearTimeout(idleTimerId);
+      }
+    }
+
+    res.write(`data: ${JSON.stringify({ type: "done", answer: fullText, tier: classification.tier, badge: classification.badge, model: w.model })}\n\n`);
+    return res.end();
+  }
+
+  const lastErrInfo = (outcome.failure && outcome.failure.info) || {
+    status: 503,
+    code: "UPSTREAM_ERROR",
+    retryable: true,
+    userMessage: "Unable to reach Gemini AI models right now. Please tap Retry."
+  };
+  const strictFb = generateChemistryFallback(message);
+  return emitErrorResponse(lastErrInfo.status || 503, lastErrInfo, strictFb);
 };
+

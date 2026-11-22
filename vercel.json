@@ -9,6 +9,8 @@
   },
   "rewrites": [
     { "source": "/api/chat", "destination": "/api/chat.js" },
+    { "source": "/api/generate-diagram", "destination": "/api/generate-diagram.js" },
+    { "source": "/api/tts", "destination": "/api/tts.js" },
     { "source": "/api/health", "destination": "/api/health.js" }
   ],
   "headers": [

@@ -29,9 +29,16 @@ if (fs.existsSync(vendorSrc)) {
   fs.cpSync(vendorSrc, vendorDest, { recursive: true });
 }
 
+/* Copy public/assets (e.g. founder avatar image) to dist/assets */
+const assetsSrc = path.join(root, "public", "assets");
+const assetsDest = path.join(out, "assets");
+if (fs.existsSync(assetsSrc)) {
+  fs.cpSync(assetsSrc, assetsDest, { recursive: true });
+}
+
 /* Copy standalone frontend scripts and assets so dist can serve either bundled or multi-file */
 const staticFiles = [
-  "style.css", "app.js", "data.js", "molecules.js", "pyq.js",
+  "style.css", "app.js", "data.js", "molecules.js", "pyq.js", "periodic-data.js", "chemfig.js",
   "lib-physical.js", "lib-inorganic.js", "lib-organic.js", "lib-organic2.js", "lib-practical.js",
   "system-prompt.js", "pyq_template.json", "metadata.json"
 ];

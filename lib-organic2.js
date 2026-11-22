@@ -106,15 +106,28 @@
   { b: "Organic", ch: "Alcohols, phenols and ethers", t: "Concept", l: "Board", n: "Reactions of phenol", w: "Kolbe, Reimer, Tiemann",
     s: "Phenol is ring-activated: Br₂ water gives white 2,4,6-tribromophenol; dilute HNO₃ at low temperature gives o- and p-nitrophenol (o- is steam volatile because of intramolecular H-bonding); conc. HNO₃ gives picric acid (2,4,6-trinitrophenol). Zn dust distils phenol to benzene; air oxidation gives p-benzoquinone; neutral FeCl₃ gives a violet colour. Phenol is acidic enough for NaOH but not for NaHCO₃.",
     e: "Separation of o- and p-nitrophenol: steam distillation, o- distils over.",
-    x: "Direct Friedel–Crafts acylation of phenol gives poor yields because the OH group coordinates to AlCl₃ and O-acylation competes; the Fries rearrangement of the phenyl ester is the usual route to hydroxy ketones." },
+    x: "Direct Friedel–Crafts acylation of phenol gives poor yields because the OH group coordinates to AlCl₃ and O-acylation competes; the Fries rearrangement of the phenyl ester is the usual route to hydroxy ketones.",
+    cf: [
+      { title: "Phenol", chemfig: "\\chemfig{*6(=-=-(-OH)=-)}" },
+      { title: "Picric Acid (2,4,6-Trinitrophenol)", chemfig: "\\chemfig{*6(=(-NO_2)-=(-NO_2)-(-OH)=(-NO_2)-)}" }
+    ] },
   { b: "Organic", ch: "Aromatic compounds", t: "Trend", l: "Adv", n: "Aromatic heterocycles: pyrrole, furan, thiophene, pyridine", w: "",
     s: "Pyrrole, furan and thiophene are aromatic with six π electrons (the heteroatom lone pair is in the ring π system). Reactivity in electrophilic substitution: pyrrole > furan > thiophene > benzene > pyridine; substitution occurs at C-2. Aromatic stabilisation runs benzene > thiophene > pyrrole > furan. Pyrrole is only very weakly basic because its lone pair is part of the sextet; in pyridine the lone pair lies in the plane outside the ring, so pyridine is basic (pKaH ≈ 5.2) but deactivated toward EAS and substituted at C-3.",
     e: "Pyridine is nitrated only under vigorous conditions; nucleophiles attack C-2 and C-4 (Chichibabin amination).",
-    x: "Pyrrole N–H is acidic enough to give a potassium salt, yet the ring behaves as an electron-rich enamine." },
+    x: "Pyrrole N–H is acidic enough to give a potassium salt, yet the ring behaves as an electron-rich enamine.",
+    cf: [
+      { title: "Pyrrole", chemfig: "\\chemfig{*5(-NH-=-=)}" },
+      { title: "Furan", chemfig: "\\chemfig{*5(-O-=-=)}" },
+      { title: "Pyridine", chemfig: "\\chemfig{*6(=-N=-=)}" }
+    ] },
   { b: "Organic", ch: "Aromatic compounds", t: "Special case", l: "Adv", n: "Naphthalene and polynuclear arenes", w: "",
     s: "Naphthalene (C₁₀H₈, 10 π electrons, resonance energy about 255 kJ mol⁻¹, less than twice that of benzene) is more reactive than benzene. Electrophiles attack the α position (C-1) because the intermediate keeps one intact benzene ring in more resonance forms. C–C bond lengths are unequal (C1–C2 ≈ 1.36 Å). Sulfonation at 353 K gives the α-acid (kinetic); at 433 K gives the β-acid (thermodynamic).",
     e: "Anthracene prefers addition at the 9,10 positions, keeping two benzene rings.",
-    x: "Naphthalene is not 'twice benzene': its aromatic stabilisation per ring is lower." },
+    x: "Naphthalene is not 'twice benzene': its aromatic stabilisation per ring is lower.",
+    cf: [
+      { title: "Naphthalene (C₁₀H₈)", chemfig: "\\chemfig{*6(=-*6(-=-=-)=-=)}" },
+      { title: "Anthracene (C₁₄H₁₀)", chemfig: "\\chemfig{*6(=-*6(=-*6(-=-=-)=-)=-=)}" }
+    ] },
 
   /* ---------- Biomolecules: carbohydrates ---------- */
   { b: "Organic", ch: "Biomolecules", t: "Structure", l: "Main", n: "Glucose: open chain and cyclic structure", w: "Fischer, Haworth, Tollens",

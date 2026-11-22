@@ -10,6 +10,7 @@
   <title>Chemistry Tutor Nemo — CBSE &amp; JEE Chemistry Companion</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap">
   <link rel="stylesheet" href="vendor/katex/katex.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css'">
   <link rel="stylesheet" href="style.css">
   <script src="vendor/katex/katex.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js'" defer></script>
@@ -21,13 +22,16 @@
   <script src="lib-organic.js" defer></script>
   <script src="lib-organic2.js" defer></script>
   <script src="lib-practical.js" defer></script>
+  <script src="periodic-data.js" defer></script>
   <script src="pyq.js" defer></script>
   <script src="system-prompt.js" defer></script>
+  <script src="chemfig.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#chatPanel">Skip to chat</a>
   <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+  <div class="portal-backdrop" id="portalBackdrop" hidden aria-hidden="true"></div>
   <div class="app-shell">
     <aside class="sidebar" id="appSidebar">
       <div class="sidebar-header-row">
@@ -139,7 +143,7 @@
       <div class="nav-group">
         <div class="nav-group-title">
           <span>DRILLS &amp; EXAMS</span>
-          <span class="nav-group-count">04</span>
+          <span class="nav-group-count">05</span>
         </div>
         <nav aria-label="Assessment Sections">
           <a class="nav-item" href="#practicePanel" data-target="practicePanel">
@@ -161,12 +165,19 @@
             <span class="nav-text">10-Yr PYQ Bank</span>
             <span class="nav-badge-pill gold">2016–26</span>
           </a>
-          <a class="nav-item nav-gold-portals-item" href="#pyqGoldHub" data-target="pyqPanel" id="navGoldPortals">
+          <a class="nav-item" href="#pyqAnalyticsPanel" data-target="pyqAnalyticsPanel" id="navPyqAnalytics">
+            <span class="nav-icon-box" aria-hidden="true">
+              <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 17.5h7"></path><path d="M17.5 14v7"></path></svg>
+            </span>
+            <span class="nav-text">PYQ Pattern &amp; ROI</span>
+            <span class="nav-badge-pill gold">ROI MAP</span>
+          </a>
+          <a class="nav-item nav-gold-portals-item" href="#pyqGoldHub" data-target="pyqGoldHub" data-section="pyqPanel" id="navGoldPortals">
             <span class="nav-icon-box gold-icon" aria-hidden="true">
               <svg class="nav-svg-icon star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
             </span>
             <span class="nav-text">Gold Exam Portals</span>
-            <span class="nav-badge-pill gold">ONLINE PYQ</span>
+            <span class="nav-badge-pill gold">PORTALS</span>
           </a>
         </nav>
       </div>
@@ -174,7 +185,7 @@
       <div class="nav-group">
         <div class="nav-group-title">
           <span>REFERENCE &amp; RULES</span>
-          <span class="nav-group-count">02</span>
+          <span class="nav-group-count">03</span>
         </div>
         <nav aria-label="Reference Sections">
           <a class="nav-item" href="#formulasPanel" data-target="formulasPanel">
@@ -189,6 +200,13 @@
               <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon><line x1="12" y1="22" x2="12" y2="15.5"></line><polyline points="22 8.5 12 15.5 2 8.5"></polyline><polyline points="2 15.5 12 8.5 22 15.5"></polyline></svg>
             </span>
             <span class="nav-text">Rules &amp; Exceptions</span>
+          </a>
+          <a class="nav-item" href="#periodicPanel" data-target="periodicPanel">
+            <span class="nav-icon-box" aria-hidden="true">
+              <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="5" rx="1"></rect><rect x="9.5" y="4" width="5" height="5" rx="1"></rect><rect x="16" y="4" width="5" height="5" rx="1"></rect><rect x="3" y="10.5" width="5" height="5" rx="1"></rect><rect x="9.5" y="10.5" width="5" height="5" rx="1"></rect><rect x="16" y="10.5" width="5" height="5" rx="1"></rect><rect x="3" y="17" width="18" height="3" rx="1"></rect></svg>
+            </span>
+            <span class="nav-text">Periodic Table</span>
+            <span class="nav-badge-pill">118</span>
           </a>
           <button class="nav-item nav-tour-btn" id="sidebarTourBtn" type="button" aria-label="Start Interactive Spotlight App Tutorial" title="Interactive Step-by-Step App Tutorial">
             <span class="nav-icon-box" aria-hidden="true">💡</span>
@@ -205,7 +223,7 @@
         <nav aria-label="Founder section">
           <button class="nav-item nav-founder-btn" id="founderNavBtn" type="button" aria-label="Open J.Sanjay Founder Tribute">
             <div class="founder-avatar-box" aria-hidden="true">
-              <span class="founder-star">★</span>
+              <img class="founder-nav-dp" src="/assets/aistudio/file_0000000042c481f89831c00e631cf5c5_1758ac90.png" alt="" loading="eager" decoding="async">
             </div>
             <div class="founder-nav-label">
               <span class="founder-name">J.Sanjay</span>
@@ -220,7 +238,7 @@
         <div class="sidebar-status-card">
           <div class="sidebar-status-row">
             <span class="online-dot live" id="modeDot" aria-hidden="true"></span>
-            <span class="status-model-name" id="modeLabel">Nemo AI connected (Gemini Flash)</span>
+            <span class="status-model-name" id="modeLabel">Nemo AI Connected • Gemini 4 Hydrogen</span>
           </div>
           <div class="sidebar-disciplines-row">
             <span class="disc-tag">Physical</span>
@@ -237,8 +255,8 @@
           <summary>Custom model configuration</summary>
           <p>For custom self-hosted endpoints or local developer testing.</p>
           <input id="aiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Gemini API key" aria-label="Gemini API key">
-          <input id="aiModel" type="text" autocomplete="off" spellcheck="false" placeholder="model (default gemini-3.8-flash)" aria-label="Gemini model name">
-          <div class="btn-row"><button class="outline-btn" id="aiSave">Save</button><button class="outline-btn danger" id="aiRemove">Remove</button></div>
+          <input id="aiModel" type="text" autocomplete="off" spellcheck="false" placeholder="model (default gemini-4-hydrogen)" aria-label="Gemini model name">
+          <div class="btn-row"><button type="button" class="outline-btn" id="aiSave">Save</button><button type="button" class="outline-btn danger" id="aiRemove">Remove</button></div>
           <p id="aiMsg" role="status"></p>
         </details>
         <button class="sidebar-exit-btn-mobile" id="sidebarExitBtnMobile" type="button" aria-label="Close navigation drawer">✕ Close Sidebar Menu</button>
@@ -293,13 +311,13 @@
             <span class="btn-icon" aria-hidden="true">💡</span>
             <span class="tour-mobile-label">Tutorial</span>
           </button>
-          <button class="icon-btn toggle-btn" id="mobileProjectorBtn" aria-pressed="false" title="Toggle 4:3 Projector Presentation Mode">
+          <button type="button" class="icon-btn toggle-btn" id="mobileProjectorBtn" aria-pressed="false" title="Toggle 4:3 Projector Presentation Mode">
             <span class="btn-icon">📽️</span>
           </button>
-          <button class="icon-btn toggle-btn active" id="mobileEffectsBtn" aria-pressed="true" title="Toggle visual animations & effects">
+          <button type="button" class="icon-btn toggle-btn active" id="mobileEffectsBtn" aria-pressed="true" title="Toggle visual animations &amp; effects">
             <span class="btn-icon">✦</span>
           </button>
-          <button class="icon-btn toggle-btn active" id="mobileFloatBtn" aria-pressed="true" title="Show or hide floating Nemo">
+          <button type="button" class="icon-btn toggle-btn active" id="mobileFloatBtn" aria-pressed="true" title="Show or hide floating Nemo">
             <span class="btn-icon">◉</span>
           </button>
         </div>
@@ -322,13 +340,13 @@
           <button class="ghost-btn tour-top-btn" id="startTourBtn" type="button" title="Interactive Step-by-Step App Tutorial">
             <span class="btn-icon">💡</span> <span class="btn-text">App Tutorial</span>
           </button>
-          <button class="ghost-btn toggle-btn" id="projectorToggle" aria-pressed="false" title="Toggle 4:3 Projector Presentation Mode (enhanced legibility, high contrast &amp; 4:3 projection ratio)">
+          <button type="button" class="ghost-btn toggle-btn" id="projectorToggle" aria-pressed="false" title="Toggle 4:3 Projector Presentation Mode (enhanced legibility, high contrast &amp; 4:3 projection ratio)">
             <span class="btn-icon">📽️</span> <span class="btn-text">Projector (4:3)</span>
           </button>
-          <button class="ghost-btn toggle-btn active" id="effectsToggle" aria-pressed="true" title="Toggle visual animations &amp; effects on/off">
+          <button type="button" class="ghost-btn toggle-btn active" id="effectsToggle" aria-pressed="true" title="Toggle visual animations &amp; effects on/off">
             <span class="btn-icon">✦</span> Effects
           </button>
-          <button class="ghost-btn toggle-btn active" id="floatToggle" aria-pressed="true" title="Show or hide floating Nemo">
+          <button type="button" class="ghost-btn toggle-btn active" id="floatToggle" aria-pressed="true" title="Show or hide floating Nemo">
             <span class="btn-icon">◉</span> Floating Nemo
           </button>
         </div>
@@ -363,13 +381,15 @@
       </section>
 
       <div class="workspace-tabs-bar" role="tablist" aria-label="Filter workspace modules">
-        <button class="ws-tab active" data-filter="all" role="tab" aria-selected="true">✦ All Modules</button>
-        <button class="ws-tab" data-filter="tutor" role="tab" aria-selected="false">💬 AI Tutor &amp; 3D Lab</button>
-        <button class="ws-tab" data-filter="practice" role="tab" aria-selected="false">✔ Practice &amp; Analytics</button>
-        <button class="ws-tab ws-tab-gold" data-filter="portals" role="tab" aria-selected="false">★ Gold Exam Portals</button>
-        <button class="ws-tab" data-filter="library" role="tab" aria-selected="false">§ Rules &amp; Canvas</button>
-        <button class="ws-tab" data-filter="pyq" role="tab" aria-selected="false">⌗ 10-Yr PYQ Bank</button>
-        <button class="ws-tab" data-filter="formulas" role="tab" aria-selected="false">∑ Formula Bank</button>
+        <button type="button" class="ws-tab active" data-filter="all" role="tab" aria-selected="true">✦ All Modules</button>
+        <button type="button" class="ws-tab" data-filter="tutor" role="tab" aria-selected="false">💬 AI Tutor &amp; 3D Lab</button>
+        <button type="button" class="ws-tab" data-filter="practice" role="tab" aria-selected="false">✔ Practice &amp; Analytics</button>
+        <button type="button" class="ws-tab ws-tab-gold" data-filter="portals" role="tab" aria-selected="false">★ Gold Exam Portals</button>
+        <button type="button" class="ws-tab" data-filter="library" role="tab" aria-selected="false">§ Rules &amp; Canvas</button>
+        <button type="button" class="ws-tab" data-filter="periodic" role="tab" aria-selected="false">⊞ Periodic Table</button>
+        <button type="button" class="ws-tab" data-filter="pyq" role="tab" aria-selected="false">⌗ 10-Yr PYQ Bank</button>
+        <button type="button" class="ws-tab" data-filter="pyq-analytics" role="tab" aria-selected="false">📊 PYQ Pattern &amp; ROI</button>
+        <button type="button" class="ws-tab" data-filter="formulas" role="tab" aria-selected="false">∑ Formula Bank</button>
       </div>
 
       <div class="workspace-filter-status" id="workspaceFilterStatus" hidden>
@@ -396,25 +416,37 @@
                 <option value="main">JEE Main</option>
                 <option value="adv">JEE Advanced</option>
               </select>
-              <button class="icon-btn toggle-btn" id="speakToggle" aria-pressed="false" title="Read answers aloud"><span class="btn-icon">🔇</span></button>
-              <button class="icon-btn" id="clearChat" title="Clear conversation" aria-label="Clear conversation"><span class="btn-icon">↺</span></button>
+              <button type="button" class="icon-btn toggle-btn unit-toggle-btn" id="toggleChatUnitsBtn" aria-expanded="false" aria-controls="chatUnitDrawer" aria-label="Toggle Chemical Unit Converter" title="Toggle Chemical Unit Converter (atm, bar, K, °C, J, eV)"><span class="btn-icon" aria-hidden="true">⇄</span><span class="unit-btn-text">Units</span></button>
+              <button type="button" class="icon-btn toggle-btn" id="speakToggle" aria-pressed="false" title="Read answers aloud"><span class="btn-icon">🔇</span></button>
+              <button type="button" class="icon-btn" id="clearChat" title="Clear conversation" aria-label="Clear conversation"><span class="btn-icon">↺</span></button>
             </div>
           </div>
+          <div class="chem-unit-drawer" id="chatUnitDrawer" role="region" aria-label="Chemical Unit Converter" hidden></div>
           <div class="chat-messages" id="messages" role="log" aria-live="polite" aria-label="Conversation"></div>
+          <div class="chat-jump-anchor">
+            <button type="button" id="chatJumpLatestBtn" class="chat-jump-latest" hidden aria-label="Jump to latest message">↓ Latest</button>
+          </div>
+          <div class="diagram-mode-banner" id="diagramModeBanner" hidden>
+            <span>🎨 <strong>Study Diagram Mode</strong> — your next prompt generates an illustrative diagram in chat</span>
+            <button type="button" class="diagram-mode-exit" id="diagramModeExit" aria-label="Turn off diagram mode">Turn off</button>
+          </div>
           <div class="prompt-row">
-            <button class="round-action toggle-btn" id="voiceBtn" title="Start voice input" aria-label="Start voice input"><span class="btn-icon">🎙</span></button>
+            <button type="button" class="round-action toggle-btn" id="voiceBtn" title="Start voice input" aria-label="Start voice input"><span class="btn-icon">🎙</span></button>
+            <button class="round-action toggle-btn diagram-mode-btn" id="diagramModeBtn" type="button" aria-pressed="false" title="Toggle Study Diagram generation mode" aria-label="Toggle Study Diagram generation mode"><span class="btn-icon">🎨</span></button>
             <textarea id="questionInput" rows="1" maxlength="2000" aria-label="Your question" placeholder="Ask Nemo about a mechanism, exception, derivation, or numerical…"></textarea>
-            <button class="send-btn" id="sendBtn" aria-label="Send message" disabled><span class="btn-icon">➤</span></button>
+            <button type="button" class="send-btn" id="sendBtn" aria-label="Send message" disabled><span class="btn-icon">➤</span></button>
           </div>
           <div class="quick-prompts" aria-label="Quick prompts">
-            <button class="founder-prompt-btn" data-topic="founder" data-prompt="Who created and engineered Nemo Chemistry Tutor? Tell me about the founder J.Sanjay.">★ Founder: J.Sanjay</button>
-            <button data-topic="sn1" data-prompt="Explain the SN1 reaction mechanism step by step, including carbocation rearrangements and stereochemistry.">SN1 mechanism</button>
-            <button data-topic="sn2" data-prompt="Explain the SN2 reaction mechanism, its stereochemistry (Walden inversion) and steric hindrance factors.">SN2 mechanism</button>
-            <button data-topic="nernst" data-prompt="Explain the Nernst equation and show how to apply it in a multi-electron JEE numerical with cell potential.">Nernst equation</button>
-            <button data-topic="exceptions" data-prompt="Give me a structured revision of important coordination compound exceptions, Jahn-Teller effect, and spectrochemical series reasons.">Inorganic exceptions</button>
-            <button data-topic="vsepr" data-prompt="Explain VSEPR theory, steric number hybridisation and shapes of molecules with lone pairs (e.g. XeF4, SF4, ClF3).">VSEPR &amp; shapes</button>
-            <button data-topic="markovnikov" data-prompt="Explain Markovnikov's rule and the anti-Markovnikov peroxide effect (Kharasch effect) with free radical mechanism.">Markovnikov &amp; Peroxide</button>
-            <button data-topic="eas" data-prompt="Explain electrophilic aromatic substitution directing effects of ortho/para vs meta activators and deactivators with resonance structures.">Aromatic substitution</button>
+            <button type="button" class="founder-prompt-btn" data-topic="founder" data-prompt="Who created and engineered Nemo Chemistry Tutor? Tell me about the founder J.Sanjay.">★ Founder: J.Sanjay</button>
+            <button type="button" class="diagram-prompt-btn" data-diagram="true" data-prompt="Draw an illustrative study diagram of the SN2 reaction mechanism showing backside nucleophilic attack, pentacoordinate transition state, and Walden inversion.">🎨 Diagram: SN2</button>
+            <button type="button" class="diagram-prompt-btn" data-diagram="true" data-prompt="Draw an illustrative study diagram of base-catalysed Aldol condensation mechanism showing enolate formation, nucleophilic attack, and α,β-unsaturated carbonyl formation.">🎨 Diagram: Aldol</button>
+            <button type="button" data-topic="sn1" data-prompt="Explain the SN1 reaction mechanism step by step, including carbocation rearrangements and stereochemistry.">SN1 mechanism</button>
+            <button type="button" data-topic="sn2" data-prompt="Explain the SN2 reaction mechanism, its stereochemistry (Walden inversion) and steric hindrance factors.">SN2 mechanism</button>
+            <button type="button" data-topic="nernst" data-prompt="Explain the Nernst equation and show how to apply it in a multi-electron JEE numerical with cell potential.">Nernst equation</button>
+            <button type="button" data-topic="exceptions" data-prompt="Give me a structured revision of important coordination compound exceptions, Jahn-Teller effect, and spectrochemical series reasons.">Inorganic exceptions</button>
+            <button type="button" data-topic="vsepr" data-prompt="Explain VSEPR theory, steric number hybridisation and shapes of molecules with lone pairs (e.g. XeF4, SF4, ClF3).">VSEPR &amp; shapes</button>
+            <button type="button" data-topic="markovnikov" data-prompt="Explain Markovnikov's rule and the anti-Markovnikov peroxide effect (Kharasch effect) with free radical mechanism.">Markovnikov &amp; Peroxide</button>
+            <button type="button" data-topic="eas" data-prompt="Explain electrophilic aromatic substitution directing effects of ortho/para vs meta activators and deactivators with resonance structures.">Aromatic substitution</button>
           </div>
         </section>
 
@@ -443,6 +475,7 @@
             <button id="molReset" type="button">Reset view</button>
           </div>
           <div class="viewer-legend" id="viewerLegend"></div>
+          <div class="mol-2d-panel" id="mol2dPanel" aria-label="2D ChemFig Skeletal Structure"></div>
           <dl class="mol-info" id="moleculeInfo" aria-live="polite"></dl>
           <form class="pubchem-row" id="pubchemForm">
             <label for="pubchemInput" class="sr-only">Search PubChem</label>
@@ -466,11 +499,11 @@
                   <span class="portal-text">Gold Exam Portals</span>
                   <span class="portal-caret">▾</span>
                 </button>
-                <div class="exam-portal-menu" id="examPortalMenu" role="menu" aria-label="JEE Chemistry Exam Portals" hidden>
+                <div class="exam-portal-menu" id="examPortalMenu" role="menu" aria-label="Chemistry Exam &amp; Study Portals" hidden>
                   <div class="portal-menu-header">
-                    <span class="portal-menu-badge">OFFICIAL &amp; GOLD PYQs</span>
-                    <strong>JEE Chemistry Exam Portals</strong>
-                    <small>Opens in secure new tab · Practice progress saved</small>
+                    <span class="portal-menu-badge">OFFICIAL PYQs &amp; NCERT NOTES</span>
+                    <strong>Chemistry Exam &amp; Study Portals</strong>
+                    <small>Opens in a new tab · Practice progress saved</small>
                   </div>
                   <div class="portal-menu-list">
                     <a class="portal-item main" id="portalJeeMain" href="https://questions.examside.com/past-years/jee/jee-main/chemistry" target="_blank" rel="noopener noreferrer" role="menuitem">
@@ -501,6 +534,13 @@
                         <div class="portal-desc">Official NTA Master Papers &amp; Shift Answer Keys</div>
                       </div>
                     </a>
+                    <a class="portal-item selfstudys" id="portalSelfstudys" href="https://www.selfstudys.com/books/ncert-notes/english/class-12th/chemistry/1462" target="_blank" rel="noopener noreferrer" role="menuitem">
+                      <div class="portal-icon">📘</div>
+                      <div class="portal-info">
+                        <div class="portal-name">SelfStudys NCERT Class 12 Chemistry <span class="portal-launch-icon">↗</span></div>
+                        <div class="portal-desc">Chapterwise NCERT Notes, Named Reactions &amp; Revision Sheets</div>
+                      </div>
+                    </a>
                   </div>
                   <div class="portal-menu-footer">
                     <button class="portal-close-btn" type="button" aria-label="Close exam portal menu">✕ Close Portals</button>
@@ -525,33 +565,95 @@
           <div class="chart-bars" id="chartBars"></div>
           <div class="analytics-callout" id="focusCallout"></div>
           <div class="btn-row">
-            <button class="outline-btn" id="analyticsExplain">How should PYQ analytics work?</button>
-            <button class="outline-btn danger" id="resetStats">Reset my stats</button>
+            <button type="button" class="outline-btn" id="analyticsExplain">How should PYQ analytics work?</button>
+            <button type="button" class="outline-btn danger" id="resetStats">Reset my stats</button>
           </div>
           <p class="small-muted">Stored only in this browser. Nothing is uploaded and nothing here is official JEE or CBSE statistics.</p>
         </section>
 
         <!-- CANVAS -->
         <section class="panel canvas-panel" id="canvasPanel" aria-labelledby="canTitle">
-          <div class="panel-head"><div><strong id="canTitle">Reaction Canvas</strong><small>Sketch and annotate mechanisms</small></div></div>
-          <div class="canvas-tools" role="toolbar" aria-label="Drawing tools">
-            <button id="toolPen" class="tool active" aria-pressed="true">✎ Pen</button>
-            <button id="toolArrow" class="tool" aria-pressed="false">↗ Arrow</button>
-            <button id="toolEraser" class="tool" aria-pressed="false">⌫ Eraser</button>
-            <label>Ink <input id="inkColor" type="color" value="#53e4ff"></label>
-            <label>Width <input id="inkWidth" type="range" min="1" max="10" value="3"></label>
-            <button id="undoStroke">↶ Undo</button>
-            <button id="clearCanvas">Clear</button>
-            <button id="saveCanvas">⇩ Save PNG</button>
+          <div class="panel-head">
+            <div>
+              <strong id="canTitle">Reaction &amp; Study Table Canvas</strong>
+              <small id="canSub">Sketch mechanisms or inspect AI-generated chemistry tables in a study board</small>
+            </div>
+            <div class="canvas-mode-switch" id="canvasModeSwitch" role="group" aria-label="Canvas display mode">
+              <button type="button" class="canvas-mode-btn active" id="canvasSketchModeBtn" data-canvas-mode="sketch" aria-pressed="true">✎ Sketch Pad</button>
+              <button type="button" class="canvas-mode-btn" id="canvasTableModeBtn" data-canvas-mode="table" aria-pressed="false">⊞ Table Canvas</button>
+            </div>
           </div>
-          <canvas id="reactionCanvas" aria-label="Chemistry drawing canvas"></canvas>
-          <p class="small-muted">Draw with your finger, pen or mouse. Arrows are visual annotations only; this is a sketch pad, not a structure or mechanism validator.</p>
+
+          <div id="canvasSketchView">
+            <div class="canvas-tools" role="toolbar" aria-label="Drawing tools">
+              <button type="button" id="toolPen" class="tool active" aria-pressed="true">✎ Pen</button>
+              <button type="button" id="toolArrow" class="tool" aria-pressed="false">↗ Arrow</button>
+              <button type="button" id="toolEraser" class="tool" aria-pressed="false">⌫ Eraser</button>
+              <label>Ink <input id="inkColor" type="color" value="#53e4ff"></label>
+              <label>Width <input id="inkWidth" type="range" min="1" max="10" value="3"></label>
+              <button type="button" id="undoStroke">↶ Undo</button>
+              <button type="button" id="clearCanvas">Clear</button>
+              <button type="button" id="saveCanvas">⇩ Save PNG</button>
+            </div>
+            <canvas id="reactionCanvas" aria-label="Chemistry drawing canvas"></canvas>
+            <p class="small-muted">Draw with your finger, pen or mouse. Arrows are visual annotations only; this is a sketch pad, not a structure or mechanism validator.</p>
+          </div>
+
+          <div class="tc-view" id="canvasTableView" hidden>
+            <div class="tc-toolbar">
+              <div class="tc-tabs" id="tcTableTabs" role="tablist" aria-label="Tables from response" hidden></div>
+              <div class="tc-tools-row">
+                <input id="tcSearch" type="search" placeholder="Filter table rows…" aria-label="Filter rows in Table Canvas" autocomplete="off">
+                <div class="tc-btn-group">
+                  <button type="button" class="outline-btn tc-btn" id="tcDensityBtn" aria-pressed="false" title="Toggle compact row spacing">Compact</button>
+                  <button type="button" class="outline-btn tc-btn" id="tcMaskBtn" aria-pressed="false" title="Hide the last column to quiz yourself; click any hidden cell to reveal">Quiz Mask</button>
+                  <button type="button" class="outline-btn tc-btn" id="tcCopyMdBtn" title="Copy current table as Markdown">Copy MD</button>
+                  <button type="button" class="outline-btn tc-btn" id="tcDownloadCsvBtn" title="Download current table as CSV">⇩ CSV</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tc-empty" id="tcEmpty">
+              <strong>Study Table Canvas Ready</strong>
+              <p class="small-muted">Ask Nemo for any chemistry table or comparison—it renders cleanly in chat and syncs automatically onto this interactive study board.</p>
+              <div class="tc-quick-row">
+                <button type="button" class="outline-btn tc-quick-btn" data-tc-prompt="Give me a table of electronegativity.">Electronegativity Table</button>
+                <button type="button" class="outline-btn tc-quick-btn" data-tc-prompt="Give me a table of organic reagents in amines chapter.">Amines Reagents Table</button>
+                <button type="button" class="outline-btn tc-quick-btn" data-tc-prompt="Give me the important difference between organic and inorganic elements.">Organic vs Inorganic Table</button>
+              </div>
+            </div>
+
+            <div class="tc-board" id="tcBoard" hidden>
+              <div class="tc-board-head">
+                <div class="tc-board-titles">
+                  <h3 class="tc-caption" id="tcCaption">Chemistry Reference Table</h3>
+                  <div class="tc-meta" id="tcMeta" role="status"></div>
+                </div>
+                <span class="tc-mask-hint" id="tcMaskHint" hidden>Quiz Mask active — click any blurred cell to reveal</span>
+              </div>
+              <div class="tc-scroll-wrap" id="tcScrollWrap" tabindex="0" aria-label="Interactive study table">
+                <table class="tc-table" id="tcTable"></table>
+              </div>
+              <div class="tc-notes" id="tcNotes" hidden></div>
+            </div>
+          </div>
         </section>
 
         <!-- LIBRARY -->
         <section class="panel library-panel" id="libraryPanel" aria-labelledby="libTitle">
-          <div class="panel-head"><div><strong id="libTitle">Rules &amp; Exceptions Library</strong><small>Laws, special cases, exceptions, trends, name reactions and tests for Physical, Inorganic and Organic</small></div>
-            <input id="libSearch" type="search" placeholder="Search e.g. Bredt, Hofmann, Jahn–Teller…" aria-label="Search the library" autocomplete="off"></div>
+          <div class="panel-head">
+            <div>
+              <strong id="libTitle">Rules &amp; Exceptions Library</strong>
+              <small>Laws, special cases, exceptions, trends, name reactions and tests for Physical, Inorganic and Organic</small>
+            </div>
+            <div class="lib-head-actions">
+              <div class="lib-mode-switch" id="libModeSwitch" role="group" aria-label="Library view mode">
+                <button type="button" class="lib-mode-btn active" id="libBrowseBtn" data-mode="browse" aria-pressed="true">≡ Browse</button>
+                <button type="button" class="lib-mode-btn" id="libFlashBtn" data-mode="flashcards" aria-pressed="false">⚡ Flashcards</button>
+              </div>
+              <input id="libSearch" type="search" placeholder="Search e.g. Bredt, Hofmann, Jahn–Teller…" aria-label="Search the library" autocomplete="off">
+            </div>
+          </div>
           <div class="chip-row" id="libBranch" role="group" aria-label="Filter by branch"></div>
           <div class="lib-filters">
             <select id="libChapter" aria-label="Filter by chapter"></select>
@@ -559,10 +661,214 @@
             <select id="libLevel" aria-label="Filter by level"></select>
             <span class="small-muted" id="libCount" role="status"></span>
           </div>
-          <div class="lib-list" id="libList"></div>
-          <div class="btn-row"><button class="outline-btn" id="libMore" hidden>Show more</button></div>
-          <p class="small-muted" id="libEmpty" hidden>No entry matches those filters.</p>
+
+          <div id="libBrowseView">
+            <div class="lib-list" id="libList"></div>
+            <div class="btn-row"><button type="button" class="outline-btn" id="libMore" hidden>Show more</button></div>
+            <p class="small-muted" id="libEmpty" hidden>No entry matches those filters.</p>
+          </div>
+
+          <div class="lib-fc-view" id="libFlashView" hidden>
+            <div class="lib-fc-toolbar">
+              <div class="lib-fc-focus-group" id="fcFocusGroup" role="group" aria-label="Flashcard quiz focus">
+                <button type="button" class="lib-fc-focus-btn active" data-focus="mixed" aria-pressed="true">Mixed</button>
+                <button type="button" class="lib-fc-focus-btn" data-focus="definition" aria-pressed="false">Definitions</button>
+                <button type="button" class="lib-fc-focus-btn" data-focus="exception" aria-pressed="false">Exceptions &amp; Traps</button>
+              </div>
+              <div class="lib-fc-deck-actions">
+                <button type="button" class="outline-btn lib-fc-tool-btn" id="fcOnlyUnmastered" aria-pressed="false" title="Study only cards not yet marked Mastered">Unmastered Only</button>
+                <button type="button" class="outline-btn lib-fc-tool-btn" id="fcShuffle" title="Shuffle current flashcard deck">🔀 Shuffle</button>
+                <button type="button" class="outline-btn lib-fc-tool-btn" id="fcReset" title="Clear saved mastery status for all library flashcards">Reset Progress</button>
+              </div>
+            </div>
+
+            <div class="lib-fc-progress-wrap">
+              <div class="lib-fc-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="fcProgressBar">
+                <div class="lib-fc-progress-fill" id="fcProgressFill"></div>
+              </div>
+              <div class="lib-fc-status" id="fcStatusText" role="status">Card 0 of 0</div>
+            </div>
+
+            <div class="lib-fc-empty-deck" id="fcEmptyDeck" hidden>
+              <strong id="fcEmptyTitle">No matching flashcards</strong>
+              <p class="small-muted" id="fcEmptyDesc">Try widening your branch, chapter, type, or search filters.</p>
+              <div class="btn-row">
+                <button type="button" class="outline-btn" id="fcShowAllFilterBtn" hidden>Include Mastered Cards</button>
+                <button type="button" class="outline-btn" id="fcBackToBrowseBtn">Back to Browse</button>
+              </div>
+            </div>
+
+            <div class="lib-fc-summary" id="fcSummaryView" hidden>
+              <div class="lib-fc-summary-kicker" id="fcSummaryKicker">Deck Complete</div>
+              <h3 class="lib-fc-summary-title" id="fcSummaryTitle">Flashcard Session Summary</h3>
+              <div class="lib-fc-summary-stats">
+                <div class="lib-fc-stat"><b id="fcSumGotIt">0</b><span>Got It</span></div>
+                <div class="lib-fc-stat"><b id="fcSumAgain">0</b><span>Needs Review</span></div>
+                <div class="lib-fc-stat"><b id="fcSumMastered">0</b><span>Total Mastered</span></div>
+              </div>
+              <div class="btn-row lib-fc-summary-actions">
+                <button type="button" class="primary" id="fcPracticeMissedBtn" hidden>Review Missed Cards</button>
+                <button type="button" class="secondary" id="fcRestartDeckBtn">Restart Deck</button>
+                <button type="button" class="outline-btn" id="fcSummaryBrowseBtn">Back to Browse</button>
+              </div>
+            </div>
+
+            <div class="lib-fc-stage" id="fcStage">
+              <div class="lib-fc-scene">
+                <div class="lib-fc-card" id="fcCard" tabindex="0" role="button" aria-label="Chemistry flashcard. Press Space or click to flip.">
+                  <div class="lib-fc-face lib-fc-front" id="fcFrontFace">
+                    <div class="lib-fc-card-top">
+                      <span class="lib-fc-meta" id="fcFrontMeta"></span>
+                      <span class="lib-fc-state" id="fcFrontState"></span>
+                    </div>
+                    <div class="lib-fc-prompt-wrap">
+                      <div class="lib-fc-kicker" id="fcPromptKicker">Definition Recall</div>
+                      <p class="lib-fc-prompt" id="fcPromptQ"></p>
+                      <h3 class="lib-fc-title" id="fcFrontTitle"></h3>
+                      <p class="lib-fc-sub" id="fcFrontSub" hidden></p>
+                      <div class="lib-fc-hint-wrap" id="fcHintWrap" hidden>
+                        <button type="button" class="outline-btn lib-fc-hint-btn" id="fcHintBtn" aria-expanded="false">Show Rule Hint</button>
+                        <div class="lib-fc-hint-box" id="fcHintBox" hidden></div>
+                      </div>
+                    </div>
+                    <div class="lib-fc-card-foot">
+                      <span>Click card or press Space to reveal answer</span>
+                    </div>
+                  </div>
+
+                  <div class="lib-fc-face lib-fc-back" id="fcBackFace" aria-hidden="true">
+                    <div class="lib-fc-card-top">
+                      <span class="lib-fc-meta" id="fcBackMeta"></span>
+                      <button type="button" class="outline-btn lib-fc-flip-back-btn" id="fcFlipBackBtn">↺ Question</button>
+                    </div>
+                    <div class="lib-fc-back-head">
+                      <h3 class="lib-fc-back-title" id="fcBackTitle"></h3>
+                    </div>
+                    <div class="lib-fc-back-body" id="fcBackBody"></div>
+                    <div class="lib-fc-card-foot lib-fc-back-foot">
+                      <span class="lib-fc-answer-tip">Rate your recall below</span>
+                      <button type="button" class="outline-btn" id="fcAskNemoBtn">Ask Nemo AI ↗</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="lib-fc-controls">
+                <button type="button" class="outline-btn lib-fc-nav-btn" id="fcPrevBtn" aria-label="Previous flashcard">← Prev</button>
+                <div class="lib-fc-grade-group">
+                  <button type="button" class="lib-fc-grade-btn again" id="fcAgainBtn" title="Mark for review and re-queue in this session (Key 1)">↺ Needs Review <kbd>1</kbd></button>
+                  <button type="button" class="outline-btn lib-fc-flip-btn" id="fcFlipBtn" title="Flip flashcard (Space)">Flip Card</button>
+                  <button type="button" class="lib-fc-grade-btn mastered" id="fcGotItBtn" title="Mark as mastered and advance (Key 2)">✓ Got It <kbd>2</kbd></button>
+                </div>
+                <button type="button" class="outline-btn lib-fc-nav-btn" id="fcNextBtn" aria-label="Next flashcard">Next →</button>
+              </div>
+              <p class="small-muted lib-fc-shortcuts">Shortcuts: Space flip · 1 needs review · 2 got it · ← / → prev / next</p>
+            </div>
+          </div>
+
           <p class="small-muted">Original summaries written from standard NCERT, IUPAC and textbook knowledge. They are not copied from any coaching module or paper. Check them against your NCERT and class notes, and report anything that looks wrong.</p>
+        </section>
+
+        <!-- PERIODIC TABLE -->
+        <section class="panel periodic-panel" id="periodicPanel" aria-labelledby="ptTitle">
+          <div class="panel-head">
+            <div>
+              <strong id="ptTitle">Periodic Table &amp; Quantum Inspector</strong>
+              <small>All 118 IUPAC elements · Aufbau &amp; JEE trend exceptions · KaTeX orbital breakdowns</small>
+            </div>
+            <div class="pt-head-actions">
+              <input id="ptSearch" type="search" placeholder="Search Z, symbol, name, or trap (e.g. Pd, 24, inert pair)…" aria-label="Search elements in periodic table" autocomplete="off">
+              <button type="button" class="outline-btn" id="ptResetBtn" title="Reset periodic table search and filters">Reset</button>
+              <span class="tiny-tag" id="ptMatchCount" role="status">118 ELEMENTS</span>
+            </div>
+          </div>
+
+          <div class="pt-controls-ribbon">
+            <div class="pt-control-group" role="group" aria-label="Filter elements by block or anomaly">
+              <span class="pt-control-label">Filter</span>
+              <div class="chip-row pt-chips" id="ptFilterRow">
+                <button type="button" class="chip active" data-pt-filter="all" aria-pressed="true">All (118)</button>
+                <button type="button" class="chip" data-pt-filter="s" aria-pressed="false">s-block</button>
+                <button type="button" class="chip" data-pt-filter="p" aria-pressed="false">p-block</button>
+                <button type="button" class="chip" data-pt-filter="d" aria-pressed="false">d-block</button>
+                <button type="button" class="chip" data-pt-filter="f" aria-pressed="false">f-block</button>
+                <button type="button" class="chip" data-pt-filter="anomalous" aria-pressed="false">* Aufbau Exceptions (20)</button>
+                <button type="button" class="chip" data-pt-filter="exceptions" aria-pressed="false">JEE Traps</button>
+              </div>
+            </div>
+            <div class="pt-control-group" role="group" aria-label="Periodic table heatmap metric">
+              <span class="pt-control-label">View</span>
+              <div class="pt-mode-switch" id="ptHeatmapRow">
+                <button type="button" class="pt-mode-btn active" data-pt-mode="category" aria-pressed="true">Series</button>
+                <button type="button" class="pt-mode-btn" data-pt-mode="ie1" aria-pressed="false">IE₁</button>
+                <button type="button" class="pt-mode-btn" data-pt-mode="en" aria-pressed="false">χ (EN)</button>
+                <button type="button" class="pt-mode-btn" data-pt-mode="radius" aria-pressed="false">Radius</button>
+                <button type="button" class="pt-mode-btn" data-pt-mode="exceptions" aria-pressed="false">Exceptions</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-legend-bar" id="ptLegendBar" aria-live="polite"></div>
+
+          <div class="pt-stage-layout">
+            <div class="pt-grid-stage">
+              <div class="pt-grid-scroll" id="ptGridScroll" tabindex="0" aria-label="Interactive 18-column IUPAC Periodic Table">
+                <div class="pt-grid" id="ptGrid" role="grid" aria-label="Periodic Table of Elements"></div>
+              </div>
+              <p class="small-muted pt-grid-hint">Click any element or use arrow keys to inspect KaTeX orbital configurations, Aufbau exceptions (*), and periodic comparisons.</p>
+            </div>
+
+            <aside class="pt-inspector" id="ptInspector" aria-live="polite" aria-label="Selected element details">
+              <div class="pt-insp-hero" id="ptInspHero">
+                <div class="pt-insp-badge-tile" id="ptInspTile">
+                  <span class="pt-insp-z" id="ptInspZ">1</span>
+                  <span class="pt-insp-sym" id="ptInspSym">H</span>
+                  <span class="pt-insp-mass" id="ptInspMass">1.008</span>
+                </div>
+                <div class="pt-insp-ident">
+                  <div class="pt-insp-tags" id="ptInspTags"></div>
+                  <h3 class="pt-insp-name" id="ptInspName">Hydrogen</h3>
+                  <div class="pt-insp-meta" id="ptInspMeta">Period 1 · Group 1 · s-block · Gas (298 K)</div>
+                </div>
+              </div>
+
+              <div class="pt-insp-tabs" role="tablist" aria-label="Element inspector sections">
+                <button type="button" class="pt-insp-tab active" data-pt-tab="overview" role="tab" aria-selected="true">Overview &amp; KaTeX</button>
+                <button type="button" class="pt-insp-tab" data-pt-tab="exceptions" role="tab" aria-selected="false">Exceptions &amp; Traps <span class="pt-tab-badge" id="ptExcCount">0</span></button>
+                <button type="button" class="pt-insp-tab" data-pt-tab="compare" role="tab" aria-selected="false">Compare</button>
+              </div>
+
+              <div class="pt-insp-pane" id="ptTabOverview" role="tabpanel">
+                <div class="pt-katex-section">
+                  <div class="pt-sec-label">Ground-State Configuration</div>
+                  <div class="pt-config-math" id="ptConfigMath"></div>
+                  <div class="pt-anom-compare" id="ptAnomCompare" hidden></div>
+                  <div class="pt-qn-box" id="ptQnBox"></div>
+                </div>
+                <dl class="pt-props-grid" id="ptPropsGrid"></dl>
+              </div>
+
+              <div class="pt-insp-pane" id="ptTabExceptions" role="tabpanel" hidden>
+                <div class="pt-exceptions-list" id="ptExceptionsList"></div>
+              </div>
+
+              <div class="pt-insp-pane" id="ptTabCompare" role="tabpanel" hidden>
+                <div class="pt-compare-controls">
+                  <div class="pt-compare-quick" id="ptCompareQuick"></div>
+                  <label class="pt-compare-select-wrap">
+                    <span>Compare with</span>
+                    <select id="ptCompareSelect" aria-label="Select second element to compare"></select>
+                  </label>
+                </div>
+                <div class="pt-compare-body" id="ptCompareBody"></div>
+              </div>
+
+              <div class="pt-insp-actions">
+                <button type="button" class="primary pt-action-btn" id="ptAskNemoBtn">Ask Nemo AI about Hydrogen ↗</button>
+                <button type="button" class="secondary pt-action-btn" id="ptView3DBtn" hidden>⬡ View in 3D</button>
+              </div>
+            </aside>
+          </div>
         </section>
 
         <!-- PYQ BANK -->
@@ -579,11 +885,11 @@
                   <span class="portal-text">Gold Exam Portals</span>
                   <span class="portal-caret">▾</span>
                 </button>
-                <div class="exam-portal-menu" id="pyqExamPortalMenu" role="menu" aria-label="JEE Chemistry Exam Portals" hidden>
+                <div class="exam-portal-menu" id="pyqExamPortalMenu" role="menu" aria-label="Chemistry Exam &amp; Study Portals" hidden>
                   <div class="portal-menu-header">
-                    <span class="portal-menu-badge">OFFICIAL &amp; GOLD PYQs</span>
-                    <strong>JEE Chemistry Exam Portals</strong>
-                    <small>Opens in secure new tab · Practice progress saved</small>
+                    <span class="portal-menu-badge">OFFICIAL PYQs &amp; NCERT NOTES</span>
+                    <strong>Chemistry Exam &amp; Study Portals</strong>
+                    <small>Opens in a new tab · Practice progress saved</small>
                   </div>
                   <div class="portal-menu-list">
                     <a class="portal-item main" href="https://questions.examside.com/past-years/jee/jee-main/chemistry" target="_blank" rel="noopener noreferrer" role="menuitem">
@@ -614,12 +920,20 @@
                         <div class="portal-desc">Official NTA Master Papers &amp; Shift Answer Keys</div>
                       </div>
                     </a>
+                    <a class="portal-item selfstudys" id="pyqPortalSelfstudys" href="https://www.selfstudys.com/books/ncert-notes/english/class-12th/chemistry/1462" target="_blank" rel="noopener noreferrer" role="menuitem">
+                      <div class="portal-icon">📘</div>
+                      <div class="portal-info">
+                        <div class="portal-name">SelfStudys NCERT Class 12 Chemistry <span class="portal-launch-icon">↗</span></div>
+                        <div class="portal-desc">Chapterwise NCERT Notes, Named Reactions &amp; Revision Sheets</div>
+                      </div>
+                    </a>
                   </div>
                   <div class="portal-menu-footer">
                     <button class="portal-close-btn" type="button" aria-label="Close exam portal menu">✕ Close Portals</button>
                   </div>
                 </div>
               </div>
+              <button type="button" class="outline-btn pyq-jump-analytics-btn" id="pyqJumpAnalyticsBtn" title="Jump to PYQ Pattern Analysis, Infographics &amp; ROI Heat Map">📊 Pattern &amp; ROI Map ↗</button>
               <span class="tiny-tag">CBSE &amp; JEE ARCHIVE</span>
             </div>
           </div>
@@ -629,13 +943,13 @@
           <div class="pyq-gold-hub" id="pyqGoldHub">
             <div class="gold-hub-header">
               <div class="gold-hub-badge-row">
-                <span class="gold-hub-badge">★ DIRECT EXAM CBT PORTALS</span>
-                <span class="gold-hub-verified">Verified Real Question Banks</span>
+                <span class="gold-hub-badge">★ GOLD EXAM &amp; STUDY PORTALS</span>
+                <span class="gold-hub-verified">Verified PYQ Archives &amp; NCERT Notes</span>
               </div>
               <div class="gold-hub-title-row">
                 <div>
-                  <h3>Gold Chemistry Examination Portals</h3>
-                  <p>Instant direct pathways to chapterwise past years CBT question papers, official answer keys, and test archives.</p>
+                  <h3>Gold Chemistry Examination &amp; Study Portals</h3>
+                  <p>Direct pathways to chapterwise JEE CBT past papers, official IIT/NTA archives, and SelfStudys Class 12 NCERT Chemistry notes.</p>
                 </div>
               </div>
             </div>
@@ -700,19 +1014,34 @@
                   <em class="hub-arrow">↗</em>
                 </div>
               </a>
+              <a class="gold-hub-card selfstudys" id="hubCardSelfstudys" href="https://www.selfstudys.com/books/ncert-notes/english/class-12th/chemistry/1462" target="_blank" rel="noopener noreferrer">
+                <div class="gold-hub-card-top">
+                  <div class="gold-hub-card-icon">📘</div>
+                  <div class="gold-hub-card-tags">
+                    <span class="hub-tag ncert">NCERT NOTES</span>
+                    <span class="hub-tag class12">CLASS 12</span>
+                  </div>
+                </div>
+                <h4>SelfStudys NCERT Class 12 Chemistry</h4>
+                <p>Structured Class 12 NCERT Chemistry chapterwise revision notes, key concepts, named organic reactions, and board-focused summaries.</p>
+                <div class="gold-hub-card-action">
+                  <span>Open SelfStudys Chemistry Notes</span>
+                  <em class="hub-arrow">↗</em>
+                </div>
+              </a>
             </div>
           </div>
           <details class="import-box" id="pyqImportBox">
             <summary>Import custom questions (optional)</summary>
             <textarea id="pyqText" rows="4" placeholder="Paste a JSON array or CSV here, or choose a file. Download a template to see the exact format." aria-label="Paste questions as JSON or CSV" spellcheck="false"></textarea>
             <div class="btn-row">
-              <button class="primary" id="pyqImport">Import pasted text</button>
+              <button type="button" class="primary" id="pyqImport">Import pasted text</button>
               <label class="outline-btn file-btn">Choose file<input type="file" id="pyqFile" accept=".json,.csv,.txt,application/json,text/csv,text/plain" hidden></label>
-              <button class="outline-btn" id="pyqTplJson">Template (JSON)</button>
-              <button class="outline-btn" id="pyqTplCsv">Template (CSV)</button>
-              <button class="outline-btn" id="pyqPrompt" title="Prompt for turning an official paper plus its answer key into this format with an AI model">Copy extraction prompt</button>
-              <button class="outline-btn" id="pyqExport">Back up</button>
-              <button class="outline-btn danger" id="pyqClear">Remove imported</button>
+              <button type="button" class="outline-btn" id="pyqTplJson">Template (JSON)</button>
+              <button type="button" class="outline-btn" id="pyqTplCsv">Template (CSV)</button>
+              <button type="button" class="outline-btn" id="pyqPrompt" title="Prompt for turning an official paper plus its answer key into this format with an AI model">Copy extraction prompt</button>
+              <button type="button" class="outline-btn" id="pyqExport">Back up</button>
+              <button type="button" class="outline-btn danger" id="pyqClear">Remove imported</button>
             </div>
             <p class="small-muted">Answers are option letters (<code>B</code>, <code>A;C</code>) or a number. Type is <code>mcq</code>, <code>msq</code> or <code>num</code>. Rows that fail validation are skipped and listed.</p>
           </details>
@@ -723,16 +1052,97 @@
             <select id="pyqBranch" aria-label="Branch"><option value="All">All branches</option><option>Physical</option><option>Inorganic</option><option>Organic</option></select>
             <select id="pyqChapter" aria-label="Chapter"></select>
             <select id="pyqState" aria-label="Progress"><option value="All">All questions</option><option value="new">Not attempted</option><option value="missed">Missed last time</option></select>
-            <button class="outline-btn" id="pyqStart">Start / restart</button>
+            <button type="button" class="outline-btn" id="pyqStart">Start / restart</button>
           </div>
           <div id="pyqBody" tabindex="0" aria-label="PYQ exam question and choices (use keys 1 to 4 or A to D to answer)" aria-live="polite"></div>
+        </section>
+
+        <!-- PYQ PATTERN ANALYSIS, INFOGRAPHICS & ROI HEAT MAP -->
+        <section class="panel pyq-analytics-panel" id="pyqAnalyticsPanel" aria-labelledby="pyqAnalyticsTitle">
           <div class="pyq-analytics">
-            <div class="panel-head"><div><strong>Chapter frequency by year</strong><small>Counts of questions in your imported set</small></div><select id="pyqTableExam" aria-label="Exam for the table"></select></div>
+            <div class="panel-head">
+              <div>
+                <span class="status-dot"></span>
+                <strong id="pyqAnalyticsTitle">PYQ Pattern Analysis, Infographics &amp; ROI Heat Map</strong>
+                <small>Year-wise trends, topic ROI quadrant, CBSE Class 12 vs JEE Main/Adv weightage &amp; chapter frequency heat map (2016–2026)</small>
+              </div>
+              <div class="head-actions">
+                <select id="pyqTableExam" aria-label="Exam track for PYQ analytics"></select>
+                <button type="button" class="outline-btn" id="pyqAnalyticsPracticeBtn" title="Switch to PYQ Practice Bank">⌗ Practice PYQs ↗</button>
+                <span class="tiny-tag">2016–2026 ROI ENGINE</span>
+              </div>
+            </div>
+
+            <div class="pyq-ana-toolbar" role="region" aria-label="PYQ analytics filters">
+              <div class="pyq-ana-seg" id="pyqAnaExamBar" role="group" aria-label="Filter analytics by exam"></div>
+              <div class="pyq-ana-branches" id="pyqAnaBranchBar" role="group" aria-label="Filter analytics by branch">
+                <button type="button" class="chip active" data-ana-branch="All" aria-pressed="true">All Branches</button>
+                <button type="button" class="chip" data-ana-branch="Physical" aria-pressed="false">Physical</button>
+                <button type="button" class="chip" data-ana-branch="Inorganic" aria-pressed="false">Inorganic</button>
+                <button type="button" class="chip" data-ana-branch="Organic" aria-pressed="false">Organic</button>
+              </div>
+              <div class="pyq-ana-roi-controls">
+                <div class="pyq-ana-tiers" id="pyqAnaTierBar" role="group" aria-label="Filter by ROI tier">
+                  <button type="button" class="chip active" data-ana-tier="All" aria-pressed="true">All ROI Tiers</button>
+                  <button type="button" class="chip" data-ana-tier="high" aria-pressed="false">★ High ROI</button>
+                  <button type="button" class="chip" data-ana-tier="core" aria-pressed="false">◆ Core Anchor</button>
+                  <button type="button" class="chip" data-ana-tier="boost" aria-pressed="false">○ Quick Booster</button>
+                  <button type="button" class="chip" data-ana-tier="tail" aria-pressed="false">△ Long-Tail</button>
+                </div>
+                <input id="pyqAnaSearch" class="pyq-ana-search" type="search" placeholder="Filter chapter or topic…" aria-label="Filter PYQ analytics by chapter name" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="pyq-kpi-strip" id="pyqKpiStrip" aria-live="polite"></div>
+
+            <div class="pyq-infographics-grid" id="pyqInfographicsGrid">
+              <div class="pyq-info-card">
+                <div class="pyq-info-head">
+                  <div>
+                    <h4>Year-Wise Pattern &amp; Branch Shift (2016–2026)</h4>
+                    <small id="pyqYearChartNote">Hover or click any year bar to inspect distribution</small>
+                  </div>
+                  <div class="pyq-branch-key" aria-hidden="true">
+                    <span class="k-phys">Physical</span>
+                    <span class="k-inorg">Inorganic</span>
+                    <span class="k-org">Organic</span>
+                  </div>
+                </div>
+                <div class="pyq-svg-wrap" id="pyqYearChart"></div>
+              </div>
+
+              <div class="pyq-info-card">
+                <div class="pyq-info-head">
+                  <div>
+                    <h4>Topic ROI Quadrant (Yield vs. Study Effort)</h4>
+                    <small>Click any chapter node to inspect CBSE Class 12, JEE Main &amp; Advanced ROI</small>
+                  </div>
+                </div>
+                <div class="pyq-svg-wrap" id="pyqRoiMatrix"></div>
+              </div>
+            </div>
+
+            <div class="pyq-topic-spotlight" id="pyqTopicSpotlight" aria-live="polite"></div>
+
             <p class="pyq-msg warn" id="pyqCaution" hidden></p>
+            <div class="pyq-heatmap-header">
+              <div>
+                <strong>Chapter × Year Frequency Heat Map &amp; ROI Breakdown</strong>
+                <small>Click any highlighted heat cell to drill that chapter &amp; year, or click a chapter row for topic ROI details</small>
+              </div>
+              <div class="pyq-heat-legend" aria-label="Heat map frequency intensity legend">
+                <span class="heat-leg-lbl">Intensity:</span>
+                <span class="heat-swatch s0" title="0 PYQs">0</span>
+                <span class="heat-swatch s1" title="Low frequency (1 PYQ)">Low</span>
+                <span class="heat-swatch s2" title="Moderate frequency">Med</span>
+                <span class="heat-swatch s3" title="High frequency">High</span>
+                <span class="heat-swatch s4" title="Peak hotspot">Peak</span>
+              </div>
+            </div>
             <div id="pyqTable"></div>
-            <div class="btn-row"><button class="outline-btn" id="pyqShowAll" hidden></button></div>
+            <div class="btn-row"><button type="button" class="outline-btn" id="pyqShowAll" hidden></button></div>
             <div class="analytics-callout" id="pyqInsight"></div>
-            <p class="small-muted">Frequency shows how often a chapter appears in <i>your</i> imported questions. It is not an official statistic and says nothing about future papers.</p>
+            <p class="small-muted">Counts and year trends are computed dynamically from the 10-year archive and any custom questions you import. ROI effort tiers reflect standard NCERT Class 12 &amp; JEE syllabus depth.</p>
           </div>
         </section>
 
@@ -750,11 +1160,12 @@
               <input id="formulaSearch" type="search" placeholder="Search 400+ formulas, symbols, topics…" aria-label="Search formulas" autocomplete="off">
             </div>
           </div>
+          <div class="chem-unit-widget" id="formulaUnitWidget" role="region" aria-label="Chemical Unit Converter"></div>
           <div class="chip-row" id="formulaFilters" role="group" aria-label="Filter by branch"></div>
           <div class="formula-grid" id="formulaGrid"></div>
           <p class="small-muted" id="formulaEmpty" hidden>No formula matches that search.</p>
           <div class="btn-row formula-more-row" id="formulaMoreWrap" style="justify-content:center;margin-top:16px;">
-            <button class="outline-btn" id="formulaMore">Show more formulas</button>
+            <button type="button" class="outline-btn" id="formulaMore">Show more formulas</button>
           </div>
         </section>
       </section>
@@ -768,7 +1179,7 @@
       <div class="nemo-contact-shadow" id="nemoShadow" aria-hidden="true"></div>
 
       <!-- 3D Spherical Mascot Orb with Ray Shading, Specular Glass Sheen & Fresnel Rim -->
-      <button class="widget-orb nemo-3d-sphere" id="widgetOrb" aria-label="Nemo 3D companion: open or close" data-state="chat">
+      <button type="button" class="widget-orb nemo-3d-sphere" id="widgetOrb" aria-label="Nemo 3D companion: open or close" data-state="chat">
         <!-- Cute Antenna with Sparkling Star -->
         <span class="nemo-antenna" aria-hidden="true"><i class="nemo-antenna-tip">★</i></span>
         <!-- Curved Glass Specular Highlight -->
@@ -838,7 +1249,7 @@
           <span class="pulse-spark">✨</span>
           <strong id="popoverHeading">Nemo 3D Companion</strong>
         </div>
-        <button id="closePopover" aria-label="Close popover">&times;</button>
+        <button type="button" id="closePopover" aria-label="Close popover">&times;</button>
       </div>
       <p id="popoverContextText">I'm tracking your study session! Jump into any section or listen to a key tip:</p>
       
@@ -870,7 +1281,9 @@
         <button class="qn-btn" type="button" data-target="practicePanel">✔ Practice Quiz</button>
         <button class="qn-btn" type="button" data-target="analyticsPanel">▥ Analytics</button>
         <button class="qn-btn" type="button" data-target="libraryPanel">§ Rules &amp; Traps</button>
+        <button class="qn-btn" type="button" data-target="periodicPanel">⊞ Periodic</button>
         <button class="qn-btn" type="button" data-target="pyqPanel">⌗ PYQ Bank</button>
+        <button class="qn-btn" type="button" data-target="pyqAnalyticsPanel">📊 PYQ ROI Map</button>
         <button class="qn-btn" type="button" data-target="formulasPanel">∑ Formulas</button>
       </div>
       <div class="popover-actions">
@@ -879,11 +1292,12 @@
       </div>
       <small>Drag the 3D sphere anywhere. Click to toggle. Use − to minimize.</small>
     </div>
-    <button class="widget-minimize" id="minimizeWidget" aria-label="Minimize Nemo" title="Minimize Nemo">−</button>
+    <button type="button" class="widget-minimize" id="minimizeWidget" aria-label="Minimize Nemo" title="Minimize Nemo">−</button>
+  </div>
   <!-- DEDICATED FOUNDER TRIBUTE MODAL (J.SANJAY) -->
   <div class="founder-modal-backdrop" id="founderModal" role="dialog" aria-modal="true" aria-labelledby="founderModalTitle" hidden>
     <div class="founder-modal-card">
-      <button class="founder-modal-close" id="closeFounderModal" aria-label="Close founder tribute" title="Close founder tribute (Esc)">✕ Close</button>
+      <button type="button" class="founder-modal-close" id="closeFounderModal" aria-label="Close founder tribute" title="Close founder tribute (Esc)">✕ Close</button>
       <div class="founder-decorations" aria-hidden="true">
         <span class="founder-sparkle s1">✦</span>
         <span class="founder-sparkle s2">★</span>
@@ -894,7 +1308,7 @@
       <div class="founder-modal-header">
         <div class="founder-avatar-wrap">
           <div class="founder-avatar-hologram">
-            <span class="founder-monogram">JS</span>
+            <img class="founder-dp-img" src="/assets/aistudio/file_0000000042c481f89831c00e631cf5c5_1758ac90.png" alt="J.Sanjay display picture" loading="eager" decoding="async">
           </div>
           <div class="founder-ring-pulse"></div>
         </div>
@@ -973,7 +1387,7 @@
       <div class="welcome-prompt-icon" aria-hidden="true">💡</div>
       <div class="welcome-prompt-text">
         <strong class="welcome-prompt-title">New to Nemo Chemistry?</strong>
-        <p class="welcome-prompt-desc">Take a quick 1-minute interactive tutorial to discover 3D molecules, PYQs, and chemistry tools.</p>
+        <p class="welcome-prompt-desc">Take a quick interactive tour to explore 3D molecules, 2D study diagrams, flashcards, PYQs &amp; SelfStudys portals.</p>
       </div>
     </div>
     <div class="welcome-prompt-actions">
@@ -983,7 +1397,7 @@
   </div>
 
   <!-- Interactive Step-by-Step Spotlight Feature Tour -->
-  <div id="appSpotlightTour" class="spotlight-tour" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="tourStepTitle">
+  <div id="appSpotlightTour" class="spotlight-tour" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="tourStepTitle" hidden>
     <div class="spotlight-backdrop" id="tourBackdrop"></div>
 
     <!-- Spotlight Cutout with Animated Glow Border, Corners & Target Tag -->
@@ -999,7 +1413,7 @@
     <div class="spotlight-card" id="tourCard" role="document">
       <div class="tour-card-header">
         <div class="tour-step-indicator">
-          <span class="tour-step-pill" id="tourStepBadge">Step 1 of 8</span>
+          <span class="tour-step-pill" id="tourStepBadge">Step 1 of 10</span>
           <span class="tour-feature-cat" id="tourCategory">AI TUTOR</span>
         </div>
         <button class="tour-close-btn" id="tourCloseBtn" type="button" aria-label="Skip and exit tour" title="Skip tour (Esc)">✕</button>
@@ -1030,7 +1444,7 @@
 
       <div class="tour-card-footer">
         <div class="tour-dots-row" id="tourDotsList" role="tablist" aria-label="Tour step selector">
-          <!-- 8 step dots rendered here -->
+          <!-- Step dots rendered dynamically -->
         </div>
 
         <div class="tour-btn-row">
@@ -1042,6 +1456,27 @@
 
       <!-- Arrow Pointer connecting card to cutout -->
       <div class="tour-arrow" id="tourArrow" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <!-- Study Diagram Lightbox Modal -->
+  <div id="diagramLightbox" class="diagram-lightbox" role="dialog" aria-modal="true" aria-labelledby="diagramLightboxTitle" hidden>
+    <div class="diagram-lightbox-card">
+      <div class="diagram-lightbox-head">
+        <div class="diagram-lightbox-title-wrap">
+          <span class="diagram-lightbox-badge">STUDY DIAGRAM</span>
+          <strong id="diagramLightboxTitle">Chemistry Mechanism Diagram</strong>
+        </div>
+        <div class="diagram-lightbox-actions">
+          <button type="button" class="outline-btn" id="diagramLightboxDownload">⇩ Download PNG</button>
+          <button type="button" class="diagram-lightbox-close" id="diagramLightboxClose" aria-label="Close diagram preview">✕ Close</button>
+        </div>
+      </div>
+      <div class="diagram-lightbox-body">
+        <img id="diagramLightboxImg" alt="Chemistry study diagram" referrerpolicy="no-referrer" />
+      </div>
+      <div class="diagram-lightbox-latex" id="diagramLightboxLatex" hidden></div>
+      <p class="diagram-lightbox-caption" id="diagramLightboxCaption" hidden></p>
     </div>
   </div>
 

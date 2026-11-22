@@ -27,9 +27,9 @@ const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "";
 const GEMINI_BASE = (process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta").replace(/\/+$/, "");
 const ANTHROPIC_BASE = (process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "");
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-/* Gemini 3.8 Flash reasoning models with approved fallbacks */
-const GEMINI_FALLBACKS = ["gemini-3.8-flash", "gemini-flash-latest", "gemini-3.1-flash-lite"];
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-4-hydrogen";
+/* Approved free-tier Gemini models */
+const GEMINI_FALLBACKS = ["gemini-4-hydrogen", "gemini-3.1-flash-lite"];
 const ANTHROPIC_MODEL = process.env.NEMO_MODEL || "claude-sonnet-5-5";
 const wanted = (process.env.NEMO_PROVIDER || "").toLowerCase();
 const PROVIDER = wanted === "anthropic" && ANTHROPIC_KEY ? "anthropic" : wanted === "gemini" && GEMINI_KEY ? "gemini" : GEMINI_KEY ? "gemini" : ANTHROPIC_KEY ? "anthropic" : null;
@@ -44,10 +44,13 @@ const FILES = {
   "/lib-physical.js": ["lib-physical.js", JS], "/lib-inorganic.js": ["lib-inorganic.js", JS],
   "/lib-organic.js": ["lib-organic.js", JS], "/lib-organic2.js": ["lib-organic2.js", JS],
   "/system-prompt.js": ["system-prompt.js", JS], "/lib-practical.js": ["lib-practical.js", JS],
+  "/periodic-data.js": ["periodic-data.js", JS], "/chemfig.js": ["chemfig.js", JS],
   "/pyq_template.json": ["pyq_template.json", "application/json; charset=utf-8"]
 };
 const chatHandler = require("./api/chat.js");
 const healthHandler = require("./api/health.js");
+const diagramHandler = require("./api/generate-diagram.js");
+const ttsHandler = require("./api/tts.js");
 /* the tutor instruction lives in system-prompt.js (shared with the browser build); body.level picks the exam tier */
 const PROMPT = require("./system-prompt.js");
 
@@ -57,6 +60,24 @@ const server = http.createServer((req, res) => {
   const url = (req.url || "/").split("?")[0];
   if (url === "/favicon.ico") { res.writeHead(204); return res.end(); }
   if (url === "/api/health") return healthHandler(req, res);
+  if (url === "/api/tts") {
+    return ttsHandler(req, res).catch((e) => {
+      console.error("server.js ttsHandler error:", e);
+      if (!res.headersSent) {
+        res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ error: "TTS server error." }));
+      }
+    });
+  }
+  if (url === "/api/generate-diagram") {
+    return diagramHandler(req, res).catch((e) => {
+      console.error("server.js diagramHandler error:", e);
+      if (!res.headersSent) {
+        res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ error: "Diagram server error." }));
+      }
+    });
+  }
   if (url === "/api/chat") {
     return chatHandler(req, res).catch((e) => {
       console.error("server.js chatHandler error:", e);
@@ -92,6 +113,33 @@ const server = http.createServer((req, res) => {
       });
     }
   }
+  if (isGetOrHead && (url.startsWith("/assets/") || url.startsWith("/public/assets/"))) {
+    const relFromAssets = url.replace(/^\/(?:public\/)?assets\/+/, "");
+    const safeRel = path.normalize(relFromAssets).replace(/^(\.\.[\/\\])+/, "");
+    const assetsRoot = path.join(ROOT, "public", "assets");
+    const fullPath = path.join(assetsRoot, safeRel);
+    if (fullPath === assetsRoot || fullPath.startsWith(assetsRoot + path.sep)) {
+      const ext = path.extname(fullPath).toLowerCase();
+      const imgMimes = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
+        ".svg": "image/svg+xml",
+        ".ico": "image/x-icon"
+      };
+      return fs.readFile(fullPath, (err, buf) => {
+        if (err) {
+          res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+          return res.end(req.method === "HEAD" ? undefined : "Not found");
+        }
+        res.writeHead(200, { "Content-Type": imgMimes[ext] || "application/octet-stream", "Cache-Control": "public, max-age=86400", "X-Content-Type-Options": "nosniff" });
+        if (req.method === "HEAD") return res.end();
+        res.end(buf);
+      });
+    }
+  }
   if (isGetOrHead && FILES[url]) {
     const [file, type] = FILES[url];
     return fs.readFile(path.join(ROOT, file), (err, buf) => {
@@ -109,4 +157,4 @@ const server = http.createServer((req, res) => {
   res.writeHead(404, { "Content-Type": isJs ? JS : "text/plain; charset=utf-8" });
   res.end(isJs ? "/* 404: not found */" : "Not found");
 });
-server.listen(PORT, HOST, () => console.log(`Nemo running at http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}  (AI enabled: ${PROVIDER || "gemini-flash adaptive intelligence"}, model: ${MODEL || "gemini-2.5-flash"})`));
+server.listen(PORT, HOST, () => console.log(`Nemo running at http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}  (AI enabled: ${PROVIDER || "gemini adaptive intelligence"}, model: ${MODEL || "gemini-4-hydrogen"})`));
